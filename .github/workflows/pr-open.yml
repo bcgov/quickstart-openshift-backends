@@ -53,8 +53,10 @@ jobs:
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        package: [backend-go, backend-java, backend-py, migrations-go, migrations-py]
+        package: [database, backend-go, backend-java, backend-py, migrations-go, migrations-py, frontend]
         include:
+          - package: database
+            repository: bcgov/quickstart-openshift
           - package: backend-go
             triggers: ('backend-go/')
           - package: backend-java
@@ -69,6 +71,8 @@ jobs:
             triggers: ('backend-go/db')
             build_context: ./backend-go/db
             build_file: ./backend-go/db/Dockerfile
+          - package: frontend
+            repository: bcgov/quickstart-openshift
     steps:
       - uses: bcgov-nr/action-builder-ghcr@v1.2.1
         with:
@@ -79,6 +83,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           build_context: ${{ matrix.build_context }}
           build_file: ${{ matrix.build_file }}
+          repository: ${{ matrix.repository }}
 
   # https://github.com/bcgov-nr/action-deployer-openshift
   deploys:
