@@ -196,13 +196,7 @@ jobs:
       packages: write
     strategy:
       matrix:
-        component:
-          - backend
-          - database
-          - frontend
-          - backend-py
-          - backend-java
-          - backend-go
+        component: [backend-py, backend-java, backend-go]
     steps:
       - uses: shrink/actions-docker-registry-tag@v3
         with:
