@@ -10,9 +10,6 @@ concurrency:
   group: pr-${{ github.workflow }}-${{ github.event.number }}
   cancel-in-progress: true
 
-env:
-  repo_quickstart: bcgov/quickstart-openshift
-
 jobs:
   pr-greeting:
     if: "!github.event.pull_request.head.repo.fork"
@@ -103,11 +100,11 @@ jobs:
           - name: init
             file: common/openshift.init.yml
             overwrite: false
-            repository: ${{ env.repo_quickstart }}
+            repository: bcgov/quickstart-openshift
           - name: database
             file: database/openshift.deploy.yml
             overwrite: false
-            repository: ${{ env.repo_quickstart }}
+            repository: bcgov/quickstart-openshift
             triggers: ('database/' 'backend/' 'backend-go' 'backend-java' 'backend-py' 'frontend/')
           - name: backend-go
             file: backend-go/openshift.deploy.yml
@@ -130,7 +127,7 @@ jobs:
             file: frontend/openshift.deploy.yml
             overwrite: true
             parameters: -p MIN_REPLICAS=1 -p MAX_REPLICAS=2
-            repository: ${{ env.repo_quickstart }}
+            repository: bcgov/quickstart-openshift
             triggers: ('database/' 'backend/' 'frontend/')
     steps:
       - uses: bcgov-nr/action-deployer-openshift@v1.4.0
