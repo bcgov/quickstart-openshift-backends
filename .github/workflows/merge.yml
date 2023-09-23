@@ -29,30 +29,25 @@ jobs:
             file: database/openshift.deploy.yml
             overwrite: false
             repository: bcgov/quickstart-openshift
-            triggers: ('backend-go' 'backend-java' 'backend-py')
           - name: backend-go
             file: backend-go/openshift.deploy.yml
             overwrite: true
             parameters: -p MIN_REPLICAS=1 -p MAX_REPLICAS=2
               -p PROMOTE_MIGRATION=${{ github.repository }}/migrations-go:test
-            triggers: ('backend-go/')
           - name: backend-java
             file: backend-java/openshift.deploy.yml
             overwrite: true
             parameters: -p MIN_REPLICAS=1 -p MAX_REPLICAS=2
-            triggers: ('backend-java/')
           - name: backend-py
             file: backend-py/openshift.deploy.yml
             overwrite: true
             parameters: -p MIN_REPLICAS=1 -p MAX_REPLICAS=2
               -p PROMOTE_MIGRATION=${{ github.repository }}/migrations-py:test
-            triggers: ('backend-py/')
           - name: frontend
             file: frontend/openshift.deploy.yml
             overwrite: true
             parameters: -p MIN_REPLICAS=1 -p MAX_REPLICAS=2
             repository: bcgov/quickstart-openshift
-            triggers: ('database/' 'backend/' 'frontend/')
     steps:
       - uses: bcgov-nr/action-deployer-openshift@v1.4.0
         with:
@@ -67,7 +62,6 @@ jobs:
             -p PROMOTE=${{ github.repository }}/${{ matrix.name }}:test
             ${{ matrix.parameters }}
           repository: ${{ matrix.repository }}
-          triggers: ${{ matrix.triggers }}
           verification_path: ${{ matrix.verification_path }}
 
   integration-tests:
@@ -146,30 +140,25 @@ jobs:
             file: database/openshift.deploy.yml
             overwrite: false
             repository: bcgov/quickstart-openshift
-            triggers: ('backend-go' 'backend-java' 'backend-py')
           - name: backend-go
             file: backend-go/openshift.deploy.yml
             overwrite: true
             parameters: -p MIN_REPLICAS=1 -p MAX_REPLICAS=2
               -p PROMOTE_MIGRATION=${{ github.repository }}/migrations-go:prod
-            triggers: ('backend-go/')
           - name: backend-java
             file: backend-java/openshift.deploy.yml
             overwrite: true
             parameters: -p MIN_REPLICAS=1 -p MAX_REPLICAS=2
-            triggers: ('backend-java/')
           - name: backend-py
             file: backend-py/openshift.deploy.yml
             overwrite: true
             parameters: -p MIN_REPLICAS=1 -p MAX_REPLICAS=2
               -p PROMOTE_MIGRATION=${{ github.repository }}/migrations-py:prod
-            triggers: ('backend-py/')
           - name: frontend
             file: frontend/openshift.deploy.yml
             overwrite: true
             parameters: -p MIN_REPLICAS=1 -p MAX_REPLICAS=2
             repository: bcgov/quickstart-openshift
-            triggers: ('database/' 'backend/' 'frontend/')
     steps:
       - uses: bcgov-nr/action-deployer-openshift@v1.4.0
         with:
@@ -184,7 +173,6 @@ jobs:
             -p PROMOTE=${{ github.repository }}/${{ matrix.name }}:prod
             ${{ matrix.parameters }}
           repository: ${{ matrix.repository }}
-          triggers: ${{ matrix.triggers }}
           verification_path: ${{ matrix.verification_path }}
 
   image-promotions:
