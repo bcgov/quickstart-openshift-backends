@@ -90,12 +90,8 @@ jobs:
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        package: [init, database, backend-go, backend-java, backend-py, frontend]
+        package: [database, backend-go, backend-java, backend-py, frontend]
         include:
-          - name: init
-            file: common/openshift.init.yml
-            overwrite: false
-            repository: bcgov/quickstart-openshift
           - name: database
             file: database/openshift.deploy.yml
             overwrite: false
