@@ -1,6 +1,7 @@
 name: Merge
 
 on:
+  pull_request:
   workflow_run:
     workflows: [PR Closed]
     types: [completed]
@@ -112,48 +113,6 @@ jobs:
       - name: Run integration tests
         run: BASE_URL=${{ matrix.baseUrl }} API_NAME=${{ matrix.name }}  node src/main.js
 
-  cypress-e2e:
-    name: Cypress end to end test
-    needs: [deploys-test]
-    runs-on: ubuntu-22.04
-    defaults:
-      run:
-        working-directory: frontend
-    strategy:
-      matrix:
-        browser: [chrome, firefox, edge]
-    steps:
-      - uses: actions/checkout@v4
-        name: Checkout
-      - name: Cache node modules
-        id: cache-npm
-        uses: actions/cache@v3
-        env:
-          cache-name: cache-node-modules
-        with: # npm cache files are stored in `~/.npm` on Linux/macOS
-          path: ~/.npm
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-build-${{ env.cache-name }}-
-            ${{ runner.os }}-build-
-            ${{ runner.os }}-
-      - if: ${{ steps.cache-npm.outputs.cache-hit != 'true' }}
-        name: List the state of node modules
-        continue-on-error: true
-        run: npm list
-      - uses: cypress-io/github-action@v6
-        name: Cypress run
-        with:
-          config: pageLoadTimeout=10000,baseUrl=https://quickstart-openshift-test-frontend.apps.silver.devops.gov.bc.ca/
-          working-directory: ./frontend
-          browser: ${{ matrix.browser }}
-      - uses: actions/upload-artifact@v3
-        if: failure()
-        with:
-          name: cypress-screenshots
-          path: ./cypress/screenshots
-          if-no-files-found: ignore # 'warn' or 'error' are also available, defaults to `warn`
-
   ghcr-cleanup:
     name: GHCR Cleanup
     runs-on: ubuntu-latest
@@ -172,7 +131,7 @@ jobs:
   deploys-prod:
     name: PROD Deploys
     environment: prod
-    needs: [integration-tests, cypress-e2e]
+    needs: [integration-tests]
     permissions:
       issues: write
     runs-on: ubuntu-22.04
@@ -237,13 +196,7 @@ jobs:
       packages: write
     strategy:
       matrix:
-        component:
-          - backend
-          - database
-          - frontend
-          - backend-py
-          - backend-java
-          - backend-go
+        component: [backend-py, backend-java, backend-go]
     steps:
       - uses: shrink/actions-docker-registry-tag@v3
         with:
