@@ -83,9 +83,6 @@ jobs:
   # https://github.com/bcgov-nr/action-deployer-openshift
   deploys:
     name: Deploys
-    env:
-      template: bcgov/quickstart-openshift
-      zone: ${{ github.event.number }}
     if: "!github.event.pull_request.head.repo.fork"
     needs: [builds]
     permissions:
@@ -129,6 +126,9 @@ jobs:
             triggers: ('database/' 'backend/' 'frontend/')
     steps:
       - uses: bcgov-nr/action-deployer-openshift@v1.4.0
+        env:
+          template: bcgov/quickstart-openshift
+          zone: ${{ github.event.number }}
         with:
           file: ${{ matrix.file }}
           oc_namespace: ${{ vars.OC_NAMESPACE }}
