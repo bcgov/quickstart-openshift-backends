@@ -27,11 +27,11 @@ jobs:
           - name: init
             file: common/openshift.init.yml
             overwrite: false
-            repository: ${{ env.template }}
+            repository: bcgov/quickstart-openshift
           - name: database
             file: database/openshift.deploy.yml
             overwrite: false
-            repository: ${{ env.template }}
+            repository: bcgov/quickstart-openshift
             triggers: ('backend-go' 'backend-java' 'backend-py')
           - name: backend-go
             file: backend-go/openshift.deploy.yml
@@ -54,7 +54,7 @@ jobs:
             file: frontend/openshift.deploy.yml
             overwrite: true
             parameters: -p MIN_REPLICAS=1 -p MAX_REPLICAS=2
-            repository: ${{ env.template }}
+            repository: bcgov/quickstart-openshift
             triggers: ('database/' 'backend/' 'frontend/')
     steps:
       - uses: bcgov-nr/action-deployer-openshift@v1.4.0
@@ -189,11 +189,11 @@ jobs:
           - name: init
             file: common/openshift.init.yml
             overwrite: false
-            repository: ${{ env.template }}
+            repository: bcgov/quickstart-openshift
           - name: database
             file: database/openshift.deploy.yml
             overwrite: false
-            repository: ${{ env.template }}
+            repository: bcgov/quickstart-openshift
             triggers: ('backend-go' 'backend-java' 'backend-py')
           - name: backend-go
             file: backend-go/openshift.deploy.yml
@@ -216,7 +216,7 @@ jobs:
             file: frontend/openshift.deploy.yml
             overwrite: true
             parameters: -p MIN_REPLICAS=1 -p MAX_REPLICAS=2
-            repository: ${{ env.template }}
+            repository: bcgov/quickstart-openshift
             triggers: ('database/' 'backend/' 'frontend/')
     steps:
       - uses: bcgov-nr/action-deployer-openshift@v1.4.0
