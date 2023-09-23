@@ -44,104 +44,104 @@ jobs:
             After merge, new images are promoted to:
             - [Main Merge Workflow](https://github.com/${{ github.repository }}/actions/workflows/merge-main.yml)
 
-  # https://github.com/bcgov-nr/action-builder-ghcr
-  builds:
-    name: Builds
-    if: "!github.event.pull_request.head.repo.fork"
-    runs-on: ubuntu-22.04
-    permissions:
-      packages: write
-    strategy:
-      matrix:
-        package: [backend-go, backend-java, backend-py, database-migrations-go, database-migrations-py]
-        include:
-          - package: backend-go
-            triggers: ('backend-go/')
-          - package: backend-java
-            triggers: ('backend-java/')
-          - package: backend-py
-            triggers: ('backend-py/')
-          - package: database-migrations-py
-            triggers: ('backend-py/db')
-            build_context: ./backend-py/db
-            build_file: ./backend-py/db/Dockerfile
-          - package: database-migrations-go
-            triggers: ('backend-go/db')
-            build_context: ./backend-go/db
-            build_file: ./backend-go/db/Dockerfile
-    steps:
-      - uses: actions/checkout@v4
-      - uses: bcgov-nr/action-builder-ghcr@v1.2.1
-        with:
-          package: ${{ matrix.package }}
-          tag: ${{ github.event.number }}
-          tag_fallback: test
-          token: ${{ secrets.GITHUB_TOKEN }}
-          triggers: ${{ matrix.triggers }}
-          build_context: ${{ matrix.build_context }}
-          build_file: ${{ matrix.build_file }}
+  # # https://github.com/bcgov-nr/action-builder-ghcr
+  # builds:
+  #   name: Builds
+  #   if: "!github.event.pull_request.head.repo.fork"
+  #   runs-on: ubuntu-22.04
+  #   permissions:
+  #     packages: write
+  #   strategy:
+  #     matrix:
+  #       package: [backend-go, backend-java, backend-py, database-migrations-go, database-migrations-py]
+  #       include:
+  #         - package: backend-go
+  #           triggers: ('backend-go/')
+  #         - package: backend-java
+  #           triggers: ('backend-java/')
+  #         - package: backend-py
+  #           triggers: ('backend-py/')
+  #         - package: database-migrations-py
+  #           triggers: ('backend-py/db')
+  #           build_context: ./backend-py/db
+  #           build_file: ./backend-py/db/Dockerfile
+  #         - package: database-migrations-go
+  #           triggers: ('backend-go/db')
+  #           build_context: ./backend-go/db
+  #           build_file: ./backend-go/db/Dockerfile
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: bcgov-nr/action-builder-ghcr@v1.2.1
+  #       with:
+  #         package: ${{ matrix.package }}
+  #         tag: ${{ github.event.number }}
+  #         tag_fallback: test
+  #         token: ${{ secrets.GITHUB_TOKEN }}
+  #         triggers: ${{ matrix.triggers }}
+  #         build_context: ${{ matrix.build_context }}
+  #         build_file: ${{ matrix.build_file }}
 
-  # https://github.com/bcgov-nr/action-deployer-openshift
-  deploys:
-    name: Deploys
-    if: "!github.event.pull_request.head.repo.fork"
-    needs: [builds]
-    runs-on: ubuntu-22.04
-    strategy:
-      matrix:
-        package:
-          - init
-          - database
-          - backend-py
-          - backend-java
-          - backend-go
-          - frontend
-        include:
-          - name: init
-            file: common/openshift.init.yml
-            overwrite: false
-            repository: bcgov/quickstart-openshift
-          - name: database
-            file: database/openshift.deploy.yml
-            overwrite: false
-            repository: bcgov/quickstart-openshift
-            triggers: ('database/' 'backend/' 'backend-go' 'backend-java' 'backend-py' 'frontend/')
-          - name: backend-go
-            file: backend-go/openshift.deploy.yml
-            overwrite: true
-            parameters: -p MIN_REPLICAS=1 -p MAX_REPLICAS=2
-              -p PROMOTE_MIGRATION=${{ github.repository }}/database-migrations-go:${{ github.event.number }}
-          - name: backend-java
-            file: backend-java/openshift.deploy.yml
-            overwrite: true
-            parameters: -p MIN_REPLICAS=1 -p MAX_REPLICAS=2
-            triggers: ('backend-java/')
-            triggers: ('backend-go/')
-          - name: backend-py
-            file: backend-py/openshift.deploy.yml
-            overwrite: true
-            parameters: -p MIN_REPLICAS=1 -p MAX_REPLICAS=2
-              -p PROMOTE_MIGRATION=${{ github.repository }}/database-migrations-py:${{ github.event.number }}
-            triggers: ('backend-py/')
-          - name: frontend
-            file: frontend/openshift.deploy.yml
-            overwrite: true
-            parameters: -p MIN_REPLICAS=1 -p MAX_REPLICAS=2
-            repository: bcgov/quickstart-openshift
-            triggers: ('database/' 'backend/' 'frontend/')
-    steps:
-      - uses: bcgov-nr/action-deployer-openshift@v1.4.0
-        with:
-          file: ${{ matrix.file }}
-          oc_namespace: ${{ vars.OC_NAMESPACE }}
-          oc_server: ${{ vars.OC_SERVER }}
-          oc_token: ${{ secrets.OC_TOKEN }}
-          overwrite: ${{ matrix.overwrite }}
-          penetration_test: false
-          parameters:
-            -p ZONE=${{ github.event.number }} -p NAME=${{ github.event.repository.name }}
-            -p PROMOTE=${{ github.repository }}/${{ matrix.name }}:${{ github.event.number }}
-            ${{ matrix.parameters }}
-          repository: ${{ matrix.repository }}
-          triggers: ${{ matrix.triggers }}
-          verification_path: ${{ matrix.verification_path }}
+  # # https://github.com/bcgov-nr/action-deployer-openshift
+  # deploys:
+  #   name: Deploys
+  #   if: "!github.event.pull_request.head.repo.fork"
+  #   needs: [builds]
+  #   runs-on: ubuntu-22.04
+  #   strategy:
+  #     matrix:
+  #       package:
+  #         - init
+  #         - database
+  #         - backend-py
+  #         - backend-java
+  #         - backend-go
+  #         - frontend
+  #       include:
+  #         - name: init
+  #           file: common/openshift.init.yml
+  #           overwrite: false
+  #           repository: bcgov/quickstart-openshift
+  #         - name: database
+  #           file: database/openshift.deploy.yml
+  #           overwrite: false
+  #           repository: bcgov/quickstart-openshift
+  #           triggers: ('database/' 'backend/' 'backend-go' 'backend-java' 'backend-py' 'frontend/')
+  #         - name: backend-go
+  #           file: backend-go/openshift.deploy.yml
+  #           overwrite: true
+  #           parameters: -p MIN_REPLICAS=1 -p MAX_REPLICAS=2
+  #             -p PROMOTE_MIGRATION=${{ github.repository }}/database-migrations-go:${{ github.event.number }}
+  #         - name: backend-java
+  #           file: backend-java/openshift.deploy.yml
+  #           overwrite: true
+  #           parameters: -p MIN_REPLICAS=1 -p MAX_REPLICAS=2
+  #           triggers: ('backend-java/')
+  #           triggers: ('backend-go/')
+  #         - name: backend-py
+  #           file: backend-py/openshift.deploy.yml
+  #           overwrite: true
+  #           parameters: -p MIN_REPLICAS=1 -p MAX_REPLICAS=2
+  #             -p PROMOTE_MIGRATION=${{ github.repository }}/database-migrations-py:${{ github.event.number }}
+  #           triggers: ('backend-py/')
+  #         - name: frontend
+  #           file: frontend/openshift.deploy.yml
+  #           overwrite: true
+  #           parameters: -p MIN_REPLICAS=1 -p MAX_REPLICAS=2
+  #           repository: bcgov/quickstart-openshift
+  #           triggers: ('database/' 'backend/' 'frontend/')
+  #   steps:
+  #     - uses: bcgov-nr/action-deployer-openshift@v1.4.0
+  #       with:
+  #         file: ${{ matrix.file }}
+  #         oc_namespace: ${{ vars.OC_NAMESPACE }}
+  #         oc_server: ${{ vars.OC_SERVER }}
+  #         oc_token: ${{ secrets.OC_TOKEN }}
+  #         overwrite: ${{ matrix.overwrite }}
+  #         penetration_test: false
+  #         parameters:
+  #           -p ZONE=${{ github.event.number }} -p NAME=${{ github.event.repository.name }}
+  #           -p PROMOTE=${{ github.repository }}/${{ matrix.name }}:${{ github.event.number }}
+  #           ${{ matrix.parameters }}
+  #         repository: ${{ matrix.repository }}
+  #         triggers: ${{ matrix.triggers }}
+  #         verification_path: ${{ matrix.verification_path }}
