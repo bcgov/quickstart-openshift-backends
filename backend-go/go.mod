@@ -1,4 +1,4 @@
-module github.com/bcgov/quickstart-openshift/backend-go
+module github.com/bcgov/quickstart-openshift-backends/backend-go
 
 go 1.21
 

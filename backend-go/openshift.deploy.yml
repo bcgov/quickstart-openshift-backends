@@ -3,7 +3,7 @@ kind: Template
 parameters:
   - name: NAME
     description: Module name
-    value: quickstart-openshift
+    value: quickstart-openshift-backends
   - name: COMPONENT
     description: Component name
     value: backend-go
@@ -45,10 +45,10 @@ parameters:
     value: bcgov
   - name: PROMOTE
     description: Image (namespace/name:tag) to promote/import
-    value: bcgov/quickstart-openshift/backend-go:test
+    value: bcgov/quickstart-openshift-backends/backend-go:test
   - name: PROMOTE_MIGRATION
     description: Image (namespace/name:tag) for migration to promote/import
-    value: bcgov/quickstart-openshift/migrations-go:test
+    value: bcgov/quickstart-openshift-backends/migrations-go:test
   - name: COMPONENT_DB_MIGRATION
     description: Component name for database migrations
     value: migrations-go
