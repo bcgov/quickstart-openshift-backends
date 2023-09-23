@@ -44,42 +44,41 @@ jobs:
             After merge, new images are promoted to:
             - [Main Merge Workflow](https://github.com/${{ github.repository }}/actions/workflows/merge-main.yml)
 
-  # # https://github.com/bcgov-nr/action-builder-ghcr
-  # builds:
-  #   name: Builds
-  #   if: "!github.event.pull_request.head.repo.fork"
-  #   runs-on: ubuntu-22.04
-  #   permissions:
-  #     packages: write
-  #   strategy:
-  #     matrix:
-  #       package: [backend-go, backend-java, backend-py, database-migrations-go, database-migrations-py]
-  #       include:
-  #         - package: backend-go
-  #           triggers: ('backend-go/')
-  #         - package: backend-java
-  #           triggers: ('backend-java/')
-  #         - package: backend-py
-  #           triggers: ('backend-py/')
-  #         - package: database-migrations-py
-  #           triggers: ('backend-py/db')
-  #           build_context: ./backend-py/db
-  #           build_file: ./backend-py/db/Dockerfile
-  #         - package: database-migrations-go
-  #           triggers: ('backend-go/db')
-  #           build_context: ./backend-go/db
-  #           build_file: ./backend-go/db/Dockerfile
-  #   steps:
-  #     - uses: actions/checkout@v4
-  #     - uses: bcgov-nr/action-builder-ghcr@v1.2.1
-  #       with:
-  #         package: ${{ matrix.package }}
-  #         tag: ${{ github.event.number }}
-  #         tag_fallback: test
-  #         token: ${{ secrets.GITHUB_TOKEN }}
-  #         triggers: ${{ matrix.triggers }}
-  #         build_context: ${{ matrix.build_context }}
-  #         build_file: ${{ matrix.build_file }}
+  # https://github.com/bcgov-nr/action-builder-ghcr
+  builds:
+    name: Builds
+    if: "!github.event.pull_request.head.repo.fork"
+    runs-on: ubuntu-22.04
+    permissions:
+      packages: write
+    strategy:
+      matrix:
+        package: [backend-go, backend-java, backend-py, database-migrations-go, database-migrations-py]
+        include:
+          - package: backend-go
+            triggers: ('backend-go/')
+          - package: backend-java
+            triggers: ('backend-java/')
+          - package: backend-py
+            triggers: ('backend-py/')
+          - package: database-migrations-py
+            triggers: ('backend-py/db')
+            build_context: ./backend-py/db
+            build_file: ./backend-py/db/Dockerfile
+          - package: database-migrations-go
+            triggers: ('backend-go/db')
+            build_context: ./backend-go/db
+            build_file: ./backend-go/db/Dockerfile
+    steps:
+      - uses: bcgov-nr/action-builder-ghcr@v1.2.1
+        with:
+          package: ${{ matrix.package }}
+          triggers: ${{ matrix.triggers }}
+          tag: ${{ github.event.number }}
+          tag_fallback: test
+          token: ${{ secrets.GITHUB_TOKEN }}
+          build_context: ${{ matrix.build_context }}
+          build_file: ${{ matrix.build_file }}
 
   # # https://github.com/bcgov-nr/action-deployer-openshift
   # deploys:
