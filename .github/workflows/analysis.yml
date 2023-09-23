@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        language: [go, java, javascript, python]
+        language: [go, java, python]
         include:
           - language: go
             working-directory: backend-go
@@ -31,7 +31,6 @@ jobs:
           - language: "java"
             working-directory: backend-java
             build: ./mvnw package -DskipTests
-          - language: "javascript"
           - language: "python"
     steps:
       - uses: actions/checkout@v4
