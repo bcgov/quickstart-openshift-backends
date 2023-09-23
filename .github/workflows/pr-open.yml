@@ -90,12 +90,8 @@ jobs:
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        package: [init, database, backend-go, backend-java, backend-py, frontend]
+        name: [database, backend-go, backend-java, backend-py, frontend]
         include:
-          - name: init
-            file: common/openshift.init.yml
-            overwrite: false
-            repository: bcgov/quickstart-openshift
           - name: database
             file: database/openshift.deploy.yml
             overwrite: false
@@ -132,7 +128,6 @@ jobs:
           oc_server: ${{ vars.OC_SERVER }}
           oc_token: ${{ secrets.OC_TOKEN }}
           overwrite: ${{ matrix.overwrite }}
-          penetration_test: false
           parameters:
             -p ZONE=${{ github.event.number }} -p NAME=${{ github.event.repository.name }}
             -p PROMOTE=${{ github.repository }}/${{ matrix.name }}:${{ github.event.number }}
