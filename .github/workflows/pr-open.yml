@@ -83,9 +83,6 @@ jobs:
   # https://github.com/bcgov-nr/action-deployer-openshift
   deploys:
     name: Deploys
-    env:
-      repo_template: bcgov/quickstart-openshift
-      zone: ${{ github.event.number }}
     if: "!github.event.pull_request.head.repo.fork"
     needs: [builds]
     permissions:
@@ -98,17 +95,17 @@ jobs:
           - name: init
             file: common/openshift.init.yml
             overwrite: false
-            repository: ${{ env.repo_template }}
+            repository: bcgov/quickstart-openshift
           - name: database
             file: database/openshift.deploy.yml
             overwrite: false
-            repository: ${{ env.repo_template }}
+            repository: bcgov/quickstart-openshift
             triggers: ('backend-go' 'backend-java' 'backend-py')
           - name: backend-go
             file: backend-go/openshift.deploy.yml
             overwrite: true
             parameters: -p MIN_REPLICAS=1 -p MAX_REPLICAS=2
-              -p PROMOTE_MIGRATION=${{ github.repository }}/migrations-go:${{ env.zone }}
+              -p PROMOTE_MIGRATION=${{ github.repository }}/migrations-go:${{ github.event.number }}
             triggers: ('backend-go/')
           - name: backend-java
             file: backend-java/openshift.deploy.yml
@@ -119,13 +116,13 @@ jobs:
             file: backend-py/openshift.deploy.yml
             overwrite: true
             parameters: -p MIN_REPLICAS=1 -p MAX_REPLICAS=2
-              -p PROMOTE_MIGRATION=${{ github.repository }}/migrations-py:${{ env.zone }}
+              -p PROMOTE_MIGRATION=${{ github.repository }}/migrations-py:${{ github.event.number }}
             triggers: ('backend-py/')
           - name: frontend
             file: frontend/openshift.deploy.yml
             overwrite: true
             parameters: -p MIN_REPLICAS=1 -p MAX_REPLICAS=2
-            repository: ${{ env.repo_template }}
+            repository: bcgov/quickstart-openshift
             triggers: ('database/' 'backend/' 'frontend/')
     steps:
       - uses: bcgov-nr/action-deployer-openshift@v1.4.0
@@ -137,8 +134,8 @@ jobs:
           overwrite: ${{ matrix.overwrite }}
           penetration_test: false
           parameters:
-            -p ZONE=${{ env.zone }} -p NAME=${{ github.event.repository.name }}
-            -p PROMOTE=${{ github.repository }}/${{ matrix.name }}:${{ env.zone }}
+            -p ZONE=${{ github.event.number }} -p NAME=${{ github.event.repository.name }}
+            -p PROMOTE=${{ github.repository }}/${{ matrix.name }}:${{ github.event.number }}
             ${{ matrix.parameters }}
           repository: ${{ matrix.repository }}
           triggers: ${{ matrix.triggers }}
