@@ -13,46 +13,49 @@ concurrency:
 jobs:
   deploys-test:
     name: TEST Deploys
+    env:
+      repo_template: bcgov/quickstart-openshift
+      zone: test
     environment: test
-    runs-on: ubuntu-22.04
     permissions:
       issues: write
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
-        name:
-          - init
-          - database
-          - backend
-          - backend-go
-          - backend-java
-          - backend-py
-          - frontend
+        package: [init, database, backend-go, backend-java, backend-py, frontend]
         include:
           - name: init
             file: common/openshift.init.yml
             overwrite: false
+            repository: ${{ env.repo_template }}
           - name: database
             file: database/openshift.deploy.yml
             overwrite: false
-          - name: backend
-            file: backend/openshift.deploy.yml
-            parameters: -p PROMOTE_MIGRATION=${{ github.repository }}/database-migrations:test
-            overwrite: true
-            verification_path: /api
+            repository: ${{ env.repo_template }}
+            triggers: ('backend-go' 'backend-java' 'backend-py')
           - name: backend-go
             file: backend-go/openshift.deploy.yml
             overwrite: true
-            parameters: -p PROMOTE_MIGRATION=${{ github.repository }}/database-migrations-go:test
+            parameters: -p MIN_REPLICAS=1 -p MAX_REPLICAS=2
+              -p PROMOTE_MIGRATION=${{ github.repository }}/migrations-go:${{ env.zone }}
+            triggers: ('backend-go/')
           - name: backend-java
             file: backend-java/openshift.deploy.yml
             overwrite: true
+            parameters: -p MIN_REPLICAS=1 -p MAX_REPLICAS=2
+            triggers: ('backend-java/')
           - name: backend-py
             file: backend-py/openshift.deploy.yml
             overwrite: true
-            parameters: -p PROMOTE_MIGRATION=${{ github.repository }}/database-migrations-py:test
+            parameters: -p MIN_REPLICAS=1 -p MAX_REPLICAS=2
+              -p PROMOTE_MIGRATION=${{ github.repository }}/migrations-py:${{ env.zone }}
+            triggers: ('backend-py/')
           - name: frontend
             file: frontend/openshift.deploy.yml
             overwrite: true
+            parameters: -p MIN_REPLICAS=1 -p MAX_REPLICAS=2
+            repository: ${{ env.repo_template }}
+            triggers: ('database/' 'backend/' 'frontend/')
     steps:
       - uses: bcgov-nr/action-deployer-openshift@v1.4.0
         with:
@@ -61,13 +64,13 @@ jobs:
           oc_server: ${{ vars.OC_SERVER }}
           oc_token: ${{ secrets.OC_TOKEN }}
           overwrite: ${{ matrix.overwrite }}
+          penetration_test: false
           parameters:
-            -p ZONE=test -p PROMOTE=${{ github.repository }}/${{ matrix.name }}:test
-            -p NAME=${{ github.event.repository.name }} ${{ matrix.parameters }}
-          penetration_test: true
-          penetration_test_artifact: ${{ matrix.name }}
-          penetration_test_issue: ${{ matrix.name }}
-          penetration_test_token: ${{ secrets.GITHUB_TOKEN }}
+            -p ZONE=${{ env.zone }} -p NAME=${{ github.event.repository.name }}
+            -p PROMOTE=${{ github.repository }}/${{ matrix.name }}:${{ env.zone }}
+            ${{ matrix.parameters }}
+          repository: ${{ matrix.repository }}
+          triggers: ${{ matrix.triggers }}
           verification_path: ${{ matrix.verification_path }}
 
   integration-tests:
@@ -79,12 +82,10 @@ jobs:
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        name: [quarkus, nest, fiber, fastapi]
+        name: [quarkus, fiber, fastapi]
         include:
           - name: quarkus
             baseUrl: https://quickstart-openshift-test-backend-java.apps.silver.devops.gov.bc.ca
-          - name: nest
-            baseUrl: https://quickstart-openshift-test-backend.apps.silver.devops.gov.bc.ca
           - name: fiber
             baseUrl: https://quickstart-openshift-test-backend-go.apps.silver.devops.gov.bc.ca
           - name: fastapi
@@ -161,16 +162,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        name:
-          - frontend
-          - backend
-          - backend-go
-          - backend-py
-          - backend-java
-          - database
-          - database-migrations
-          - database-migrations-go
-          - database-migrations-py
+        name: [backend-go, backend-py, backend-java, migrations-go, migrations-py]
     steps:
       - name: Keep last 50
         uses: actions/delete-package-versions@v4
@@ -182,46 +174,50 @@ jobs:
 
   deploys-prod:
     name: PROD Deploys
-    needs: [integration-tests, cypress-e2e]
+    env:
+      repo_template: bcgov/quickstart-openshift
+      zone: prod
     environment: prod
+    needs: [integration-tests, cypress-e2e]
+    permissions:
+      issues: write
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        name:
-          - backend
-          - database
-          - frontend
-          - init
-          - backend-py
-          - backend-java
-          - backend-go
+        package: [init, database, backend-go, backend-java, backend-py, frontend]
         include:
-          - name: backend
-            file: backend/openshift.deploy.yml
-            parameters: -p PROMOTE_MIGRATION=${{ github.repository }}/database-migrations:test
-            overwrite: true
-            verification_path: /api
-          - name: database
-            file: database/openshift.deploy.yml
-            overwrite: false
-          - name: frontend
-            file: frontend/openshift.deploy.yml
-            overwrite: true
           - name: init
             file: common/openshift.init.yml
             overwrite: false
-          - name: backend-py
-            file: backend-py/openshift.deploy.yml
-            overwrite: true
-            parameters: -p PROMOTE_MIGRATION=${{ github.repository }}/database-migrations-py:test
-          - name: backend-java
-            file: backend-java/openshift.deploy.yml
-            overwrite: true
+            repository: ${{ env.repo_template }}
+          - name: database
+            file: database/openshift.deploy.yml
+            overwrite: false
+            repository: ${{ env.repo_template }}
+            triggers: ('backend-go' 'backend-java' 'backend-py')
           - name: backend-go
             file: backend-go/openshift.deploy.yml
             overwrite: true
-            parameters: -p PROMOTE_MIGRATION=${{ github.repository }}/database-migrations-go:test
-
+            parameters: -p MIN_REPLICAS=1 -p MAX_REPLICAS=2
+              -p PROMOTE_MIGRATION=${{ github.repository }}/migrations-go:${{ env.zone }}
+            triggers: ('backend-go/')
+          - name: backend-java
+            file: backend-java/openshift.deploy.yml
+            overwrite: true
+            parameters: -p MIN_REPLICAS=1 -p MAX_REPLICAS=2
+            triggers: ('backend-java/')
+          - name: backend-py
+            file: backend-py/openshift.deploy.yml
+            overwrite: true
+            parameters: -p MIN_REPLICAS=1 -p MAX_REPLICAS=2
+              -p PROMOTE_MIGRATION=${{ github.repository }}/migrations-py:${{ env.zone }}
+            triggers: ('backend-py/')
+          - name: frontend
+            file: frontend/openshift.deploy.yml
+            overwrite: true
+            parameters: -p MIN_REPLICAS=1 -p MAX_REPLICAS=2
+            repository: ${{ env.repo_template }}
+            triggers: ('database/' 'backend/' 'frontend/')
     steps:
       - uses: bcgov-nr/action-deployer-openshift@v1.4.0
         with:
@@ -230,10 +226,13 @@ jobs:
           oc_server: ${{ vars.OC_SERVER }}
           oc_token: ${{ secrets.OC_TOKEN }}
           overwrite: ${{ matrix.overwrite }}
-          parameters:
-            -p ZONE=prod -p PROMOTE=${{ github.repository }}/${{ matrix.name }}:test
-            -p NAME=${{ github.event.repository.name }} ${{ matrix.parameters }}
           penetration_test: false
+          parameters:
+            -p ZONE=${{ env.zone }} -p NAME=${{ github.event.repository.name }}
+            -p PROMOTE=${{ github.repository }}/${{ matrix.name }}:${{ env.zone }}
+            ${{ matrix.parameters }}
+          repository: ${{ matrix.repository }}
+          triggers: ${{ matrix.triggers }}
           verification_path: ${{ matrix.verification_path }}
 
   image-promotions:

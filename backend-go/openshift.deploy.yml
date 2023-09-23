@@ -48,10 +48,10 @@ parameters:
     value: bcgov/quickstart-openshift/backend-go:test
   - name: PROMOTE_MIGRATION
     description: Image (namespace/name:tag) for migration to promote/import
-    value: bcgov/quickstart-openshift/database-migrations-go:test
+    value: bcgov/quickstart-openshift/migrations-go:test
   - name: COMPONENT_DB_MIGRATION
     description: Component name for database migrations
-    value: database-migrations-go
+    value: migrations-go
 objects:
   - apiVersion: v1
     kind: ImageStream

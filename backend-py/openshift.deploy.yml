@@ -48,10 +48,10 @@ parameters:
     value: bcgov/quickstart-openshift/backend-py:test
   - name: PROMOTE_MIGRATION
     description: Image (namespace/name:tag) for migration to promote/import
-    value: bcgov/quickstart-openshift/database-migrations-py:test
+    value: bcgov/quickstart-openshift/migrations-py:test
   - name: COMPONENT_DB_MIGRATION
     description: Component name for database migrations
-    value: database-migrations-py
+    value: migrations-py
 objects:
   - apiVersion: v1
     kind: ConfigMap

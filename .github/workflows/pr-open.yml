@@ -48,12 +48,12 @@ jobs:
   builds:
     name: Builds
     if: "!github.event.pull_request.head.repo.fork"
-    runs-on: ubuntu-22.04
     permissions:
       packages: write
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
-        package: [backend-go, backend-java, backend-py, database-migrations-go, database-migrations-py]
+        package: [backend-go, backend-java, backend-py, migrations-go, migrations-py]
         include:
           - package: backend-go
             triggers: ('backend-go/')
@@ -61,11 +61,11 @@ jobs:
             triggers: ('backend-java/')
           - package: backend-py
             triggers: ('backend-py/')
-          - package: database-migrations-py
+          - package: migrations-py
             triggers: ('backend-py/db')
             build_context: ./backend-py/db
             build_file: ./backend-py/db/Dockerfile
-          - package: database-migrations-go
+          - package: migrations-go
             triggers: ('backend-go/db')
             build_context: ./backend-go/db
             build_file: ./backend-go/db/Dockerfile
@@ -83,33 +83,32 @@ jobs:
   # https://github.com/bcgov-nr/action-deployer-openshift
   deploys:
     name: Deploys
+    env:
+      repo_template: bcgov/quickstart-openshift
+      zone: ${{ github.event.number }}
     if: "!github.event.pull_request.head.repo.fork"
     needs: [builds]
+    permissions:
+      issues: write
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        package:
-          - init
-          - database
-          - backend-go
-          - backend-java
-          - backend-py
-          - frontend
+        package: [init, database, backend-go, backend-java, backend-py, frontend]
         include:
           - name: init
             file: common/openshift.init.yml
             overwrite: false
-            repository: bcgov/quickstart-openshift
+            repository: ${{ env.repo_template }}
           - name: database
             file: database/openshift.deploy.yml
             overwrite: false
-            repository: bcgov/quickstart-openshift
+            repository: ${{ env.repo_template }}
             triggers: ('backend-go' 'backend-java' 'backend-py')
           - name: backend-go
             file: backend-go/openshift.deploy.yml
             overwrite: true
             parameters: -p MIN_REPLICAS=1 -p MAX_REPLICAS=2
-              -p PROMOTE_MIGRATION=${{ github.repository }}/database-migrations-go:${{ github.event.number }}
+              -p PROMOTE_MIGRATION=${{ github.repository }}/migrations-go:${{ env.zone }}
             triggers: ('backend-go/')
           - name: backend-java
             file: backend-java/openshift.deploy.yml
@@ -120,13 +119,13 @@ jobs:
             file: backend-py/openshift.deploy.yml
             overwrite: true
             parameters: -p MIN_REPLICAS=1 -p MAX_REPLICAS=2
-              -p PROMOTE_MIGRATION=${{ github.repository }}/database-migrations-py:${{ github.event.number }}
+              -p PROMOTE_MIGRATION=${{ github.repository }}/migrations-py:${{ env.zone }}
             triggers: ('backend-py/')
           - name: frontend
             file: frontend/openshift.deploy.yml
             overwrite: true
             parameters: -p MIN_REPLICAS=1 -p MAX_REPLICAS=2
-            repository: bcgov/quickstart-openshift
+            repository: ${{ env.repo_template }}
             triggers: ('database/' 'backend/' 'frontend/')
     steps:
       - uses: bcgov-nr/action-deployer-openshift@v1.4.0
@@ -138,8 +137,8 @@ jobs:
           overwrite: ${{ matrix.overwrite }}
           penetration_test: false
           parameters:
-            -p ZONE=${{ github.event.number }} -p NAME=${{ github.event.repository.name }}
-            -p PROMOTE=${{ github.repository }}/${{ matrix.name }}:${{ github.event.number }}
+            -p ZONE=${{ env.zone }} -p NAME=${{ github.event.repository.name }}
+            -p PROMOTE=${{ github.repository }}/${{ matrix.name }}:${{ env.zone }}
             ${{ matrix.parameters }}
           repository: ${{ matrix.repository }}
           triggers: ${{ matrix.triggers }}
