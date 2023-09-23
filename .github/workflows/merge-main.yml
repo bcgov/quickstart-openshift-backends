@@ -14,7 +14,7 @@ jobs:
   deploys-test:
     name: TEST Deploys
     env:
-      repo_template: bcgov/quickstart-openshift
+      template: bcgov/quickstart-openshift
       zone: test
     environment: test
     permissions:
@@ -27,11 +27,11 @@ jobs:
           - name: init
             file: common/openshift.init.yml
             overwrite: false
-            repository: ${{ env.repo_template }}
+            repository: ${{ env.template }}
           - name: database
             file: database/openshift.deploy.yml
             overwrite: false
-            repository: ${{ env.repo_template }}
+            repository: ${{ env.template }}
             triggers: ('backend-go' 'backend-java' 'backend-py')
           - name: backend-go
             file: backend-go/openshift.deploy.yml
@@ -54,7 +54,7 @@ jobs:
             file: frontend/openshift.deploy.yml
             overwrite: true
             parameters: -p MIN_REPLICAS=1 -p MAX_REPLICAS=2
-            repository: ${{ env.repo_template }}
+            repository: ${{ env.template }}
             triggers: ('database/' 'backend/' 'frontend/')
     steps:
       - uses: bcgov-nr/action-deployer-openshift@v1.4.0
@@ -175,7 +175,7 @@ jobs:
   deploys-prod:
     name: PROD Deploys
     env:
-      repo_template: bcgov/quickstart-openshift
+      template: bcgov/quickstart-openshift
       zone: prod
     environment: prod
     needs: [integration-tests, cypress-e2e]
@@ -189,11 +189,11 @@ jobs:
           - name: init
             file: common/openshift.init.yml
             overwrite: false
-            repository: ${{ env.repo_template }}
+            repository: ${{ env.template }}
           - name: database
             file: database/openshift.deploy.yml
             overwrite: false
-            repository: ${{ env.repo_template }}
+            repository: ${{ env.template }}
             triggers: ('backend-go' 'backend-java' 'backend-py')
           - name: backend-go
             file: backend-go/openshift.deploy.yml
@@ -216,7 +216,7 @@ jobs:
             file: frontend/openshift.deploy.yml
             overwrite: true
             parameters: -p MIN_REPLICAS=1 -p MAX_REPLICAS=2
-            repository: ${{ env.repo_template }}
+            repository: ${{ env.template }}
             triggers: ('database/' 'backend/' 'frontend/')
     steps:
       - uses: bcgov-nr/action-deployer-openshift@v1.4.0
