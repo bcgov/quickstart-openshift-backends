@@ -2,7 +2,7 @@ package repositories
 
 import (
 	"errors"
-	"github.com/bcgov/quickstart-openshift/backend-go/src/v1/entities"
+	"github.com/bcgov/quickstart-openshift-backends/backend-go/src/v1/entities"
 	"gorm.io/gorm"
 )
 

@@ -1,7 +1,6 @@
 name: Merge
 
 on:
-  pull_request:
   workflow_run:
     workflows: [PR Closed]
     types: [completed]
@@ -83,11 +82,11 @@ jobs:
         name: [quarkus, fiber, fastapi]
         include:
           - name: quarkus
-            baseUrl: https://quickstart-openshift-test-backend-java.apps.silver.devops.gov.bc.ca
+            baseUrl: https://quickstart-openshift-backends-test-backend-java.apps.silver.devops.gov.bc.ca
           - name: fiber
-            baseUrl: https://quickstart-openshift-test-backend-go.apps.silver.devops.gov.bc.ca
+            baseUrl: https://quickstart-openshift-backends-test-backend-go.apps.silver.devops.gov.bc.ca
           - name: fastapi
-            baseUrl: https://quickstart-openshift-test-backend-py.apps.silver.devops.gov.bc.ca
+            baseUrl: https://quickstart-openshift-backends-test-backend-py.apps.silver.devops.gov.bc.ca
     steps:
       - uses: actions/checkout@v4
         name: Checkout
