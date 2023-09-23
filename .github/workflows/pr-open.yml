@@ -90,7 +90,7 @@ jobs:
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        package: [database, backend-go, backend-java, backend-py, frontend]
+        name: [database, backend-go, backend-java, backend-py, frontend]
         include:
           - name: database
             file: database/openshift.deploy.yml
