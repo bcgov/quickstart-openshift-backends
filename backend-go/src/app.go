@@ -47,12 +47,12 @@ func App() *fiber.App {
 	app.Use(favicon.New())
 	app.Use(recover.New())
 	app.Use(cors.New())
-
+	app.Get("/", HealthCheck)
 	app.Use(logger.New(logger.Config{
 		TimeFormat: "2006-01-02T15:04:05",
 		TimeZone:   "America/Vancouver",
 	}))
-	app.Get("/", HealthCheck)
+	
 	routes.UserRoutes(app)
 	// Serve Swagger documentation
 	app.Get("/swagger/*", swagger.HandlerDefault) // default
