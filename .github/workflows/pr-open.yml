@@ -126,7 +126,7 @@ jobs:
             repository: bcgov/quickstart-openshift
             triggers: ('database/' 'backend/' 'frontend/')
     steps:
-      - uses: bcgov-nr/action-deployer-openshift@v1.4.0
+      - uses: bcgov-nr/action-deployer-openshift@v2.0.0
         with:
           file: ${{ matrix.file }}
           oc_namespace: ${{ vars.OC_NAMESPACE }}
