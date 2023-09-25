@@ -1,14 +1,14 @@
-FROM quay.io/quarkus/ubi-quarkus-native-image:22.3.0-java17 AS build
-COPY --chown=quarkus:quarkus mvnw /code/mvnw
-COPY --chown=quarkus:quarkus .mvn /code/.mvn
-COPY --chown=quarkus:quarkus pom.xml /code/
+FROM quay.io/quarkus/ubi-quarkus-graalvmce-builder-image:22.3.3-java17 AS build
+
 USER quarkus
 WORKDIR /code
-RUN chmod +x mvnw
-RUN ./mvnw -B org.apache.maven.plugins:maven-dependency-plugin:3.1.2:go-offline
+COPY --chown=quarkus:quarkus mvnw pom.xml ./
+COPY --chown=quarkus:quarkus .mvn /code/.mvn
 COPY src /code/src
-RUN ./mvnw package -Pnative -DskipTests
-HEALTHCHECK --interval=300s --timeout=30s CMD ./mvnw --version  || exit 1
+
+RUN ./mvnw -B org.apache.maven.plugins:maven-dependency-plugin:3.1.2:go-offline && \
+    ./mvnw package -Pnative -DskipTests
+
 ###
 FROM quay.io/quarkus/quarkus-micro-image:2.0
 WORKDIR /work/
