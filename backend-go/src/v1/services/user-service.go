@@ -29,16 +29,16 @@ func Init() {
 }
 
 // GetUsers godoc
-// @Summary Get all Users
-// @Description Get all Users
-// @Tags Users
-// @Accept json
-// @Produce json
-// @Success 200 {object} structs.ResponseHTTP{data=[]structs.User}
-// @Failure 404 {object} structs.ResponseHTTP{}
-// @Failure 503 {object} structs.ResponseHTTP{}
-// @Failure 500 {object} structs.ResponseHTTP{}
-// @Router /api/v1/users [get]
+//	@Summary		Get all Users
+//	@Description	Get all Users
+//	@Tags			Users
+//	@Accept			json
+//	@Produce		json
+//	@Success		200	{object}	structs.ResponseHTTP{data=[]structs.User}
+//	@Failure		404	{object}	structs.ResponseHTTP{}
+//	@Failure		503	{object}	structs.ResponseHTTP{}
+//	@Failure		500	{object}	structs.ResponseHTTP{}
+//	@Router			/api/v1/users [get]
 func GetUsers(c *fiber.Ctx) error {
 	d := &[]entities.UserEntity{}
 	err := database.DBConn.Find(&d).Error
@@ -65,17 +65,17 @@ func GetUsers(c *fiber.Ctx) error {
 }
 
 // GetUserById godoc
-// @Summary Get user by ID
-// @Description Get user from the database by ID
-// @Tags Users
-// @Accept json
-// @Produce json
-// @Param id path int true "User ID"
-// @Success 200 {object} structs.ResponseHTTP{data=structs.User}
-// @Failure 404 {object} structs.ResponseHTTP{}
-// @Failure 503 {object} structs.ResponseHTTP{}
-// @Failure 500 {object} structs.ResponseHTTP{}
-// @Router /api/v1/users/{id} [get]
+//	@Summary		Get user by ID
+//	@Description	Get user from the database by ID
+//	@Tags			Users
+//	@Accept			json
+//	@Produce		json
+//	@Param			id	path		int	true	"User ID"
+//	@Success		200	{object}	structs.ResponseHTTP{data=structs.User}
+//	@Failure		404	{object}	structs.ResponseHTTP{}
+//	@Failure		503	{object}	structs.ResponseHTTP{}
+//	@Failure		500	{object}	structs.ResponseHTTP{}
+//	@Router			/api/v1/users/{id} [get]
 func GetUserById(c *fiber.Ctx) error {
 	id, conversionErr := strconv.Atoi(c.Params("id"))
 	if conversionErr != nil {
@@ -95,17 +95,17 @@ func GetUserById(c *fiber.Ctx) error {
 }
 
 // CreateUser godoc
-// @Summary Create a new user
-// @Description Create a new user in the database
-// @Tags Users
-// @Accept json
-// @Produce json
-// @Param user body structs.User true "User object"
-// @Success 201 {object} structs.ResponseHTTP{data=structs.User}
-// @Failure 404 {object} structs.ResponseHTTP{}
-// @Failure 503 {object} structs.ResponseHTTP{}
-// @Failure 500 {object} structs.ResponseHTTP{}
-// @Router /api/v1/users [post]
+//	@Summary		Create a new user
+//	@Description	Create a new user in the database
+//	@Tags			Users
+//	@Accept			json
+//	@Produce		json
+//	@Param			user	body		structs.User	true	"User object"
+//	@Success		201		{object}	structs.ResponseHTTP{data=structs.User}
+//	@Failure		404		{object}	structs.ResponseHTTP{}
+//	@Failure		503		{object}	structs.ResponseHTTP{}
+//	@Failure		500		{object}	structs.ResponseHTTP{}
+//	@Router			/api/v1/users [post]
 func CreateUser(c *fiber.Ctx) error {
 	var userDto structs.User
 	if err := c.BodyParser(&userDto); err != nil {
@@ -129,18 +129,18 @@ func CreateUser(c *fiber.Ctx) error {
 }
 
 // UpdateUser godoc
-// @Summary Update an existing user
-// @Description Update an existing user in the database
-// @Tags Users
-// @Accept json
-// @Produce json
-// @Param id path int true "User ID"
-// @Param user body structs.User true "User object"
-// @Success 200 {object} structs.ResponseHTTP{data=structs.User}
-// @Failure 404 {object} structs.ResponseHTTP{}
-// @Failure 503 {object} structs.ResponseHTTP{}
-// @Failure 500 {object} structs.ResponseHTTP{}
-// @Router /api/v1/users/{id} [put]
+//	@Summary		Update an existing user
+//	@Description	Update an existing user in the database
+//	@Tags			Users
+//	@Accept			json
+//	@Produce		json
+//	@Param			id		path		int				true	"User ID"
+//	@Param			user	body		structs.User	true	"User object"
+//	@Success		200		{object}	structs.ResponseHTTP{data=structs.User}
+//	@Failure		404		{object}	structs.ResponseHTTP{}
+//	@Failure		503		{object}	structs.ResponseHTTP{}
+//	@Failure		500		{object}	structs.ResponseHTTP{}
+//	@Router			/api/v1/users/{id} [put]
 func UpdateUser(c *fiber.Ctx) error {
 	id, err := strconv.Atoi(c.Params("id"))
 	if err != nil {
@@ -180,17 +180,17 @@ func createUserFromUserEntity(userEntity *entities.UserEntity) *structs.User {
 }
 
 // DeleteUser godoc
-// @Summary Delete a user
-// @Description Delete a user from the database by ID
-// @Tags Users
-// @Accept json
-// @Produce json
-// @Param id path int true "User ID"
-// @Success 204 "No Content"
-// @Failure 404 {object} structs.ResponseHTTP{}
-// @Failure 503 {object} structs.ResponseHTTP{}
-// @Failure 500 {object} structs.ResponseHTTP{}
-// @Router /api/v1/users/{id} [delete]
+//	@Summary		Delete a user
+//	@Description	Delete a user from the database by ID
+//	@Tags			Users
+//	@Accept			json
+//	@Produce		json
+//	@Param			id	path	int	true	"User ID"
+//	@Success		204	"No Content"
+//	@Failure		404	{object}	structs.ResponseHTTP{}
+//	@Failure		503	{object}	structs.ResponseHTTP{}
+//	@Failure		500	{object}	structs.ResponseHTTP{}
+//	@Router			/api/v1/users/{id} [delete]
 func DeleteUser(c *fiber.Ctx) error {
 	id, err := strconv.Atoi(c.Params("id"))
 	if err != nil {
@@ -214,17 +214,17 @@ func DeleteUser(c *fiber.Ctx) error {
 }
 
 // GetUserAddresses godoc
-// @Summary Get user addresses
-// @Description Get all addresses for a user from the database
-// @Tags Addresses
-// @Accept json
-// @Produce json
-// @Param id path int true "User ID"
-// @Success 200 {object} structs.ResponseHTTP{data=[]structs.UserAddress}
-// @Failure 404 {object} structs.ResponseHTTP{}
-// @Failure 503 {object} structs.ResponseHTTP{}
-// @Failure 500 {object} structs.ResponseHTTP{}
-// @Router /api/v1/users/{id}/addresses [get]
+//	@Summary		Get user addresses
+//	@Description	Get all addresses for a user from the database
+//	@Tags			Addresses
+//	@Accept			json
+//	@Produce		json
+//	@Param			id	path		int	true	"User ID"
+//	@Success		200	{object}	structs.ResponseHTTP{data=[]structs.UserAddress}
+//	@Failure		404	{object}	structs.ResponseHTTP{}
+//	@Failure		503	{object}	structs.ResponseHTTP{}
+//	@Failure		500	{object}	structs.ResponseHTTP{}
+//	@Router			/api/v1/users/{id}/addresses [get]
 func GetUserAddresses(c *fiber.Ctx) error {
 	id, err := strconv.Atoi(c.Params("id"))
 	if err != nil {
@@ -256,17 +256,17 @@ func GetUserAddresses(c *fiber.Ctx) error {
 }
 
 // GetUserAddressByAddressId godoc
-// @Summary Get user address by address ID
-// @Description Get a user address from the database by address ID
-// @Tags Addresses
-// @Accept json
-// @Produce json
-// @Param id path int true "Address ID"
-// @Success 200 {object} structs.ResponseHTTP{data=structs.UserAddress}
-// @Failure 404 {object} structs.ResponseHTTP{}
-// @Failure 503 {object} structs.ResponseHTTP{}
-// @Failure 500 {object} structs.ResponseHTTP{}
-// @Router /api/v1/users/{id}/addresses/{addressId} [get]
+//	@Summary		Get user address by address ID
+//	@Description	Get a user address from the database by address ID
+//	@Tags			Addresses
+//	@Accept			json
+//	@Produce		json
+//	@Param			id	path		int	true	"Address ID"
+//	@Success		200	{object}	structs.ResponseHTTP{data=structs.UserAddress}
+//	@Failure		404	{object}	structs.ResponseHTTP{}
+//	@Failure		503	{object}	structs.ResponseHTTP{}
+//	@Failure		500	{object}	structs.ResponseHTTP{}
+//	@Router			/api/v1/users/{id}/addresses/{addressId} [get]
 func GetUserAddressByAddressId(c *fiber.Ctx) error {
 	userId, err := strconv.Atoi(c.Params("id"))
 	if err != nil {
@@ -310,18 +310,18 @@ func createAddressStructFromEntity(address *entities.UserAddressEntity) *structs
 }
 
 // CreateUserAddress godoc
-// @Summary Create a user address
-// @Description Create a new user address in the database
-// @Tags Addresses
-// @Accept json
-// @Produce json
-// @Param id path int true "User ID"
-// @Param address body structs.UserAddress true "Address information"
-// @Success 201 {object} structs.ResponseHTTP{data=structs.UserAddress}
-// @Failure 404 {object} structs.ResponseHTTP{}
-// @Failure 503 {object} structs.ResponseHTTP{}
-// @Failure 500 {object} structs.ResponseHTTP{}
-// @Router /api/v1/users/{id}/addresses [post]
+//	@Summary		Create a user address
+//	@Description	Create a new user address in the database
+//	@Tags			Addresses
+//	@Accept			json
+//	@Produce		json
+//	@Param			id		path		int					true	"User ID"
+//	@Param			address	body		structs.UserAddress	true	"Address information"
+//	@Success		201		{object}	structs.ResponseHTTP{data=structs.UserAddress}
+//	@Failure		404		{object}	structs.ResponseHTTP{}
+//	@Failure		503		{object}	structs.ResponseHTTP{}
+//	@Failure		500		{object}	structs.ResponseHTTP{}
+//	@Router			/api/v1/users/{id}/addresses [post]
 func CreateUserAddress(c *fiber.Ctx) error {
 	userId, err := strconv.Atoi(c.Params("id"))
 	if err != nil {
@@ -358,17 +358,17 @@ func CreateUserAddress(c *fiber.Ctx) error {
 }
 
 // DeleteUserAddress godoc
-// @Summary Delete a user address
-// @Description Delete a user address from the database by ID
-// @Tags Addresses
-// @Accept json
-// @Produce json
-// @Param id path int true "Address ID"
-// @Success 204 "No Content"
-// @Failure 404 {object} structs.ResponseHTTP{}
-// @Failure 503 {object} structs.ResponseHTTP{}
-// @Failure 500 {object} structs.ResponseHTTP{}
-// @Router /api/v1/users/{id}/addresses/{id} [delete]
+//	@Summary		Delete a user address
+//	@Description	Delete a user address from the database by ID
+//	@Tags			Addresses
+//	@Accept			json
+//	@Produce		json
+//	@Param			id	path	int	true	"Address ID"
+//	@Success		204	"No Content"
+//	@Failure		404	{object}	structs.ResponseHTTP{}
+//	@Failure		503	{object}	structs.ResponseHTTP{}
+//	@Failure		500	{object}	structs.ResponseHTTP{}
+//	@Router			/api/v1/users/{id}/addresses/{id} [delete]
 func DeleteUserAddress(c *fiber.Ctx) error {
 	userId, err := strconv.Atoi(c.Params("id"))
 	if err != nil {

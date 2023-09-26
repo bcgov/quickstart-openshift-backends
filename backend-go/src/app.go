@@ -20,15 +20,15 @@ import (
 )
 
 // App godoc
-// @version 1.0
-// @title Quickstart OpenShift Example GO API with Fiber
-// @description Quickstart OpenShift Example GO API with Fiber
-// @termsOfService http://swagger.io/terms/
-// @contact.name API Support
-// @contact.email fiber@swagger.io
-// @license.name Apache 2.0
-// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
-// @BasePath /
+//	@version		1.0
+//	@title			Quickstart OpenShift Example GO API with Fiber
+//	@description	Quickstart OpenShift Example GO API with Fiber
+//	@termsOfService	http://swagger.io/terms/
+//	@contact.name	API Support
+//	@contact.email	fiber@swagger.io
+//	@license.name	Apache 2.0
+//	@license.url	http://www.apache.org/licenses/LICENSE-2.0.html
+//	@BasePath		/
 func App() *fiber.App {
 	_ = godotenv.Load()
 	logrus.SetFormatter(&logrus.TextFormatter{
@@ -64,13 +64,13 @@ func App() *fiber.App {
 }
 
 // HealthCheck godoc
-// @Summary Health Check
-// @Description Check the health of the server and database
-// @Tags health
-// @Produce json
-// @Success 200 {object} map[string]interface{}
-// @Failure 500 {string} string "Database connection error"
-// @Router /health [get]
+//	@Summary		Health Check
+//	@Description	Check the health of the server and database
+//	@Tags			health
+//	@Produce		json
+//	@Success		200	{object}	map[string]interface{}
+//	@Failure		500	{string}	string	"Database connection error"
+//	@Router			/health [get]
 func HealthCheck(c *fiber.Ctx) error {
 	sqlDB, err := database.DBConn.DB()
 	err = sqlDB.Ping()
