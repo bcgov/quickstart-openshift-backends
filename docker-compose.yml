@@ -45,18 +45,6 @@ services:
       test: ["CMD", "pg_isready", "-U", *POSTGRES_USER]
     ports: ["5432:5432"]
 
-  migrations:
-    image: flyway/flyway:9-alpine
-    container_name: migrations
-    command: info migrate info
-    volumes: ["./backend/db/migrations:/flyway/sql:ro"]
-    environment:
-      <<: *flyway-vars
-      FLYWAY_DEFAULT_SCHEMA: USERS
-    depends_on:
-      database:
-        condition: service_healthy
-
   migrations-go:
     profiles: ["go", "all"]
     image: flyway/flyway:9-alpine
@@ -82,22 +70,6 @@ services:
     depends_on:
       database:
         condition: service_healthy
-
-  backend:
-    container_name: backend
-    entrypoint: sh -c "npm i && npm run start:dev"
-    environment:
-      <<: *postgres-vars
-      NODE_ENV: development
-    image: node:20-bullseye
-    ports: ["3001:3000"]
-    volumes: ["./backend:/app", "/app/node_modules"]
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/api"]
-    working_dir: "/app"
-    depends_on:
-      migrations:
-        condition: service_started
 
   backend-go:
     profiles: ["go", "all"]
@@ -154,21 +126,4 @@ services:
       <<: [*postgres-vars, *python-vars]
     depends_on:
       backend-py:
-        condition: service_healthy
-
-  frontend:
-    container_name: frontend
-    entrypoint: sh -c "npm ci && npm run dev"
-    environment:
-      NODE_ENV: development
-      PORT: 3000
-      BACKEND_URL: http://backend:3000
-    image: node:20-bullseye
-    ports: ["3000:3000"]
-    volumes: ["./frontend:/app", "/app/node_modules"]
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000"]
-    working_dir: "/app"
-    depends_on:
-      backend:
         condition: service_healthy
