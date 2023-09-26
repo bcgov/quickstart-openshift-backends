@@ -27,7 +27,7 @@ class User(Base):
     __tablename__ = 'users'
     __table_args__ = {'schema': 'py_api'}
 
-    id = Column(Integer, primary_key=True, server_default=text("nextval('py_api.users_id_seq'::regclass)"))
+    id = Column(Integer, primary_key=True, server_default=text("nextval('py_api.user_id_seq'::regclass)"))
     name = Column(String(50), nullable=False)
     email = Column(String(50), nullable=False, unique=True)
 
