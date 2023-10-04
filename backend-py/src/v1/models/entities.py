@@ -8,7 +8,7 @@ metadata = Base.metadata
 class User(Base):
     __tablename__ = 'users'
     __table_args__ = {'schema': 'py_api'}
-    id = Column(Integer, server_default=text("nextval('py_api.users_id_seq'::regclass)"), primary_key=True)
+    id = Column(Integer, server_default=text("nextval('py_api.user_id_seq'::regclass)"), primary_key=True)
     name = Column(String(50), nullable=False)
     email = Column(String(50), nullable=False, unique=True)
 
