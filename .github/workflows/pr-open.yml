@@ -103,17 +103,20 @@ jobs:
             file: backend-go/openshift.deploy.yml
             overwrite: true
             parameters: -p MIN_REPLICAS=1 -p MAX_REPLICAS=2
+              -p PROMOTE=${{ github.repository }}/backend-go:${{ github.event.number }}
               -p PROMOTE_MIGRATION=${{ github.repository }}/migrations-go:${{ github.event.number }}
             triggers: ('backend-go/')
           - name: backend-java
             file: backend-java/openshift.deploy.yml
             overwrite: true
             parameters: -p MIN_REPLICAS=1 -p MAX_REPLICAS=2
+              -p PROMOTE=${{ github.repository }}/backend-java:${{ github.event.number }}
             triggers: ('backend-java/')
           - name: backend-py
             file: backend-py/openshift.deploy.yml
             overwrite: true
             parameters: -p MIN_REPLICAS=1 -p MAX_REPLICAS=2
+              -p PROMOTE=${{ github.repository }}/backend-py:${{ github.event.number }}
               -p PROMOTE_MIGRATION=${{ github.repository }}/migrations-py:${{ github.event.number }}
             triggers: ('backend-py/')
           - name: frontend
@@ -132,7 +135,6 @@ jobs:
           overwrite: ${{ matrix.overwrite }}
           parameters:
             -p ZONE=${{ github.event.number }} -p NAME=${{ github.event.repository.name }}
-            -p PROMOTE=${{ github.repository }}/${{ matrix.name }}:${{ github.event.number }}
             ${{ matrix.parameters }}
           repository: ${{ matrix.repository }}
           triggers: ${{ matrix.triggers }}
