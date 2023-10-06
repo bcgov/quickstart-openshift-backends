@@ -8,7 +8,7 @@ ARG PIP_NO_CACHE_DIR=off \
 # Install poetry, then dependencies
 WORKDIR /app
 COPY pyproject.toml poetry.lock ./
-RUN pip install poetry==1.2.2 && \
+RUN pip install poetry==1.6.1 && \
     poetry install --no-root -vvv --without dev --sync
 
 # Deploy
