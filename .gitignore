@@ -120,3 +120,6 @@ test-report.xml
 
 # VSCode
 .vscode/
+
+# Python
+.venv
