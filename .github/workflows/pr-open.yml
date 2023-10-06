@@ -106,27 +106,26 @@ jobs:
             file: backend-go/openshift.deploy.yml
             overwrite: true
             parameters: -p MIN_REPLICAS=1 -p MAX_REPLICAS=2
-              -p PROMOTE=${{ github.repository }}/${{ matrix.name }}:${{ github.event.number }}
+              -p PROMOTE=${{ github.repository }}/backend-go:${{ github.event.number }}
               -p PROMOTE_MIGRATION=${{ github.repository }}/migrations-go:${{ github.event.number }}
             triggers: ('backend-go/')
           - name: backend-java
             file: backend-java/openshift.deploy.yml
             overwrite: true
             parameters: -p MIN_REPLICAS=1 -p MAX_REPLICAS=2
-              -p PROMOTE=${{ github.repository }}/${{ matrix.name }}:${{ github.event.number }}
+              -p PROMOTE=${{ github.repository }}/backend-java:${{ github.event.number }}
             triggers: ('backend-java/')
           - name: backend-py
             file: backend-py/openshift.deploy.yml
             overwrite: true
             parameters: -p MIN_REPLICAS=1 -p MAX_REPLICAS=2
-              -p PROMOTE=${{ github.repository }}/${{ matrix.name }}:${{ github.event.number }}
+              -p PROMOTE=${{ github.repository }}/backend-py:${{ github.event.number }}
               -p PROMOTE_MIGRATION=${{ github.repository }}/migrations-py:${{ github.event.number }}
             triggers: ('backend-py/')
           - name: frontend
             file: frontend/openshift.deploy.yml
             overwrite: true
             parameters: -p MIN_REPLICAS=1 -p MAX_REPLICAS=2
-              -p PROMOTE=${{ github.repository }}/${{ matrix.name }}:${{ github.event.number }}
             repository: bcgov/quickstart-openshift
             triggers: ('database/' 'backend/' 'frontend/')
     steps:
