@@ -72,7 +72,7 @@ jobs:
           - package: frontend
             repository: bcgov/quickstart-openshift
     steps:
-      - uses: bcgov-nr/action-builder-ghcr@v1.3.0
+      - uses: bcgov-nr/action-builder-ghcr@v2.0.0
         with:
           build_context: ${{ matrix.build_context }}
           keep_versions: 10
