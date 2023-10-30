@@ -31,7 +31,6 @@ jobs:
             Thanks for the PR!
 
             Deployments, as required, will be available below:
-            - [Frontend](https://${{ env.PREFIX }}-frontend.${{ env.DOMAIN }})
             - [Backend](https://${{ env.PREFIX }}-backend.${{ env.DOMAIN }})
             - [Backend-java](https://${{ env.PREFIX }}-backend-java.${{ env.DOMAIN }})
             - [Backend-py](https://${{ env.PREFIX }}-backend-py.${{ env.DOMAIN }})
@@ -53,7 +52,7 @@ jobs:
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        package: [database, backend-go, backend-java, backend-py, migrations-go, migrations-py, frontend]
+        package: [database, backend-go, backend-java, backend-py, migrations-go, migrations-py]
         include:
           - package: database
             triggers: ('database/')
@@ -90,12 +89,12 @@ jobs:
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        name: [database, backend-go, backend-java, backend-py, frontend]
+        name: [database, backend-go, backend-java, backend-py]
         include:
           - name: database
             file: database/openshift.deploy.yml
             overwrite: false
-            triggers: ('database'. 'backend-go' 'backend-java' 'backend-py')
+            triggers: ('database' 'backend-go' 'backend-java' 'backend-py')
           - name: backend-go
             file: backend-go/openshift.deploy.yml
             overwrite: true
@@ -116,12 +115,6 @@ jobs:
               -p PROMOTE=${{ github.repository }}/backend-py:${{ github.event.number }}
               -p PROMOTE_MIGRATION=${{ github.repository }}/migrations-py:${{ github.event.number }}
             triggers: ('backend-py/')
-          - name: frontend
-            file: frontend/openshift.deploy.yml
-            overwrite: true
-            parameters: -p MIN_REPLICAS=1 -p MAX_REPLICAS=2
-            repository: bcgov/quickstart-openshift
-            triggers: ('database/' 'backend/' 'frontend/')
     steps:
       - uses: bcgov-nr/action-deployer-openshift@v2.0.0
         with:
