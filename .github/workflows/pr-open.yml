@@ -56,7 +56,7 @@ jobs:
         package: [database, backend-go, backend-java, backend-py, migrations-go, migrations-py, frontend]
         include:
           - package: database
-            repository: bcgov/quickstart-openshift
+            triggers: ('database/')
           - package: backend-go
             triggers: ('backend-go/')
           - package: backend-java
@@ -69,8 +69,6 @@ jobs:
           - package: migrations-go
             triggers: ('backend-go/db')
             build_context: ./backend-go/db
-          - package: frontend
-            repository: bcgov/quickstart-openshift
     steps:
       - uses: bcgov-nr/action-builder-ghcr@v1.3.0
         with:
@@ -97,8 +95,7 @@ jobs:
           - name: database
             file: database/openshift.deploy.yml
             overwrite: false
-            repository: bcgov/quickstart-openshift
-            triggers: ('backend-go' 'backend-java' 'backend-py')
+            triggers: ('database'. 'backend-go' 'backend-java' 'backend-py')
           - name: backend-go
             file: backend-go/openshift.deploy.yml
             overwrite: true
