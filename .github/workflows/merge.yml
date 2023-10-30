@@ -19,12 +19,11 @@ jobs:
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        name: [database, backend-go, backend-java, backend-py, frontend]
+        name: [database, backend-go, backend-java, backend-py]
         include:
           - name: database
             file: database/openshift.deploy.yml
             overwrite: false
-            repository: bcgov/quickstart-openshift
           - name: backend-go
             file: backend-go/openshift.deploy.yml
             overwrite: true
@@ -36,10 +35,6 @@ jobs:
             file: backend-py/openshift.deploy.yml
             overwrite: true
             parameters: -p PROMOTE_MIGRATION=${{ github.repository }}/migrations-py:test
-          - name: frontend
-            file: frontend/openshift.deploy.yml
-            overwrite: true
-            repository: bcgov/quickstart-openshift
     steps:
       - uses: bcgov-nr/action-deployer-openshift@v2.0.0
         with:
@@ -121,12 +116,11 @@ jobs:
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        name: [database, backend-go, backend-java, backend-py, frontend]
+        name: [database, backend-go, backend-java, backend-py]
         include:
           - name: database
             file: database/openshift.deploy.yml
             overwrite: false
-            repository: bcgov/quickstart-openshift
           - name: backend-go
             file: backend-go/openshift.deploy.yml
             overwrite: true
@@ -141,11 +135,6 @@ jobs:
             overwrite: true
             parameters: -p MIN_REPLICAS=1 -p MAX_REPLICAS=2
               -p PROMOTE_MIGRATION=${{ github.repository }}/migrations-py:test
-          - name: frontend
-            file: frontend/openshift.deploy.yml
-            overwrite: true
-            parameters: -p MIN_REPLICAS=1 -p MAX_REPLICAS=2
-            repository: bcgov/quickstart-openshift
     steps:
       - uses: bcgov-nr/action-deployer-openshift@v2.0.0
         with:
