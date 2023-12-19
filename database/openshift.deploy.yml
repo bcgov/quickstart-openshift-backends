@@ -288,7 +288,7 @@ objects:
         app: "${NAME}-${ZONE}"
         cronjob: "${NAME}-${ZONE}"
     spec:
-      schedule: "${CRON_MINUTES} 8 * * *" # Run daily at 8:xx AM UTC
+      schedule: "${CRON_MINUTES} 8 1-31 1-12 0-6" # Run daily at 8:xx AM UTC
       concurrencyPolicy: "Replace"
       successfulJobsHistoryLimit: "${{SUCCESS_JOBS_HISTORY_LIMIT}}"
       failedJobsHistoryLimit: "${{FAILED_JOBS_HISTORY_LIMIT}}"
