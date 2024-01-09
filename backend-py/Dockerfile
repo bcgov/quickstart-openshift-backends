@@ -12,7 +12,7 @@ RUN pip install poetry==1.6.1 && \
     poetry install --no-root -vvv --without dev --sync
 
 # Deploy
-FROM python:slim-bullseye AS deploy
+FROM python:3.13.0a2-slim AS deploy
 
 # Output to stdout/stderr, don't create .pyc files, etc.
 ENV PYTHONUNBUFFERED=1 \
