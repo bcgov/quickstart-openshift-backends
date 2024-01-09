@@ -1,4 +1,4 @@
-FROM python:bullseye AS build
+FROM python:3.13.0a2 AS build
 
 # Disable cache dir, disable upgrade message, create .venv in project dir
 ARG PIP_NO_CACHE_DIR=off \
