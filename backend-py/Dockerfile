@@ -1,4 +1,4 @@
-FROM python:3.13.0a2 AS build
+FROM python:bookworm AS build
 
 # Disable cache dir, disable upgrade message, create .venv in project dir
 ARG PIP_NO_CACHE_DIR=off \
@@ -8,11 +8,11 @@ ARG PIP_NO_CACHE_DIR=off \
 # Install poetry, then dependencies
 WORKDIR /app
 COPY pyproject.toml poetry.lock ./
-RUN pip install poetry==1.6.1 && \
-    poetry install --no-root -vvv --without dev --sync
+RUN pip install poetry==1.6.1
+RUN poetry install --no-root -vvv --without dev --sync
 
 # Deploy
-FROM python:3.13.0a2-slim AS deploy
+FROM python:slim-bookworm AS deploy
 
 # Output to stdout/stderr, don't create .pyc files, etc.
 ENV PYTHONUNBUFFERED=1 \
