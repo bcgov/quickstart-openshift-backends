@@ -171,6 +171,8 @@ objects:
   - apiVersion: autoscaling/v2
     kind: HorizontalPodAutoscaler
     metadata:
+      labels:
+        app: "${NAME}-${ZONE}"
       name: "${NAME}-${ZONE}-${COMPONENT}"
     spec:
       scaleTargetRef:
