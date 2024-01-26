@@ -115,7 +115,7 @@ jobs:
               -p PROMOTE_MIGRATION=${{ github.repository }}/migrations-py:${{ github.event.number }}
             triggers: ('backend-py/')
     steps:
-      - uses: bcgov-nr/action-deployer-openshift@v2.0.0
+      - uses: bcgov-nr/action-deployer-openshift@v2.1.0
         with:
           file: ${{ matrix.file }}
           oc_namespace: ${{ vars.OC_NAMESPACE }}
