@@ -160,7 +160,7 @@ jobs:
       matrix:
         component: [backend-py, backend-java, backend-go]
     steps:
-      - uses: shrink/actions-docker-registry-tag@v3
+      - uses: shrink/actions-docker-registry-tag@v4
         with:
           registry: ghcr.io
           repository: ${{ github.repository }}/${{ matrix.component }}
