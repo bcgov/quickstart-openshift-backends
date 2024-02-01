@@ -12,7 +12,7 @@ require (
 	github.com/golang-migrate/migrate/v4 v4.17.0
 	github.com/joho/godotenv v1.5.1
 	github.com/sirupsen/logrus v1.9.3
-	github.com/swaggo/swag v1.16.2
+	github.com/swaggo/swag v1.16.3
 	gorm.io/driver/postgres v1.5.4
 	gorm.io/gorm v1.25.6
 )
