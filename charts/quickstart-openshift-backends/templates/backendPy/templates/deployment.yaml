@@ -50,7 +50,7 @@ spec:
           securityContext:
             {{- toYaml .Values.backendPy.securityContext | nindent 12 }}
           {{- end }}
-          image: "{{.Values.global.registry}}/{{.Values.global.repository}}/backendPy:{{ .Values.global.tag | default .Chart.AppVersion }}"
+          image: "{{.Values.global.registry}}/{{.Values.global.repository}}/backend-py:{{ .Values.global.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ default "IfNotPresent" .Values.backendPy.imagePullPolicy }}
           envFrom:
             - secretRef:
