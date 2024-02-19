@@ -3,18 +3,6 @@ name: PR
 on:
   pull_request:
     branches: [main]
-    types:
-      - opened
-      - synchronize
-      - reopened
-      - ready_for_review
-      - labeled
-      - unlabeled
-      - review_requested
-      - review_request_removed
-      - edited
-      - auto_merge_enabled
-      - auto_merge_disabled
 
 concurrency:
   # PR open and close use the same group, allowing only one at a time
