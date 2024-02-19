@@ -95,7 +95,7 @@ jobs:
           helm upgrade \
             --set global.autoscaling=${{ inputs.autoscaling }} \
             --set-string global.repository=${{ github.repository }} \
-            --set-sting global.tag=${{ inputs.tag }} \
+            --set-string global.tag=${{ inputs.tag }} \
             ${{ inputs.params }} \
             --install --wait --atomic  ${{ env.repo_release }} \
             --timeout ${{ inputs.timeout-minutes }}m \
