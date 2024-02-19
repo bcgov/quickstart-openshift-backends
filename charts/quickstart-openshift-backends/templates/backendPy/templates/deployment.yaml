@@ -1,0 +1,124 @@
+{{- if .Values.backendPy.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "backendPy.fullname" . }}
+  labels:
+    {{- include "backendPy.labels" . | nindent 4 }}
+spec:
+  strategy:
+    type: {{ .Values.backendPy.deploymentStrategy }}
+  {{- if not .Values.backendPy.autoscaling.enabled }}
+  replicas: {{ .Values.backendPy.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "backendPy.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "backendPy.labels" . | nindent 8 }}
+    spec:
+      {{- if .Values.backendPy.podSecurityContext }}
+      securityContext:
+        {{- toYaml .Values.backendPy.podSecurityContext | nindent 12 }}
+      {{- end }}
+      initContainers:
+        - name: {{ include "backendPy.fullname" . }}-init
+          image: "{{.Values.global.registry}}/{{.Values.global.repository}}/migrations-py:{{ .Values.global.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ default "IfNotPresent" .Values.backendPy.imagePullPolicy }}
+          envFrom:
+            - secretRef:
+                name: {{.Release.Name}}
+          env:
+            - name: FLYWAY_BASELINE_ON_MIGRATE
+              value: "true"
+            - name: FLYWAY_DEFAULT_SCHEMA
+              value: "py-api"
+            - name: FLYWAY_CONNECT_RETRIES
+              value: "10"
+          resources:
+            limits:
+              cpu: 100m
+              memory: 250Mi
+            requests:
+              cpu: 20m
+              memory: 150Mi
+      containers:
+        - name: {{ include "backendPy.fullname" . }}
+          {{- if .Values.backendPy.securityContext }}
+          securityContext:
+            {{- toYaml .Values.backendPy.securityContext | nindent 12 }}
+          {{- end }}
+          image: "{{.Values.global.registry}}/{{.Values.global.repository}}/backendPy:{{ .Values.global.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ default "IfNotPresent" .Values.backendPy.imagePullPolicy }}
+          envFrom:
+            - secretRef:
+                name: {{.Release.Name}}
+          env:
+            - name: LOG_LEVEL
+              value: info
+            - name: PYTHONPATH
+              value: /application/app/src
+          volumeMounts:
+            - mountPath: /opt
+              name: logger-conf
+          ports:
+            - name: http
+              containerPort: {{ .Values.backendPy.service.targetPort }}
+              protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 2
+            timeoutSeconds: 2
+            successThreshold: 1
+            failureThreshold: 30
+          livenessProbe:
+            successThreshold: 1
+            failureThreshold: 3
+            httpGet:
+              path: /
+              port: 3000
+              scheme: HTTP
+            initialDelaySeconds: 15
+            periodSeconds: 30
+            timeoutSeconds: 5
+          resources: # this is optional
+            limits:
+              cpu: 100m
+              memory: 250Mi
+            requests:
+              cpu: 20m
+              memory: 150Mi
+      volumes:
+        - name: logger-conf
+          configMap:
+            name: {{ include "backendPy.fullname" . }}
+      {{- with .Values.backendPy.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.backendPy.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: app.kubernetes.io/name
+                    operator: In
+                    values:
+                      - {{ include "backendPy.fullname" . }}
+                  - key: app.kubernetes.io/instance
+                    operator: In
+                    values:
+                      - {{ .Release.Name }}
+              topologyKey: "kubernetes.io/hostname"
+
+{{- end }}

@@ -1,0 +1,18 @@
+{{- if .Values.backendGo.enabled }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "backendGo.fullname" . }}
+  labels:
+    {{- include "backendGo.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.backendGo.service.type }}
+  ports:
+    - port: {{ .Values.backendGo.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "backendGo.selectorLabels" . | nindent 4 }}
+{{- end }}

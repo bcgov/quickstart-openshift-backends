@@ -1,0 +1,19 @@
+name: PR
+
+on:
+  pull_request:
+    types: [edited]
+
+concurrency:
+  group: ${{ github.workflow }}-edit-${{ github.event.number }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Validate PR
+    uses: bcgov/quickstart-openshift-helpers/.github/workflows/.pr-validate.yml@0.2.0
+    with:
+      markdown_links: |
+        - [Java](https://${{ github.event.repository.name }}-${{ github.event.number }}-backendJava.apps.silver.devops.gov.bc.ca)
+        - [Py](https://${{ github.event.repository.name }}-${{ github.event.number }}-backendPy.apps.silver.devops.gov.bc.ca)
+        - [Go](https://${{ github.event.repository.name }}-${{ github.event.number }}-backendGo.apps.silver.devops.gov.bc.ca)
