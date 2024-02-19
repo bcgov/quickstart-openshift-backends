@@ -64,6 +64,7 @@ env:
 jobs:
   deploys:
     name: Helm
+    if: ${{ inputs.build_outputs != '' }}
     environment: ${{ inputs.environment }}
     runs-on: ubuntu-22.04
     timeout-minutes: ${{ inputs.timeout-minutes }}
@@ -73,7 +74,6 @@ jobs:
         working-directory: ${{ inputs.directory }}
         shell: bash
         run: |
-          echo inputs.build_outputs is  ${{ inputs.build_outputs }}
           oc login --token=${{ secrets.oc_token }} --server=${{ vars.oc_server }}
           oc project ${{ vars.OC_NAMESPACE }} # Safeguard!
 

@@ -39,6 +39,7 @@ jobs:
             build_context: ./backend-go/db
     steps:
       - uses: bcgov-nr/action-builder-ghcr@v2.0.2
+        id: builds
         with:
           build_context: ${{ matrix.build_context }}
           keep_versions: 10
