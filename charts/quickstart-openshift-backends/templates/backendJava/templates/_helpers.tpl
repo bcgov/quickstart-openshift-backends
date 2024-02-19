@@ -2,7 +2,7 @@
 Expand the name of the chart.
 */}}
 {{- define "backendJava.name" -}}
-{{- printf "backendJava" }}
+{{- printf "backendjava" }}
 {{- end }}
 
 {{/*
