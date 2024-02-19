@@ -7,7 +7,7 @@ metadata:
 spec:
   podSelector:
     matchLabels:
-      app.kubernetes.io/name: backendGo
+      app.kubernetes.io/name: backendgo
       app.kubernetes.io/instance: {{ .Release.Name }}
   ingress:
     - from:
@@ -34,7 +34,7 @@ spec:
       from:
         - podSelector:
             matchLabels:
-              app.kubernetes.io/name: backendGo
+              app.kubernetes.io/name: backendgo
               app.kubernetes.io/instance: {{ .Release.Name }}
   policyTypes:
     - Ingress
@@ -48,7 +48,7 @@ metadata:
 spec:
   podSelector:
     matchLabels:
-      app.kubernetes.io/name: backendJava
+      app.kubernetes.io/name: backendjava
       app.kubernetes.io/instance: {{ .Release.Name }}
   ingress:
     - from:
@@ -75,7 +75,7 @@ spec:
       from:
         - podSelector:
             matchLabels:
-              app.kubernetes.io/name: backendJava
+              app.kubernetes.io/name: backendjava
               app.kubernetes.io/instance: {{ .Release.Name }}
   policyTypes:
     - Ingress
@@ -90,7 +90,7 @@ metadata:
 spec:
   podSelector:
     matchLabels:
-      app.kubernetes.io/name: backendPy
+      app.kubernetes.io/name: backendpy
       app.kubernetes.io/instance: {{ .Release.Name }}
   ingress:
     - from:
@@ -117,7 +117,7 @@ spec:
       from:
         - podSelector:
             matchLabels:
-              app.kubernetes.io/name: backendPy
+              app.kubernetes.io/name: backendpy
               app.kubernetes.io/instance: {{ .Release.Name }}
   policyTypes:
     - Ingress

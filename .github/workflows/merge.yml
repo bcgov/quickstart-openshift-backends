@@ -52,11 +52,11 @@ jobs:
         name: [quarkus, fiber, fastapi]
         include:
           - name: quarkus
-            baseUrl: https://quickstart-openshift-backends-test-backendJava.apps.silver.devops.gov.bc.ca
+            baseUrl: https://quickstart-openshift-backends-test-backendjava.apps.silver.devops.gov.bc.ca
           - name: fiber
-            baseUrl: https://quickstart-openshift-backends-test-backendGo.apps.silver.devops.gov.bc.ca
+            baseUrl: https://quickstart-openshift-backends-test-backendgo.apps.silver.devops.gov.bc.ca
           - name: fastapi
-            baseUrl: https://quickstart-openshift-backends-test-backendPy.apps.silver.devops.gov.bc.ca
+            baseUrl: https://quickstart-openshift-backends-test-backendpy.apps.silver.devops.gov.bc.ca
     steps:
       - uses: actions/checkout@v4
         name: Checkout
