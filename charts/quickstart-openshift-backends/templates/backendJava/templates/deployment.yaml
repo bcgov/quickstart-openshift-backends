@@ -1,0 +1,94 @@
+{{- if .Values.backendJava.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "backendJava.fullname" . }}
+  labels:
+    {{- include "backendJava.labels" . | nindent 4 }}
+spec:
+  strategy:
+    type: {{ .Values.backendJava.deploymentStrategy }}
+  {{- if not .Values.backendJava.autoscaling.enabled }}
+  replicas: {{ .Values.backendJava.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "backendJava.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "backendJava.labels" . | nindent 8 }}
+    spec:
+      {{- if .Values.backendJava.podSecurityContext }}
+      securityContext:
+        {{- toYaml .Values.backendJava.podSecurityContext | nindent 12 }}
+      {{- end }}
+      containers:
+        - name: {{ include "backendJava.fullname" . }}
+          {{- if .Values.backendJava.securityContext }}
+          securityContext:
+            {{- toYaml .Values.backendJava.securityContext | nindent 12 }}
+          {{- end }}
+          image: "{{.Values.global.registry}}/{{.Values.global.repository}}/backend-java:{{ .Values.global.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ default "IfNotPresent" .Values.backendJava.imagePullPolicy }}
+          envFrom:
+            - secretRef:
+                name: {{.Release.Name}}
+          env:
+            - name: LOG_LEVEL
+              value: info
+          ports:
+            - name: http
+              containerPort: {{ .Values.backendJava.service.targetPort }}
+              protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 2
+            timeoutSeconds: 2
+            successThreshold: 1
+            failureThreshold: 30
+          livenessProbe:
+            successThreshold: 1
+            failureThreshold: 3
+            httpGet:
+              path: /
+              port: 3000
+              scheme: HTTP
+            initialDelaySeconds: 15
+            periodSeconds: 30
+            timeoutSeconds: 5
+          resources: # this is optional
+            limits:
+              cpu: 50m
+              memory: 250Mi
+            requests:
+              cpu: 20m
+              memory: 150Mi
+      {{- with .Values.backendJava.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.backendJava.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: app.kubernetes.io/name
+                    operator: In
+                    values:
+                      - {{ include "backendJava.fullname" . }}
+                  - key: app.kubernetes.io/instance
+                    operator: In
+                    values:
+                      - {{ .Release.Name }}
+              topologyKey: "kubernetes.io/hostname"
+
+{{- end }}

@@ -1,0 +1,20 @@
+{{- if .Values.backendGo.enabled }}
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  labels:
+    {{- include "backendGo.labels" . | nindent 4 }}
+  name: {{ include "backendGo.fullname" . }}
+spec:
+  host: {{ include "backendGo.fullname" . }}.{{ .Values.global.domain }}
+  port:
+    targetPort: http
+  to:
+    kind: Service
+    name: {{ include "backendGo.fullname" . }}
+    weight: 100
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+{{- end }}

@@ -3,7 +3,6 @@ name: PR
 on:
   pull_request:
     branches: [main]
-  workflow_dispatch:
 
 concurrency:
   # PR open and close use the same group, allowing only one at a time
@@ -11,37 +10,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  pr-greeting:
-    if: "!github.event.pull_request.head.repo.fork"
-    name: PR Greeting
-    env:
-      DOMAIN: apps.silver.devops.gov.bc.ca
-      PREFIX: ${{ github.event.repository.name }}-${{ github.event.number }}
-    runs-on: ubuntu-22.04
-    permissions:
-      pull-requests: write
-    steps:
-      - name: PR Greeting
-        uses: bcgov-nr/action-pr-description-add@v1.1.0
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          add_markdown: |
-            ---
 
-            Thanks for the PR!
-
-            Deployments, as required, will be available below:
-            - [Backend](https://${{ env.PREFIX }}-backend.${{ env.DOMAIN }})
-            - [Backend-java](https://${{ env.PREFIX }}-backend-java.${{ env.DOMAIN }})
-            - [Backend-py](https://${{ env.PREFIX }}-backend-py.${{ env.DOMAIN }})
-            - [Backend-go](https://${{ env.PREFIX }}-backend-go.${{ env.DOMAIN }})
-
-            Please create PRs in draft mode.  Mark as ready to enable:
-            - [Analysis Workflow](https://github.com/${{ github.repository }}/actions/workflows/analysis.yml)
-            - [Tests Workflow](https://github.com/${{ github.repository }}/actions/workflows/tests.yml)
-
-            After merge, new images are promoted to:
-            - [Main Merge Workflow](https://github.com/${{ github.repository }}/actions/workflows/merge-main.yml)
 
   # https://github.com/bcgov-nr/action-builder-ghcr
   builds:
@@ -49,13 +18,13 @@ jobs:
     if: "!github.event.pull_request.head.repo.fork"
     permissions:
       packages: write
+    outputs:
+      digest: ${{ steps.builds.outputs.digest }}
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        package: [database, backend-go, backend-java, backend-py, migrations-go, migrations-py]
+        package: [ backend-go, backend-java, backend-py, migrations-go, migrations-py]
         include:
-          - package: database
-            triggers: ('database/')
           - package: backend-go
             triggers: ('backend-go/')
           - package: backend-java
@@ -70,6 +39,7 @@ jobs:
             build_context: ./backend-go/db
     steps:
       - uses: bcgov-nr/action-builder-ghcr@v2.0.2
+        id: builds
         with:
           build_context: ${{ matrix.build_context }}
           keep_versions: 10
@@ -78,52 +48,22 @@ jobs:
           triggers: ${{ matrix.triggers }}
           tag_fallback: test
 
-  # https://github.com/bcgov-nr/action-deployer-openshift
   deploys:
     name: Deploys
-    if: "!github.event.pull_request.head.repo.fork"
     needs: [builds]
-    permissions:
-      issues: write
-    runs-on: ubuntu-22.04
-    strategy:
-      matrix:
-        name: [database, backend-go, backend-java, backend-py]
-        include:
-          - name: database
-            file: database/openshift.deploy.yml
-            overwrite: false
-            triggers: ('database' 'backend-go' 'backend-java' 'backend-py')
-          - name: backend-go
-            file: backend-go/openshift.deploy.yml
-            overwrite: true
-            parameters: -p MIN_REPLICAS=1 -p MAX_REPLICAS=2
-              -p PROMOTE=${{ github.repository }}/backend-go:${{ github.event.number }}
-              -p PROMOTE_MIGRATION=${{ github.repository }}/migrations-go:${{ github.event.number }}
-            triggers: ('backend-go/')
-          - name: backend-java
-            file: backend-java/openshift.deploy.yml
-            overwrite: true
-            parameters: -p MIN_REPLICAS=1 -p MAX_REPLICAS=2
-              -p PROMOTE=${{ github.repository }}/backend-java:${{ github.event.number }}
-            triggers: ('backend-java/')
-          - name: backend-py
-            file: backend-py/openshift.deploy.yml
-            overwrite: true
-            parameters: -p MIN_REPLICAS=1 -p MAX_REPLICAS=2
-              -p PROMOTE=${{ github.repository }}/backend-py:${{ github.event.number }}
-              -p PROMOTE_MIGRATION=${{ github.repository }}/migrations-py:${{ github.event.number }}
-            triggers: ('backend-py/')
-    steps:
-      - uses: bcgov-nr/action-deployer-openshift@v2.1.0
-        with:
-          file: ${{ matrix.file }}
-          oc_namespace: ${{ vars.OC_NAMESPACE }}
-          oc_server: ${{ vars.OC_SERVER }}
-          oc_token: ${{ secrets.OC_TOKEN }}
-          overwrite: ${{ matrix.overwrite }}
-          parameters:
-            -p ZONE=${{ github.event.number }} -p NAME=${{ github.event.repository.name }}
-            ${{ matrix.parameters }}
-          triggers: ${{ matrix.triggers }}
-          verification_path: ${{ matrix.verification_path }}
+    uses: ./.github/workflows/.deploy.yml
+    secrets: inherit
+    with:
+      build_outputs: ${{ needs.builds.outputs.digest }}
+      tag: ${{ github.event.number }}
+      release: ${{ github.event.number }}
+  validate:
+    name: Validate
+    needs: [deploys]
+    if: always() && (!cancelled()) && (!failure())
+    uses: bcgov/quickstart-openshift-helpers/.github/workflows/.pr-validate.yml@v0.2.0
+    with:
+      markdown_links: |
+        - [Java](https://${{ github.event.repository.name }}-${{ github.event.number }}-backendJava.apps.silver.devops.gov.bc.ca)
+        - [Py](https://${{ github.event.repository.name }}-${{ github.event.number }}-backendPy.apps.silver.devops.gov.bc.ca)
+        - [Go](https://${{ github.event.repository.name }}-${{ github.event.number }}-backendGo.apps.silver.devops.gov.bc.ca)
