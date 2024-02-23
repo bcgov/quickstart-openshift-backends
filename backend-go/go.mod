@@ -6,7 +6,7 @@ toolchain go1.21.0
 
 require (
 	github.com/devfeel/mapper v0.7.13
-	github.com/gofiber/fiber/v2 v2.52.0
+	github.com/gofiber/fiber/v2 v2.52.1
 	github.com/gofiber/helmet/v2 v2.2.26
 	github.com/gofiber/swagger v1.0.0
 	github.com/golang-migrate/migrate/v4 v4.17.0
