@@ -102,8 +102,8 @@ backendJava:
     targetCPUUtilizationPercentage: 80
     resources:
       limits:
-        cpu: 50m
-        memory: 50Mi
+        cpu: 75m
+        memory: 75Mi
       requests:
         cpu: 50m
         memory: 25Mi
