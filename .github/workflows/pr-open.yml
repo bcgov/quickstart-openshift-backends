@@ -23,20 +23,20 @@ jobs:
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        package: [ backend-go, backend-java, backend-py, migrations-go, migrations-py]
+        # package: [ backend-go, backend-java, backend-py, migrations-go, migrations-py]
         include:
-          - package: backend-go
-            triggers: ('backend-go/')
+          # - package: backend-go
+          #   triggers: ('backend-go/')
           - package: backend-java
             triggers: ('backend-java/')
-          - package: backend-py
-            triggers: ('backend-py/')
-          - package: migrations-py
-            triggers: ('backend-py/db')
-            build_context: ./backend-py/db
-          - package: migrations-go
-            triggers: ('backend-go/db')
-            build_context: ./backend-go/db
+          # - package: backend-py
+          #   triggers: ('backend-py/')
+          # - package: migrations-py
+          #   triggers: ('backend-py/db')
+          #   build_context: ./backend-py/db
+          # - package: migrations-go
+          #   triggers: ('backend-go/db')
+          #   build_context: ./backend-go/db
     steps:
       - uses: bcgov-nr/action-builder-ghcr@fix/manifestUnknown
         id: builds
@@ -48,23 +48,23 @@ jobs:
           triggers: ${{ matrix.triggers }}
           tag_fallback: test
 
-  deploys:
-    name: Deploys
-    needs: [builds]
-    uses: ./.github/workflows/.deploy.yml
-    secrets: inherit
-    with:
-      build_outputs: ${{ needs.builds.outputs.digest }}
-      tag: ${{ github.event.number }}
-      release: ${{ github.event.number }}
+  # deploys:
+  #   name: Deploys
+  #   needs: [builds]
+  #   uses: ./.github/workflows/.deploy.yml
+  #   secrets: inherit
+  #   with:
+  #     build_outputs: ${{ needs.builds.outputs.digest }}
+  #     tag: ${{ github.event.number }}
+  #     release: ${{ github.event.number }}
 
-  validate:
-    name: Validate
-    needs: [deploys]
-    if: always() && (!cancelled()) && (!failure())
-    uses: bcgov/quickstart-openshift-helpers/.github/workflows/.pr-validate.yml@v0.4.0
-    with:
-      markdown_links: |
-        - [Java](https://${{ github.event.repository.name }}-${{ github.event.number }}-backendJava.apps.silver.devops.gov.bc.ca)
-        - [Py](https://${{ github.event.repository.name }}-${{ github.event.number }}-backendPy.apps.silver.devops.gov.bc.ca)
-        - [Go](https://${{ github.event.repository.name }}-${{ github.event.number }}-backendGo.apps.silver.devops.gov.bc.ca)
+  # validate:
+  #   name: Validate
+  #   needs: [deploys]
+  #   if: always() && (!cancelled()) && (!failure())
+  #   uses: bcgov/quickstart-openshift-helpers/.github/workflows/.pr-validate.yml@v0.4.0
+  #   with:
+  #     markdown_links: |
+  #       - [Java](https://${{ github.event.repository.name }}-${{ github.event.number }}-backendJava.apps.silver.devops.gov.bc.ca)
+  #       - [Py](https://${{ github.event.repository.name }}-${{ github.event.number }}-backendPy.apps.silver.devops.gov.bc.ca)
+  #       - [Go](https://${{ github.event.repository.name }}-${{ github.event.number }}-backendGo.apps.silver.devops.gov.bc.ca)
