@@ -2,7 +2,7 @@ module github.com/bcgov/quickstart-openshift-backends/backend-go
 
 go 1.21
 
-toolchain go1.22.3
+toolchain go1.22.4
 
 require (
 	github.com/devfeel/mapper v0.7.13
