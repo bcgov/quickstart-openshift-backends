@@ -39,8 +39,8 @@ parameters:
     description: Image (namespace/name:tag) to promote/import
     value: bcgov/quickstart-openshift-backends/backend-java:test
 objects:
-  - apiVersion: apps/v1
-    kind: Deployment
+  - kind: Deployment
+    apiVersion: apps/v1
     metadata:
       labels:
         app: "${NAME}-${ZONE}"
@@ -80,7 +80,6 @@ objects:
                     secretKeyRef:
                       name: "${NAME}-${ZONE}-database"
                       key: database-user
-
               ports:
                 - containerPort: 3000
                   protocol: TCP
@@ -96,7 +95,7 @@ objects:
                   path: /
                   port: 3000
                   scheme: HTTP
-                initialDelaySeconds: 5
+                initialDelaySeconds: 30
                 periodSeconds: 2
                 timeoutSeconds: 2
                 successThreshold: 1
