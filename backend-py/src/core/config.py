@@ -1,7 +1,8 @@
 import os
 from typing import Any, Dict, Optional
 
-from pydantic import BaseSettings, PostgresDsn, validator
+from pydantic import field_validator, PostgresDsn
+from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
@@ -19,7 +20,8 @@ class Settings(BaseSettings):
     )
 
 
-@validator("SQLALCHEMY_DATABASE_URI", pre=True)
+@field_validator("SQLALCHEMY_DATABASE_URI", mode="before")
+@classmethod
 def assemble_db_connection(v: Optional[str], values: Dict[str, Any]) -> Any:
     if isinstance(v, str):
         return v
