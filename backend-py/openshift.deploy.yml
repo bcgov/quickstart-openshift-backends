@@ -97,39 +97,6 @@ objects:
         [formatter_default]
         format=%(asctime)s.%(msecs)03d | %(levelname)s | %(name)s | %(funcName)s:%(lineno)d | %(message)s
         datefmt=%Y-%m-%d %H:%M:%S
-
-  - apiVersion: v1
-    kind: ImageStream
-    metadata:
-      labels:
-        app: "${NAME}-${ZONE}"
-      name: "${NAME}-${ZONE}-${COMPONENT}"
-    spec:
-      lookupPolicy:
-        local: false
-      tags:
-        - name: "${IMAGE_TAG}"
-          from:
-            kind: DockerImage
-            name: "${REGISTRY}/${PROMOTE}"
-          referencePolicy:
-            type: Local
-  - apiVersion: v1
-    kind: ImageStream
-    metadata:
-      labels:
-        app: "${NAME}-${ZONE}"
-      name: "${NAME}-${ZONE}-${COMPONENT_DB_MIGRATION}"
-    spec:
-      lookupPolicy:
-        local: false
-      tags:
-        - name: "${IMAGE_TAG}"
-          from:
-            kind: DockerImage
-            name: "${REGISTRY}/${PROMOTE_MIGRATION}"
-          referencePolicy:
-            type: Local
   - apiVersion: v1
     kind: DeploymentConfig
     metadata:
@@ -140,22 +107,6 @@ objects:
       replicas: 1
       triggers:
         - type: ConfigChange
-        - type: ImageChange
-          imageChangeParams:
-            automatic: true
-            containerNames:
-              - "${NAME}"
-            from:
-              kind: ImageStreamTag
-              name: "${NAME}-${ZONE}-${COMPONENT}:${IMAGE_TAG}"
-        - type: ImageChange
-          imageChangeParams:
-            automatic: true
-            containerNames:
-              - "${NAME}-${COMPONENT_DB_MIGRATION}"
-            from:
-              kind: ImageStreamTag
-              name: "${NAME}-${ZONE}-${COMPONENT_DB_MIGRATION}:${IMAGE_TAG}"
       selector:
         deploymentconfig: "${NAME}-${ZONE}-${COMPONENT}"
       strategy:
@@ -167,7 +118,7 @@ objects:
             deploymentconfig: "${NAME}-${ZONE}-${COMPONENT}"
         spec:
           containers:
-            - image: "${NAME}-${ZONE}-${COMPONENT}:${IMAGE_TAG}"
+            - image: "${REGISTRY}/${ORG}/${NAME}/${COMPONENT}:${TAG}"
               imagePullPolicy: Always
               name: "${NAME}"
               env:
@@ -229,7 +180,7 @@ objects:
                 name: "${COMPONENT}-configmap"
           initContainers:
             - name: "${NAME}-${COMPONENT_DB_MIGRATION}"
-              image: "${NAME}-${ZONE}-${COMPONENT_DB_MIGRATION}:${IMAGE_TAG}"
+              image: "${REGISTRY}/${ORG}/${NAME}/${COMPONENT_DB_MIGRATION}:${TAG}"
               env:
                 - name: FLYWAY_URL
                   value: "jdbc:postgresql://${NAME}-${ZONE}-database:5432/${NAME}"
