@@ -49,7 +49,7 @@ parameters:
   - name: COMPONENT_DB_MIGRATION
     description: Component name for database migrations
     value: migrations-go
-objects:f
+objects:
   - apiVersion: apps/v1
     kind: Deployment
     metadata:
