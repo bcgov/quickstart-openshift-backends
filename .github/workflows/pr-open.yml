@@ -42,7 +42,7 @@ jobs:
         id: builds
         with:
           build_context: ${{ matrix.build_context }}
-          keep_versions: 10
+          keep_versions: 100
           package: ${{ matrix.package }}
           tag: ${{ github.event.number }}
           triggers: ${{ matrix.triggers }}
