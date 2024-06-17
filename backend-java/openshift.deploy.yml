@@ -96,8 +96,8 @@ objects:
                   port: 3000
                   scheme: HTTP
                 initialDelaySeconds: 30
-                periodSeconds: 2
-                timeoutSeconds: 2
+                periodSeconds: 10
+                timeoutSeconds: 5
                 successThreshold: 1
                 failureThreshold: 30
               livenessProbe:
