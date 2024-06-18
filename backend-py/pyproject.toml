@@ -5,6 +5,7 @@ description = "Starter template for Python backend projects"
 authors = ["NRIDS"]
 readme = "README.md"
 packages = [{ include = "backend_python" }]
+package-mode = false
 
 [tool.poetry.dependencies]
 python = "^3.11"
