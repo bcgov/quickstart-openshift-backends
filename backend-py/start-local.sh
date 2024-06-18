@@ -5,6 +5,7 @@ cd $(dirname ${BASH_SOURCE[0]})
 
 # Setup poetry and install dependencies
 curl -sSL https://install.python-poetry.org | python3 -
+export PATH="$POETRY_HOME/bin:$VENV_PATH/bin:$PATH"
 poetry install --no-root -vvv --without dev --sync
 
 # activate the env
