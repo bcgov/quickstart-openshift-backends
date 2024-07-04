@@ -2,13 +2,13 @@ module github.com/bcgov/quickstart-openshift-backends/backend-go
 
 go 1.21
 
-toolchain go1.22.4
+toolchain go1.22.5
 
 require (
 	github.com/devfeel/mapper v0.7.13
 	github.com/gofiber/fiber/v2 v2.52.5
 	github.com/gofiber/helmet/v2 v2.2.26
-	github.com/gofiber/swagger v1.0.0
+	github.com/gofiber/swagger v1.1.0
 	github.com/golang-migrate/migrate/v4 v4.17.1
 	github.com/joho/godotenv v1.5.1
 	github.com/sirupsen/logrus v1.9.3
@@ -49,7 +49,7 @@ require (
 	go.uber.org/atomic v1.7.0 // indirect
 	golang.org/x/crypto v0.20.0 // indirect
 	golang.org/x/sync v0.5.0 // indirect
-	golang.org/x/sys v0.17.0 // indirect
+	golang.org/x/sys v0.18.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	golang.org/x/tools v0.10.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
