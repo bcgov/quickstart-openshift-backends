@@ -19,7 +19,7 @@ pydantic-settings = "^2.3.3"
 [tool.poetry.dev-dependencies]
 prospector = "^1.10.2"
 pytest = "^8.0.0"
-pytest-cov = "^4.1.0"
+pytest-cov = "^5.0.0"
 pytest-watch = "^4.2.0"
 
 [build-system]
