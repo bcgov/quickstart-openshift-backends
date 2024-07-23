@@ -38,7 +38,7 @@ jobs:
             triggers: ('backend-go/db')
             build_context: ./backend-go/db
     steps:
-      - uses: bcgov-nr/action-builder-ghcr@v2.1.0
+      - uses: bcgov-nr/action-builder-ghcr@v2.2.0
         id: builds
         with:
           build_context: ${{ matrix.build_context }}
@@ -61,7 +61,7 @@ jobs:
     name: Validate
     needs: [deploys]
     if: always() && (!cancelled()) && (!failure())
-    uses: bcgov/quickstart-openshift-helpers/.github/workflows/.pr-validate.yml@v0.5.0
+    uses: bcgov/quickstart-openshift-helpers/.github/workflows/.pr-validate.yml@v0.6.1
     with:
       markdown_links: |
         - [Java](https://${{ github.event.repository.name }}-${{ github.event.number }}-backendJava.apps.silver.devops.gov.bc.ca)
