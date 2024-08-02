@@ -160,7 +160,7 @@ jobs:
           path: ~/.local
           key: poetry-${{ hashFiles('**/pyproject.toml') }}
 
-      - uses: snok/install-poetry@v1.4.0
+      - uses: snok/install-poetry@v1.4.1
         with:
           version: 1.2.2
           virtualenvs-create: true
