@@ -3,7 +3,7 @@
 - [x] FastAPI
 - [x] SQLAlchemy
 - [x] Poetry
-- [x] Prospector
+- [x] Ruff
 - [x] Flyway
 - [x] Docker
 - [x] Docker Compose
