@@ -6,7 +6,6 @@ from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
-
     API_V1_STR: str = "/api/v1"
     POSTGRES_SERVER: str = os.getenv("POSTGRES_HOST", "127.0.0.1:5432")
     POSTGRES_USER: str = os.getenv("POSTGRES_USER", "postgres")
@@ -19,7 +18,6 @@ class Settings(BaseSettings):
         host=os.getenv("POSTGRES_HOST", "127.0.0.1:5432"),
         path=f"/{os.getenv('POSTGRES_DB', 'postgres')}",
     )
-    
 
 
 @field_validator("SQLALCHEMY_DATABASE_URI", mode="before")
