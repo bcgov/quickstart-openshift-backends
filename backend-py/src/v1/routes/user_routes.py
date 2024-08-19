@@ -14,11 +14,7 @@ router = APIRouter()
 
 
 @router.get("/", response_model=List[User])
-def read_users(
-        db: Session = Depends(session.get_db),
-        skip: int = 0,
-        limit: int = 100
-) -> Any:
+def read_users(db: Session = Depends(session.get_db), skip: int = 0, limit: int = 100) -> Any:
     """
     Retrieve users.
     """
@@ -28,11 +24,7 @@ def read_users(
 
 
 @router.post("/", response_model=User)
-def create_user(
-        *,
-        db: Session = Depends(session.get_db),
-        user_in: UserBase
-) -> Any:
+def create_user(*, db: Session = Depends(session.get_db), user_in: UserBase) -> Any:
     """
     Create new user.
     """
@@ -57,11 +49,7 @@ def create_user(
 
 
 @router.get("/{user_id}", response_model=User)
-def get_user(
-        *,
-        db: Session = Depends(session.get_db),
-        user_id: int
-) -> Any:
+def get_user(*, db: Session = Depends(session.get_db), user_id: int) -> Any:
     """
     Get User By Id.
     """
@@ -81,11 +69,7 @@ def get_user(
 
 
 @router.delete("/{user_id}", response_model=User)
-def delete_user(
-        *,
-        db: Session = Depends(session.get_db),
-        user_id: int
-) -> Any:
+def delete_user(*, db: Session = Depends(session.get_db), user_id: int) -> Any:
     """
     Delete User By Id.
     """
