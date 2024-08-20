@@ -7,14 +7,14 @@ readme = "README.md"
 packages = [{ include = "backend_python" }]
 
 [tool.poetry.dependencies]
-python = "^3.11"
-fastapi = "^0.111.0"
-uvicorn = "^0.30.0"
-sqlalchemy = "^2.0.21"
+python = "^3.12"
+fastapi = "^0.112.1"
+uvicorn = "^0.30.6"
+sqlalchemy = "^2.0.32"
 pydantic = {version ="^2.0.0", extras = ["email"]}
 requests = "^2.31.0"
-psycopg2 = "^2.9.1"
-pydantic-settings = "^2.3.3"
+psycopg2 = "^2.9.9"
+pydantic-settings = "^2.4.0"
 
 [tool.poetry.dev-dependencies]
 ruff = "^0.6.1"
