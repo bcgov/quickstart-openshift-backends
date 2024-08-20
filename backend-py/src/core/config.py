@@ -16,7 +16,7 @@ class Settings(BaseSettings):
         username=os.getenv("POSTGRES_USER", "postgres"),
         password=os.getenv("POSTGRES_PASSWORD", "postgres"),
         host=os.getenv("POSTGRES_HOST", "127.0.0.1:5432"),
-        path=f"/{os.getenv('POSTGRES_DB', 'postgres')}",
+        path=f"{os.getenv('POSTGRES_DB', 'postgres')}",
     )
 
 
@@ -30,7 +30,7 @@ def assemble_db_connection(v: Optional[str], values: Dict[str, Any]) -> Any:
         username=values.get("POSTGRES_USER"),
         password=values.get("POSTGRES_PASSWORD"),
         host=values.get("POSTGRES_SERVER"),
-        path=f"/{values.get('POSTGRES_DB') or ''}",
+        path=f"{values.get('POSTGRES_DB') or ''}",
     )
 
 
