@@ -61,7 +61,7 @@ jobs:
     name: Validate
     needs: [deploys]
     if: always() && (!cancelled()) && (!failure())
-    uses: bcgov/quickstart-openshift-helpers/.github/workflows/.pr-validate.yml@v0.6.1
+    uses: bcgov/quickstart-openshift-helpers/.github/workflows/.pr-validate.yml@v0.7.0
     with:
       markdown_links: |
         - [Java](https://${{ github.event.repository.name }}-${{ github.event.number }}-backendJava.apps.silver.devops.gov.bc.ca)
