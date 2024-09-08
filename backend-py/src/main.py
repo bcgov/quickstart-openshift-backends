@@ -22,8 +22,8 @@ tags_metadata = [
 ]
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-     process = psutil.Process()
-     uptime = time.time() - process.create_time()
+     process = await psutil.Process()
+     uptime = await (time.time() - process.create_time())
      print("startup took:", uptime)
 
 app = FastAPI(
