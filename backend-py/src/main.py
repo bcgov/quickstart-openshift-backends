@@ -20,6 +20,11 @@ tags_metadata = [
         "description": "A quickstart template for FastAPI with SQLAlchemy, Postgres",
     },
 ]
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+     process = psutil.Process()
+     uptime = time.time() - process.create_time()
+     print("startup took:", uptime)
 
 app = FastAPI(
     title=OpenAPIInfo["title"],
@@ -59,8 +64,4 @@ class EndpointFilter(logging.Filter):
 # Add filter to the logger
 logging.getLogger("uvicorn.access").addFilter(EndpointFilter())
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-     process = psutil.Process()
-     uptime = time.time() - process.create_time()
-     print("startup took:", uptime)
+
