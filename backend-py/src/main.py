@@ -25,6 +25,7 @@ app = FastAPI(
     title=OpenAPIInfo["title"],
     version=OpenAPIInfo["version"],
     openapi_tags=tags_metadata,
+    lifespan=lifespan
 )
 origins: list[str] = [
     "http://localhost*",
