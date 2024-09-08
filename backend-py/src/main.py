@@ -1,9 +1,11 @@
 import logging
+import time
+import psutil
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .v1.routes.user_routes import router as user_router
-
+from contextlib import asynccontextmanager
 api_prefix_v1 = "/api/v1"
 logging.getLogger("uvicorn").handlers.clear()  # removes duplicated logs
 
@@ -55,3 +57,9 @@ class EndpointFilter(logging.Filter):
 
 # Add filter to the logger
 logging.getLogger("uvicorn.access").addFilter(EndpointFilter())
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+     process = psutil.Process()
+     uptime = time.time() - process.create_time()
+     print("startup took:", uptime)
