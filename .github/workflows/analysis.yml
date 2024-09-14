@@ -125,3 +125,13 @@ jobs:
         if: steps.cache-deps.outputs.cache-hit != 'true'
 
       - run: poetry run pytest
+
+  results:
+    name: Analysis Results
+    needs: [trivy, java, python]
+    if: always()
+    runs-on: ubuntu-22.04
+    steps:
+      - if: contains(needs.*.result, 'failure')
+        run: echo "At least one job has failed." && exit 1
+      - run: echo "Success!"

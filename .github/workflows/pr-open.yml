@@ -10,8 +10,6 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-
-
   # https://github.com/bcgov-nr/action-builder-ghcr
   builds:
     name: Builds
@@ -57,13 +55,13 @@ jobs:
       build_outputs: ${{ needs.builds.outputs.digest }}
       tag: ${{ github.event.number }}
       release: ${{ github.event.number }}
-  validate:
-    name: Validate
-    needs: [deploys]
-    if: always() && (!cancelled()) && (!failure())
-    uses: bcgov/quickstart-openshift-helpers/.github/workflows/.pr-validate.yml@v0.7.0
-    with:
-      markdown_links: |
-        - [Java](https://${{ github.event.repository.name }}-${{ github.event.number }}-backendJava.apps.silver.devops.gov.bc.ca)
-        - [Py](https://${{ github.event.repository.name }}-${{ github.event.number }}-backendPy.apps.silver.devops.gov.bc.ca)
-        - [Go](https://${{ github.event.repository.name }}-${{ github.event.number }}-backendGo.apps.silver.devops.gov.bc.ca)
+
+  results:
+    name: PR Results
+    needs: [builds, deploys]
+    if: always()
+    runs-on: ubuntu-22.04
+    steps:
+      - if: contains(needs.*.result, 'failure')
+        run: echo "At least one job has failed." && exit 1
+      - run: echo "Success!"
