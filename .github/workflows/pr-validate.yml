@@ -18,7 +18,7 @@ jobs:
         - [Py](https://${{ github.event.repository.name }}-${{ github.event.number }}-backendPy.apps.silver.devops.gov.bc.ca)
         - [Go](https://${{ github.event.repository.name }}-${{ github.event.number }}-backendGo.apps.silver.devops.gov.bc.ca)
 
-results:
+  results:
     name: Validate Results
     if: always()
     needs: [validate]
