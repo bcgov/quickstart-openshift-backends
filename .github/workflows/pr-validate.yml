@@ -17,3 +17,11 @@ jobs:
         - [Java](https://${{ github.event.repository.name }}-${{ github.event.number }}-backendJava.apps.silver.devops.gov.bc.ca)
         - [Py](https://${{ github.event.repository.name }}-${{ github.event.number }}-backendPy.apps.silver.devops.gov.bc.ca)
         - [Go](https://${{ github.event.repository.name }}-${{ github.event.number }}-backendGo.apps.silver.devops.gov.bc.ca)
+
+results:
+    name: Validate Results
+    if: always()
+    needs: [validate]
+    runs-on: ubuntu-22.04
+    steps:
+      - run: echo "Success!"
