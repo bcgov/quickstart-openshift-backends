@@ -70,6 +70,9 @@ jobs:
     timeout-minutes: ${{ inputs.timeout-minutes }}
     steps:
       - uses: actions/checkout@v4
+      - uses: redhat-actions/openshift-tools-installer@v1
+        with:        
+          oc: "4"
       - name: Deploy
         working-directory: ${{ inputs.directory }}
         shell: bash
