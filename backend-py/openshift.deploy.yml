@@ -46,6 +46,10 @@ parameters:
   - name: MAX_REPLICAS
     description: The maximum amount of replicas for the horizontal pod autoscaler.
     value: "5"
+  - name: RANDOM_EXPRESSION
+    description: Random expression to make sure deployments update
+    from: "[a-zA-Z0-9]{32}"
+    generate: expression
 objects:
   - apiVersion: v1
     kind: ConfigMap
@@ -134,6 +138,8 @@ objects:
                       key: database-user
                 - name: PYTHONPATH
                   value: /application/app/src
+                - name: RANDOM_EXPRESSION
+                  value: ${RANDOM_EXPRESSION}
               volumeMounts:
                 - mountPath: /opt
                   name: logger-conf
