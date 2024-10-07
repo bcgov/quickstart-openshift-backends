@@ -7,6 +7,9 @@ parameters:
   - name: COMPONENT
     description: Component name
     value: backend-py
+  - name: COMPONENT_MIGRATIONS
+    description: Component name for database migrations
+    value: migrations-py
   - name: ZONE
     description: Deployment zone, e.g. pr-### or prod
     required: true
@@ -15,6 +18,12 @@ parameters:
     value: latest
   - name: DOMAIN
     value: apps.silver.devops.gov.bc.ca
+  - name: REGISTRY
+    description: Container registry to import from (internal is image-registry.openshift-image-registry.svc:5000)
+    value: ghcr.io
+  - name: ORG
+    description: Organization name, e.g. bcgov
+    value: bcgov
   - name: CPU_REQUEST
     value: "25m"
   - name: MEMORY_REQUEST
@@ -37,21 +46,6 @@ parameters:
   - name: MAX_REPLICAS
     description: The maximum amount of replicas for the horizontal pod autoscaler.
     value: "5"
-  - name: REGISTRY
-    description: Container registry to import from (internal is image-registry.openshift-image-registry.svc:5000)
-    value: ghcr.io
-  - name: ORG_NAME
-    description: Organization name, e.g. bcgov
-    value: bcgov
-  - name: PROMOTE
-    description: Image (namespace/name:tag) to promote/import
-    value: bcgov/quickstart-openshift-backends/backend-py:test
-  - name: PROMOTE_MIGRATION
-    description: Image (namespace/name:tag) for migration to promote/import
-    value: bcgov/quickstart-openshift-backends/migrations-py:test
-  - name: COMPONENT_DB_MIGRATION
-    description: Component name for database migrations
-    value: migrations-py
 objects:
   - apiVersion: v1
     kind: ConfigMap
@@ -97,39 +91,6 @@ objects:
         [formatter_default]
         format=%(asctime)s.%(msecs)03d | %(levelname)s | %(name)s | %(funcName)s:%(lineno)d | %(message)s
         datefmt=%Y-%m-%d %H:%M:%S
-
-  - apiVersion: v1
-    kind: ImageStream
-    metadata:
-      labels:
-        app: "${NAME}-${ZONE}"
-      name: "${NAME}-${ZONE}-${COMPONENT}"
-    spec:
-      lookupPolicy:
-        local: false
-      tags:
-        - name: "${IMAGE_TAG}"
-          from:
-            kind: DockerImage
-            name: "${REGISTRY}/${PROMOTE}"
-          referencePolicy:
-            type: Local
-  - apiVersion: v1
-    kind: ImageStream
-    metadata:
-      labels:
-        app: "${NAME}-${ZONE}"
-      name: "${NAME}-${ZONE}-${COMPONENT_DB_MIGRATION}"
-    spec:
-      lookupPolicy:
-        local: false
-      tags:
-        - name: "${IMAGE_TAG}"
-          from:
-            kind: DockerImage
-            name: "${REGISTRY}/${PROMOTE_MIGRATION}"
-          referencePolicy:
-            type: Local
   - apiVersion: apps/v1
     kind: Deployment
     metadata:
@@ -150,7 +111,7 @@ objects:
             deployment: "${NAME}-${ZONE}-${COMPONENT}"
         spec:
           containers:
-            - image: "${NAME}-${ZONE}-${COMPONENT}:${IMAGE_TAG}"
+            - image: ${REGISTRY}/${ORG}/${NAME}/${COMPONENT}:${ZONE}
               imagePullPolicy: Always
               name: "${NAME}"
               env:
@@ -211,8 +172,8 @@ objects:
               configMap:
                 name: "${COMPONENT}-configmap"
           initContainers:
-            - name: "${NAME}-${COMPONENT_DB_MIGRATION}"
-              image: "${NAME}-${ZONE}-${COMPONENT_DB_MIGRATION}:${IMAGE_TAG}"
+            - image: ${REGISTRY}/${ORG}/${NAME}/${COMPONENT_MIGRATIONS}:${ZONE}
+              name: "${NAME}-${COMPONENT_MIGRATIONS}"
               env:
                 - name: FLYWAY_URL
                   value: "jdbc:postgresql://${NAME}-${ZONE}-database:5432/${NAME}"
