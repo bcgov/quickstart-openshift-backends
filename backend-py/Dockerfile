@@ -33,6 +33,7 @@ COPY ./src ./src
 HEALTHCHECK --interval=300s --timeout=10s CMD curl -f http://localhost:${PORT}
 USER 1001
 CMD [ \
+        "sh", "-c", \
         "uvicorn", \
         "src.main:app", \
         "--host", "0.0.0.0", \
