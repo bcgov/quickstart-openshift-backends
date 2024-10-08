@@ -32,4 +32,4 @@ COPY ./src ./src
 HEALTHCHECK --interval=300s --timeout=10s CMD curl -f http://localhost:3000
 USER 1001
 
-CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "3000", "--workers", "1", "--server-header", "--date-header", "--limit-concurrency", "1000","--log-config", "./logger.conf"]
+CMD ["sh", "-c", "uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "3000", "--workers", "1", "--server-header", "--date-header", "--limit-concurrency", "1000","--log-config", "./logger.conf"]
