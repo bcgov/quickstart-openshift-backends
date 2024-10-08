@@ -10,6 +10,7 @@ WORKDIR /app
 COPY pyproject.toml poetry.lock ./
 RUN pip install poetry==1.6.1
 RUN poetry install --no-root -vvv --without dev --sync
+RUN pip install fastapi[standard]
 
 
 # Deploy
@@ -33,5 +34,4 @@ COPY ./src ./src
 HEALTHCHECK --interval=300s --timeout=10s CMD curl -f http://localhost:3000
 USER 1001
 
-# CMD ["sh", "-c", "uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "3000", "--workers", "1", "--server-header", "--date-header", "--limit-concurrency", "1000","--log-config", "./logger.conf"]
 CMD ["fastapi", "run", "app/main.py", "--port", "3000"]
