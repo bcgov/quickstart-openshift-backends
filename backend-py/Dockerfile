@@ -32,8 +32,9 @@ COPY ./src ./src
 
 # Startup script
 RUN ( \
+        echo '#!/bin/sh'; \
         echo 'uvicorn src.main:app --host 0.0.0.0 --port 3000 --workers 1 --server-header --date-header --limit-concurrency 1000 --log-config ./logger.conf'; \
-    ) >> ./entrypoint.sh; \
+    ) > ./entrypoint.sh; \
     chmod +x ./entrypoint.sh
 
 # Start with non-privileged user
@@ -41,4 +42,4 @@ HEALTHCHECK --interval=300s --timeout=10s CMD curl -f http://localhost:3000
 USER 1001
 
 # Entrypoint
-CMD ["./entrypoint.sh"]
+CMD ["sh", "-c", "./entrypoint.sh"]
