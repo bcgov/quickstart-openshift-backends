@@ -26,6 +26,7 @@ RUN apt update && \
     apt install -y --no-install-recommends curl libpq-dev
 
 # Dependencies, config and app
+WORKDIR /app
 COPY --from=build /app/.venv /app/.venv
 COPY logger.conf ./
 COPY ./src ./src
@@ -34,4 +35,10 @@ COPY ./src ./src
 HEALTHCHECK --interval=300s --timeout=10s CMD curl -f http://localhost:3000
 USER 1001
 
-CMD ["fastapi", "run", "app/main.py", "--port", "3000"]
+# SSH config
+#
+RUN ( \
+      echo 'uvicorn src.main:app --host 0.0.0.0 --port ${PORT} --workers 1 --server-header --date-header --limit-concurrency 1000 --log-config ./logger.conf'; \
+    ) >> ./entrypoint.sh; \
+    chomd +x ./entrypoint.sh
+CMD ["./entrypoint.sh"]
