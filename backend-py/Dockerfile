@@ -17,8 +17,7 @@ FROM python:slim-bookworm AS deploy
 # Output to stdout/stderr, don't create .pyc files, etc.
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
-    PATH="/app/.venv/bin:$PATH" \
-    PORT=3000
+    PATH="/app/.venv/bin:$PATH"
 
 # Packages
 RUN apt update && \
@@ -30,17 +29,16 @@ COPY logger.conf ./
 COPY ./src ./src
 
 # Start with non-privileged user
-HEALTHCHECK --interval=300s --timeout=10s CMD curl -f http://localhost:${PORT}
+HEALTHCHECK --interval=300s --timeout=10s CMD curl -f http://localhost:3000
 USER 1001
+ENTRYPOINT [ "uvicorn" ]
 CMD [ \
-        "sh", "-c", \
-        "uvicorn", \
         "src.main:app", \
         "--host", "0.0.0.0", \
-        "--port", "${PORT}", \
+        "--port", "3000", \
         "--workers", "1", \
         "--server-header", \
         "--date-header", \
         "--limit-concurrency", "1000", \
         "--log-config", "./logger.conf" \
-]
+    ]
