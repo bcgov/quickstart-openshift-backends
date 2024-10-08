@@ -32,7 +32,7 @@ COPY ./src ./src
 
 # Startup script
 RUN ( \
-        echo 'uvicorn src.main:app --host 0.0.0.0 --port ${PORT} --workers 1 --server-header --date-header --limit-concurrency 1000 --log-config ./logger.conf'; \
+        echo 'uvicorn src.main:app --host 0.0.0.0 --port 3000 --workers 1 --server-header --date-header --limit-concurrency 1000 --log-config ./logger.conf'; \
     ) >> ./entrypoint.sh; \
     chmod +x ./entrypoint.sh
 
