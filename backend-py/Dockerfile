@@ -10,7 +10,6 @@ WORKDIR /app
 COPY pyproject.toml poetry.lock ./
 RUN pip install poetry==1.6.1
 RUN poetry install --no-root -vvv --without dev --sync
-RUN pip install fastapi[standard]
 
 
 # Deploy
@@ -31,14 +30,15 @@ COPY --from=build /app/.venv /app/.venv
 COPY logger.conf ./
 COPY ./src ./src
 
+# Startup script
+RUN ( \
+        echo 'uvicorn src.main:app --host 0.0.0.0 --port ${PORT} --workers 1 --server-header --date-header --limit-concurrency 1000 --log-config ./logger.conf'; \
+    ) >> ./entrypoint.sh; \
+    chmod +x ./entrypoint.sh
+
 # Start with non-privileged user
 HEALTHCHECK --interval=300s --timeout=10s CMD curl -f http://localhost:3000
 USER 1001
 
-# SSH config
-#
-RUN ( \
-      echo 'uvicorn src.main:app --host 0.0.0.0 --port ${PORT} --workers 1 --server-header --date-header --limit-concurrency 1000 --log-config ./logger.conf'; \
-    ) >> ./entrypoint.sh; \
-    chomd +x ./entrypoint.sh
+# Entrypoint
 CMD ["./entrypoint.sh"]
