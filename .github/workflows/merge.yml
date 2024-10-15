@@ -24,7 +24,7 @@ jobs:
     name: Set Variables
     outputs:
       pr: ${{ steps.pr.outputs.pr }}
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     timeout-minutes: 1
     steps: # Get PR number for squash merges to main
       - name: PR Number
@@ -46,7 +46,7 @@ jobs:
     defaults:
       run:
         working-directory: integration-tests
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
         name: [quarkus, fiber, fastapi]
@@ -99,7 +99,7 @@ jobs:
   promote:
     name: Promote Images
     needs: [deploy-prod, vars]
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     permissions:
       packages: write
     strategy:

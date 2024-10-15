@@ -18,12 +18,12 @@ jobs:
   trivy:
     name: Trivy Security Scan
     if: github.event_name != 'pull_request' || !github.event.pull_request.draft
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
 
       - name: Run Trivy vulnerability scanner in repo mode
-        uses: aquasecurity/trivy-action@0.24.0
+        uses: aquasecurity/trivy-action@0.27.0
         with:
           format: "sarif"
           output: "trivy-results.sarif"
@@ -40,7 +40,7 @@ jobs:
   java:
     name: Java
     if: github.event_name != 'pull_request' || !github.event.pull_request.draft
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     defaults:
       run:
         working-directory: backend-java
@@ -63,7 +63,7 @@ jobs:
       - uses: actions/setup-java@v4
         with:
           distribution: "temurin"
-          java-version: "21"
+          java-version: "23"
       - name: Cache local Maven repository
         uses: actions/cache@v4
         with:
@@ -78,7 +78,7 @@ jobs:
   python:
     name: Python
     if: github.event_name != 'pull_request' || !github.event.pull_request.draft
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     defaults:
       run:
         working-directory: backend-py
@@ -130,7 +130,7 @@ jobs:
     name: Analysis Results
     needs: [trivy, java, python]
     if: always()
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - if: contains(needs.*.result, 'failure')
         run: echo "At least one job has failed." && exit 1
