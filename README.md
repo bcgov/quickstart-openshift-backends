@@ -3,6 +3,10 @@
 [![Merge](https://github.com/bcgov/quickstart-openshift-backends/actions/workflows/merge.yml/badge.svg)](https://github.com/bcgov/quickstart-openshift-backends/actions/workflows/merge.yml)
 [![Analysis](https://github.com/bcgov/quickstart-openshift-backends/actions/workflows/analysis.yml/badge.svg)](https://github.com/bcgov/quickstart-openshift-backends/actions/workflows/analysis.yml)
 
+# Archived!
+
+This repository has been archived due to low adoption, particularly for Go. If you have feedback or would like to become a maintainer please feel free to get in touch with @mishraomp or @derekroberts.
+
 # QuickStart: Pluggable Backends
 
 ## OpenShift, Go, Java, Python
