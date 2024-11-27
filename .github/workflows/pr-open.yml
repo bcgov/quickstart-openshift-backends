@@ -36,7 +36,7 @@ jobs:
             triggers: ('backend-go/db')
             build_context: ./backend-go/db
     steps:
-      - uses: bcgov-nr/action-builder-ghcr@v2.2.0
+      - uses: bcgov-nr/action-builder-ghcr@v2.3.0
         id: builds
         with:
           build_context: ${{ matrix.build_context }}
