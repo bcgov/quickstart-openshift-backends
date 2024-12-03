@@ -772,7 +772,7 @@ postgresql-psycopg2binary = ["psycopg2-binary"]
 postgresql-psycopg2cffi = ["psycopg2cffi"]
 postgresql-psycopgbinary = ["psycopg[binary] (>=3.0.7)"]
 pymysql = ["pymysql"]
-sqlcipher = ["sqlcipher3_binary"]
+sqlcipher = ["sqlcipher3_binary"]  
 
 [[package]]
 name = "starlette"
