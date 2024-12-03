@@ -2,7 +2,7 @@ module github.com/bcgov/quickstart-openshift-backends/backend-go
 
 go 1.22.0
 
-toolchain go1.23.2
+toolchain go1.23.3
 
 require (
 	github.com/devfeel/mapper v0.7.14
@@ -12,8 +12,8 @@ require (
 	github.com/golang-migrate/migrate/v4 v4.18.1
 	github.com/joho/godotenv v1.5.1
 	github.com/sirupsen/logrus v1.9.3
-	github.com/swaggo/swag v1.16.3
-	gorm.io/driver/postgres v1.5.9
+	github.com/swaggo/swag v1.16.4
+	gorm.io/driver/postgres v1.5.11
 	gorm.io/gorm v1.25.12
 )
 
