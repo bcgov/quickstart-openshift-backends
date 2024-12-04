@@ -22,15 +22,16 @@ ENV PYTHONUNBUFFERED=1 \
 
 # Packages
 RUN apt update && \
-    apt install -y --no-install-recommends curl libpq-dev
+    apt install -y --no-install-recommends libpq-dev
 
 # Dependencies, config and app
 COPY --from=build /app/.venv /app/.venv
 COPY logger.conf ./
 COPY ./src ./src
 
+HEALTHCHECK --interval=300s --timeout=10s CMD timeout 10s sh -c 'true > http://localhost:${PORT} || exit 1'
+
 # Start with non-privileged user
-HEALTHCHECK --interval=300s --timeout=10s CMD curl -f http://localhost:${PORT}
 USER 1001
 SHELL ["/bin/bash", "-c"]
 ENTRYPOINT uvicorn src.main:app --host 0.0.0.0 --port ${PORT} --workers 1 --server-header --date-header --limit-concurrency 1000 --log-config ./logger.conf
