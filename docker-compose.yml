@@ -108,7 +108,8 @@ services:
     entrypoint: /application/start-local.sh
     volumes: ["./backend-py:/application", "/application/.venv"]
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      test: timeout 10s bash -c 'true > /dev/tcp/127.0.0.1/3000'
+
     environment:
       <<: [*postgres-vars, *python-vars]
     ports: ["3003:3000"]
