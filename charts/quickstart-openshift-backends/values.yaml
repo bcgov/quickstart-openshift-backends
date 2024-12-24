@@ -39,9 +39,6 @@ backendPy:
     #-- the target cpu utilization percentage, is from request cpu and NOT LIMIT CPU.
     targetCPUUtilizationPercentage: 80
     resources:
-      limits:
-        cpu: 50m
-        memory: 50Mi
       requests:
         cpu: 50m
         memory: 25Mi
@@ -70,9 +67,6 @@ backendGo:
     #-- the target cpu utilization percentage, is from request cpu and NOT LIMIT CPU.
     targetCPUUtilizationPercentage: 80
     resources:
-      limits:
-        cpu: 50m
-        memory: 50Mi
       requests:
         cpu: 50m
         memory: 25Mi
@@ -101,9 +95,6 @@ backendJava:
     #-- the target cpu utilization percentage, is from request cpu and NOT LIMIT CPU.
     targetCPUUtilizationPercentage: 80
     resources:
-      limits:
-        cpu: 50m
-        memory: 50Mi
       requests:
         cpu: 50m
         memory: 25Mi
@@ -139,16 +130,10 @@ crunchy: # enable it for TEST and PROD, for PR based pipelines simply use single
     requests:
       cpu: 25m
       memory: 256Mi
-    limits:
-      cpu: 100m
-      memory: 512Mi
     replicaCertCopy:
       requests:
         cpu: 1m
         memory: 32Mi
-      limits:
-        cpu: 50m
-        memory: 64Mi
 
   pgBackRest:
     enabled: false
@@ -169,16 +154,10 @@ crunchy: # enable it for TEST and PROD, for PR based pipelines simply use single
       requests:
         cpu: 1m
         memory: 64Mi
-      limits:
-        cpu: 50m
-        memory: 128Mi
     sidecars:
       requests:
         cpu: 1m
         memory: 64Mi
-      limits:
-        cpu: 50m
-        memory: 128Mi
 
   patroni:
     postgresql:
@@ -197,9 +176,6 @@ crunchy: # enable it for TEST and PROD, for PR based pipelines simply use single
       requests:
         cpu: 1m
         memory: 64Mi
-      limits:
-        cpu: 50m
-        memory: 128Mi
 
   # Postgres Cluster resource values:
   pgmonitor:
@@ -209,9 +185,6 @@ crunchy: # enable it for TEST and PROD, for PR based pipelines simply use single
       requests:
         cpu: 1m
         memory: 64Mi
-      limits:
-        cpu: 50m
-        memory: 128Mi
 
 bitnami-pg:
   enabled: true
@@ -253,9 +226,6 @@ bitnami-pg:
       requests:
         cpu: 50m
         memory: 150Mi
-      limits:
-        cpu: 150m
-        memory: 250Mi
 
 backup:
   enabled: true
@@ -315,9 +285,6 @@ backup:
           - name: DATABASE_USER
             key: databaseUser
       resources:
-        limits:
-          cpu: 50m
-          memory: 256Mi
         requests:
           cpu: 20m
           memory: 128Mi
