@@ -1,5 +1,5 @@
 import logging
-
+import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .v1.routes.user_routes import router as user_router
@@ -55,3 +55,5 @@ class EndpointFilter(logging.Filter):
 
 # Add filter to the logger
 logging.getLogger("uvicorn.access").addFilter(EndpointFilter())
+t = os.popen('uptime -p').read()[:-1]
+logging.info(f"process start up took {t}")

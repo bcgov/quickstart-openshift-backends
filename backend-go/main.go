@@ -1,6 +1,8 @@
 package main
 
 import (
+	"time"
+
 	_ "github.com/bcgov/quickstart-openshift-backends/backend-go/docs"
 	"github.com/bcgov/quickstart-openshift-backends/backend-go/src"
 	"github.com/bcgov/quickstart-openshift-backends/backend-go/src/v1/structs"
@@ -10,7 +12,10 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+var startTime time.Time
+
 func init() {
+	startTime = time.Now()
 	_ = mapper.Register(&structs.User{})
 	_ = mapper.Register(&structs.UserAddress{})
 }
@@ -22,4 +27,6 @@ func main() {
 		logrus.Fatalf("Error: %v", err)
 		return
 	}
+
+	logrus.Infof("Process startup took %s", time.Since(startTime))
 }
