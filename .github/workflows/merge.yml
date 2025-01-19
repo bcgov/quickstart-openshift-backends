@@ -117,7 +117,7 @@ jobs:
 
   ghcr-cleanup:
     name: GHCR Cleanup
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
         name: [backend-go, backend-py, backend-java, migrations-go, migrations-py]
