@@ -10,7 +10,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # https://github.com/bcgov-nr/action-builder-ghcr
+  # https://github.com/bcgov/action-builder-ghcr
   builds:
     name: Builds
     if: "!github.event.pull_request.head.repo.fork"
@@ -36,7 +36,7 @@ jobs:
             triggers: ('backend-go/db')
             build_context: ./backend-go/db
     steps:
-      - uses: bcgov-nr/action-builder-ghcr@v2.3.0
+      - uses: bcgov/action-builder-ghcr@v2.3.0
         id: builds
         with:
           build_context: ${{ matrix.build_context }}
