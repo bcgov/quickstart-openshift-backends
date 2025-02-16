@@ -29,7 +29,7 @@ jobs:
     steps: # Get PR number for squash merges to main
       - name: PR Number
         id: pr
-        uses: bcgov-nr/action-get-pr@v0.0.1
+        uses: bcgov/action-get-pr@v0.0.1
 
   deploy-test:
     name: Deploy (test)
@@ -117,7 +117,7 @@ jobs:
 
   ghcr-cleanup:
     name: GHCR Cleanup
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
         name: [backend-go, backend-py, backend-java, migrations-go, migrations-py]
