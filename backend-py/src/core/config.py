@@ -1,6 +1,6 @@
 import os
 from urllib.parse import quote
-from typing import Optional, Union, Dict, Any
+from typing import Optional, Union, Any
 from pydantic import PostgresDsn, field_validator
 from pydantic_settings import BaseSettings
 class Settings(BaseSettings):
@@ -14,17 +14,17 @@ class Settings(BaseSettings):
 
     @field_validator("SQLALCHEMY_DATABASE_URI", mode="before")
     @classmethod
-    def assemble_db_connection(cls, v: Optional[str], values: Dict[str, Any]) -> Any:
+    def assemble_db_connection(cls, v: Optional[str], values: Any) -> Any:
         print(f"assemble_db_connection called with v: {v}, values: {values}")
         if isinstance(v, str):
             return v
         dsn = PostgresDsn.build(
             scheme="postgresql",
-            username=values.get("POSTGRES_USER"),
-            password=values.get("POSTGRES_PASSWORD"),
-            host=values.get("POSTGRES_HOST"),
-            port=int(values.get("POSTGRES_PORT")),
-            path=f"{values.get('POSTGRES_DB') or ''}",
+            username=values.data.get("POSTGRES_USER"),
+            password=values.data.get("POSTGRES_PASSWORD"),
+            host=values.data.get("POSTGRES_HOST"),
+            port=int(values.data.get("POSTGRES_PORT")),
+            path=f"{values.data.get('POSTGRES_DB') or ''}",
         )
         print(f"Constructed SQLALCHEMY_DATABASE_URI: {dsn}")
         return dsn
