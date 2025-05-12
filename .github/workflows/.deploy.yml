@@ -137,7 +137,7 @@ jobs:
 
       - uses: actions/checkout@v4
       - name: Debug Values File
-        if: inputs.debug == 'true'
+        if: inputs.debug
         run: ls -l charts/crunchy/values.yml
       - name: Helm Deploy
         id: deploy
