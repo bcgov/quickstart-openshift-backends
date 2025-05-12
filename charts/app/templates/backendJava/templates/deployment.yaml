@@ -33,7 +33,7 @@ spec:
           imagePullPolicy: {{ default "IfNotPresent" .Values.backendJava.imagePullPolicy }}
           envFrom:
             - secretRef:
-                name: {{.Release.Name}}
+                name: {{.Release.Name}}-java
           env:
             - name: LOG_LEVEL
               value: info

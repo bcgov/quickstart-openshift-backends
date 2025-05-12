@@ -1,63 +1,70 @@
-{{- if .Values.backendGo.enabled }}
+{{- if .Values.backendPy.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "backendGo.fullname" . }}
+  name: {{ include "backendPy.fullname" . }}
   labels:
-    {{- include "backendGo.labels" . | nindent 4 }}
+    {{- include "backendPy.labels" . | nindent 4 }}
 spec:
   strategy:
-    type: {{ .Values.backendGo.deploymentStrategy }}
-  {{- if not .Values.backendGo.autoscaling.enabled }}
-  replicas: {{ .Values.backendGo.replicaCount }}
+    type: {{ .Values.backendPy.deploymentStrategy }}
+  {{- if not .Values.backendPy.autoscaling.enabled }}
+  replicas: {{ .Values.backendPy.replicaCount }}
   {{- end }}
   selector:
     matchLabels:
-      {{- include "backendGo.selectorLabels" . | nindent 6 }}
+      {{- include "backendPy.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-        {{- include "backendGo.labels" . | nindent 8 }}
+        {{- include "backendPy.labels" . | nindent 8 }}
     spec:
-      {{- if .Values.backendGo.podSecurityContext }}
+      {{- if .Values.backendPy.podSecurityContext }}
       securityContext:
-        {{- toYaml .Values.backendGo.podSecurityContext | nindent 12 }}
+        {{- toYaml .Values.backendPy.podSecurityContext | nindent 12 }}
       {{- end }}
       initContainers:
-        - name: {{ include "backendGo.fullname" . }}-init
-          image: "{{.Values.global.registry}}/{{.Values.global.repository}}/migrations-go:{{ .Values.global.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ default "IfNotPresent" .Values.backendGo.imagePullPolicy }}
+        - name: {{ include "backendPy.fullname" . }}-init
+          image: "{{.Values.global.registry}}/{{.Values.global.repository}}/migrations-py:{{ .Values.global.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ default "IfNotPresent" .Values.backendPy.imagePullPolicy }}
           envFrom:
             - secretRef:
-                name: {{.Release.Name}}
+                name: {{.Release.Name}}-py-flyway
           env:
             - name: FLYWAY_BASELINE_ON_MIGRATE
               value: "true"
             - name: FLYWAY_DEFAULT_SCHEMA
-              value: "go_api"
+              value: "py_api"
             - name: FLYWAY_CONNECT_RETRIES
               value: "10"
+            - name: FLYWAY_GROUP
+              value: "true"
           resources:
             requests:
               cpu: 20m
               memory: 150Mi
       containers:
-        - name: {{ include "backendGo.fullname" . }}
-          {{- if .Values.backendGo.securityContext }}
+        - name: {{ include "backendPy.fullname" . }}
+          {{- if .Values.backendPy.securityContext }}
           securityContext:
-            {{- toYaml .Values.backendGo.securityContext | nindent 12 }}
+            {{- toYaml .Values.backendPy.securityContext | nindent 12 }}
           {{- end }}
-          image: "{{.Values.global.registry}}/{{.Values.global.repository}}/backend-go:{{ .Values.global.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ default "IfNotPresent" .Values.backendGo.imagePullPolicy }}
+          image: "{{.Values.global.registry}}/{{.Values.global.repository}}/backend-py:{{ .Values.global.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ default "IfNotPresent" .Values.backendPy.imagePullPolicy }}
           envFrom:
             - secretRef:
-                name: {{.Release.Name}}
+                name: {{.Release.Name}}-py
           env:
             - name: LOG_LEVEL
               value: info
+            - name: PYTHONPATH
+              value: /application/app/src
+          volumeMounts:
+            - mountPath: /opt
+              name: logger-conf
           ports:
             - name: http
-              containerPort: {{ .Values.backendGo.service.targetPort }}
+              containerPort: {{ .Values.backendPy.service.targetPort }}
               protocol: TCP
           readinessProbe:
             httpGet:
@@ -83,11 +90,15 @@ spec:
             requests:
               cpu: 20m
               memory: 150Mi
-      {{- with .Values.backendGo.nodeSelector }}
+      volumes:
+        - name: logger-conf
+          configMap:
+            name: {{ include "backendPy.fullname" . }}
+      {{- with .Values.backendPy.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.backendGo.tolerations }}
+      {{- with .Values.backendPy.tolerations }}
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
@@ -99,7 +110,7 @@ spec:
                   - key: app.kubernetes.io/name
                     operator: In
                     values:
-                      - {{ include "backendGo.fullname" . }}
+                      - {{ include "backendPy.fullname" . }}
                   - key: app.kubernetes.io/instance
                     operator: In
                     values:

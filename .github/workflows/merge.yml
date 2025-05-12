@@ -10,10 +10,10 @@ on:
       - '!.github/workflows/**'
   workflow_dispatch:
     inputs:
-      pr_no:
-        description: "PR-numbered container set to deploy"
-        type: number
-        required: true
+      tag:
+        description: "Image tag set to deploy; e.g. PR number or prod"
+        type: string
+        default: 'prod'
 
 concurrency:
   group: ${{ github.workflow }}
@@ -30,16 +30,16 @@ jobs:
       - name: PR Number
         id: pr
         uses: bcgov/action-get-pr@v0.0.1
-
   deploy-test:
-    name: Deploy (test)
-    needs: [vars]
+    name: Deploy (TEST)
     uses: ./.github/workflows/.deploy.yml
-    secrets: inherit
+    secrets:
+      oc_namespace: ${{ vars.OC_NAMESPACE }}
+      oc_token: ${{ secrets.OC_TOKEN }}
     with:
       environment: test
-      tag: ${{ needs.vars.outputs.pr }}
-      release: test
+      db_user: app
+      tag: ${{ inputs.tag }}
   integration-tests:
     needs: [deploy-test]
     name: Integration Tests for APIs
@@ -85,16 +85,21 @@ jobs:
     name: Deploy (prod)
     needs: [deploy-test, vars]
     uses: ./.github/workflows/.deploy.yml
-    secrets: inherit
+    secrets:
+      oc_namespace: ${{ vars.OC_NAMESPACE }}
+      oc_token: ${{ secrets.OC_TOKEN }}
     with:
-      autoscaling: true
       environment: prod
-      tag: ${{ needs.vars.outputs.pr }}
-      release: prod
+      db_user: app
       params:
+        --set global.autoscaling=true
+        --set backendPy.pdb.enabled=true
+        --set backendGo.pdb.enabled=true
+        --set backendJava.pdb.enabled=true
         --set backendGo.deploymentStrategy=RollingUpdate
         --set backendPy.deploymentStrategy=RollingUpdate
         --set backendJava.deploymentStrategy=RollingUpdate
+      tag: ${{ inputs.tag }}
 
   promote:
     name: Promote Images

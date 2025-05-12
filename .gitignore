@@ -125,3 +125,4 @@ test-report.xml
 .venv
 **__pycache__
 **.pyc
+*.http

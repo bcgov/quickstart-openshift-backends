@@ -36,7 +36,7 @@ jobs:
             triggers: ('backend-go/db')
             build_context: ./backend-go/db
     steps:
-      - uses: bcgov/action-builder-ghcr@v2.3.0
+      - uses: bcgov/action-builder-ghcr@ace71f7a527ca6fc43c15c7806314be5a4579d2c # v2.3.0
         id: builds
         with:
           build_context: ${{ matrix.build_context }}
@@ -50,11 +50,13 @@ jobs:
     name: Deploys
     needs: [builds]
     uses: ./.github/workflows/.deploy.yml
-    secrets: inherit
+    secrets:
+      oc_namespace: ${{ vars.OC_NAMESPACE }}
+      oc_token: ${{ secrets.OC_TOKEN }}
     with:
-      build_outputs: ${{ needs.builds.outputs.digest }}
-      tag: ${{ github.event.number }}
-      release: ${{ github.event.number }}
+      db_user: app-${{ github.event.number }}
+      params: --set global.secrets.persist=false
+      triggers: ('backend/' 'frontend/' 'migrations/' 'charts/')
 
   results:
     name: PR Results
