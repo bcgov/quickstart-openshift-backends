@@ -21,8 +21,8 @@ class Settings(BaseSettings):
         dsn = PostgresDsn.build(
             scheme="postgresql",
             username=values.data.get("POSTGRES_USER"),
-            password=values.data.get("POSTGRES_PASSWORD"),
-            host=values.data.get("POSTGRES_HOST"),
+            password=quote(values.data.get("POSTGRES_PASSWORD"), safe=''),
+            host=quote(values.data.get("POSTGRES_HOST"), safe=''),
             port=int(values.data.get("POSTGRES_PORT")),
             path=f"{values.data.get('POSTGRES_DB') or ''}",
         )

@@ -18,7 +18,11 @@ on:
 concurrency:
   group: ${{ github.workflow }}
   cancel-in-progress: true
-
+permissions:
+  packages: write
+  contents: read
+  pull-requests: write
+  issues: write
 jobs:
   vars:
     name: Set Variables
