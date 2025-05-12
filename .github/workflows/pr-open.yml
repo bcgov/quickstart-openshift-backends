@@ -25,8 +25,8 @@ jobs:
         include:
           - package: backend-go
             triggers: ('backend-go/')
-          #- package: backend-java
-          #  triggers: ('backend-java/')
+          - package: backend-java
+            triggers: ('backend-java/')
           - package: backend-py
             triggers: ('backend-py/')
           - package: migrations-py
@@ -48,7 +48,7 @@ jobs:
 
   deploys:
     name: Deploys
-    needs: [builds]
+    ##needs: [builds]
     uses: ./.github/workflows/.deploy.yml
     secrets:
       oc_namespace: ${{ vars.OC_NAMESPACE }}
@@ -59,7 +59,7 @@ jobs:
 
   results:
     name: PR Results
-    needs: [builds, deploys]
+    needs: [ deploys]
     if: always()
     runs-on: ubuntu-24.04
     steps:
