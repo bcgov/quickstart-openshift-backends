@@ -38,7 +38,7 @@ jobs:
     name: Deploy (TEST)
     uses: ./.github/workflows/.deploy.yml
     secrets:
-      oc_namespace: ${{ vars.OC_NAMESPACE }}
+      oc_namespace: ${{ secrets.OC_NAMESPACE }}
       oc_token: ${{ secrets.OC_TOKEN }}
     with:
       environment: test
@@ -90,7 +90,7 @@ jobs:
     needs: [deploy-test, vars]
     uses: ./.github/workflows/.deploy.yml
     secrets:
-      oc_namespace: ${{ vars.OC_NAMESPACE }}
+      oc_namespace: ${{ secrets.OC_NAMESPACE }}
       oc_token: ${{ secrets.OC_TOKEN }}
     with:
       environment: prod
