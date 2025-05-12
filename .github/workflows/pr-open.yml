@@ -21,7 +21,7 @@ jobs:
     runs-on: ubuntu-24.04
     strategy:
       matrix:
-        package: [ backend-go,  backend-py, migrations-go, migrations-py]
+        package: [ backend-go, backend-java, backend-py, migrations-go, migrations-py]
         include:
           - package: backend-go
             triggers: ('backend-go/')

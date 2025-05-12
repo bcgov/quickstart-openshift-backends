@@ -1,8 +1,8 @@
 import os
 from urllib.parse import quote
 from typing import Optional, Union, Dict, Any
-from pydantic import PostgresDsn, BaseSettings, field_validator
-
+from pydantic import PostgresDsn, field_validator
+from pydantic_settings import BaseSettings
 class Settings(BaseSettings):
     API_V1_STR: str = "/api/v1"
     POSTGRES_HOST: str = os.getenv("POSTGRES_HOST", "127.0.0.1")
