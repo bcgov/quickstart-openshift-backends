@@ -25,7 +25,7 @@ class Settings(BaseSettings):
             port=int(values.data.get("POSTGRES_PORT")),
             path=f"{values.data.get('POSTGRES_DB') or ''}",
         )
-        print(f"Constructed SQLALCHEMY_DATABASE_URI: {dsn}")
+        logger.debug("Constructed SQLALCHEMY_DATABASE_URI: %s", dsn)
         return dsn
 
 Configuration = Settings()
