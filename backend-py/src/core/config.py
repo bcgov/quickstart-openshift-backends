@@ -10,11 +10,12 @@ class Settings(BaseSettings):
     POSTGRES_USER: str = os.getenv("POSTGRES_USER", "postgres")
     POSTGRES_PASSWORD: str = quote(os.getenv("POSTGRES_PASSWORD", "postgres"), safe='')
     POSTGRES_DB: str = os.getenv("POSTGRES_DB", "postgres")
-    SQLALCHEMY_DATABASE_URI: Union[Optional[PostgresDsn], Optional[str]]
+    SQLALCHEMY_DATABASE_URI: Union[Optional[PostgresDsn], Optional[str]] = None
 
     @field_validator("SQLALCHEMY_DATABASE_URI", mode="before")
     @classmethod
     def assemble_db_connection(cls, v: Optional[str], values: Dict[str, Any]) -> Any:
+        print(f"assemble_db_connection called with v: {v}, values: {values}")
         if isinstance(v, str):
             return v
         dsn = PostgresDsn.build(
