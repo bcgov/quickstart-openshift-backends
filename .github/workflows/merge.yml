@@ -124,19 +124,3 @@ jobs:
           tags: prod
 
 
-  ghcr-cleanup:
-    name: GHCR Cleanup
-    runs-on: ubuntu-24.04
-    strategy:
-      matrix:
-        name: [backend-go, backend-py, backend-java, migrations-go, migrations-py]
-    steps:
-      - name: Keep last 50
-        uses: actions/delete-package-versions@v5
-        with:
-          package-name: "${{ github.event.repository.name }}/${{ matrix.name }}"
-          package-type: "container"
-          min-versions-to-keep: 50
-          ignore-versions: "^(prod|test)$"
-
-
