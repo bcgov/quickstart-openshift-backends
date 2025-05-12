@@ -26,7 +26,7 @@ spec:
       initContainers:
         - name: {{ include "backendGo.fullname" . }}-init
           image: "{{.Values.global.registry}}/{{.Values.global.repository}}/migrations-go:{{ .Values.global.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ default "IfNotPresent" .Values.backendGo.imagePullPolicy }}
+          imagePullPolicy: {{ default "Always" .Values.backendGo.imagePullPolicy }}
           envFrom:
             - secretRef:
                 name: {{.Release.Name}}-go-flyway
@@ -50,7 +50,7 @@ spec:
             {{- toYaml .Values.backendGo.securityContext | nindent 12 }}
           {{- end }}
           image: "{{.Values.global.registry}}/{{.Values.global.repository}}/backend-go:{{ .Values.global.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ default "IfNotPresent" .Values.backendGo.imagePullPolicy }}
+          imagePullPolicy: {{ default "Always" .Values.backendGo.imagePullPolicy }}
           envFrom:
             - secretRef:
                 name: {{.Release.Name}}-go
