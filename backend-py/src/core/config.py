@@ -15,7 +15,6 @@ class Settings(BaseSettings):
     @field_validator("SQLALCHEMY_DATABASE_URI", mode="before")
     @classmethod
     def assemble_db_connection(cls, v: Optional[str], values: Any) -> Any:
-        print(f"assemble_db_connection called with v: {v}, values: {values}")
         if isinstance(v, str):
             return v
         dsn = PostgresDsn.build(
@@ -30,4 +29,3 @@ class Settings(BaseSettings):
         return dsn
 
 Configuration = Settings()
-print(f"Final SQLALCHEMY_DATABASE_URI: {Configuration.SQLALCHEMY_DATABASE_URI}")
