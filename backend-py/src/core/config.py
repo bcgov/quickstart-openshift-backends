@@ -1,20 +1,20 @@
 import os
 from typing import Any, Dict, Optional, Union
-
+from urllib.parse import quote
 from pydantic import field_validator, PostgresDsn
 from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
     API_V1_STR: str = "/api/v1"
-    POSTGRES_SERVER: str = os.getenv("POSTGRES_HOST", "127.0.0.1:5432")
-    POSTGRES_USER: str = os.getenv("POSTGRES_USER", "postgres")
     POSTGRES_PASSWORD: str = os.getenv("POSTGRES_PASSWORD", "postgres")
+    encoded_password = quote(POSTGRES_PASSWORD, safe='') # safe='' ensures all special characters are encoded
+
     POSTGRES_DB: str = os.getenv("POSTGRES_DB", "postgres")
     SQLALCHEMY_DATABASE_URI: Union[Optional[PostgresDsn], Optional[str]] = PostgresDsn.build(
         scheme="postgresql",
         username=os.getenv("POSTGRES_USER", "postgres"),
-        password=os.getenv("POSTGRES_PASSWORD", "postgres"),
+        password=encoded_password,
         host=os.getenv("POSTGRES_HOST", "127.0.0.1:5432"),
         path=f"{os.getenv('POSTGRES_DB', 'postgres')}",
     )
