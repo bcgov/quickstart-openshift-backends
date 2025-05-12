@@ -26,10 +26,10 @@ spec:
       initContainers:
         - name: {{ include "backendPy.fullname" . }}-init
           image: "{{.Values.global.registry}}/{{.Values.global.repository}}/migrations-py:{{ .Values.global.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ default "IfNotPresent" .Values.backendPy.imagePullPolicy }}
+          imagePullPolicy: {{ default "Always" .Values.backendPy.imagePullPolicy }}
           envFrom:
             - secretRef:
-                name: {{.Release.Name}}
+                name: {{.Release.Name}}-py-flyway
           env:
             - name: FLYWAY_BASELINE_ON_MIGRATE
               value: "true"
@@ -37,6 +37,8 @@ spec:
               value: "py_api"
             - name: FLYWAY_CONNECT_RETRIES
               value: "10"
+            - name: FLYWAY_GROUP
+              value: "true"
           resources:
             requests:
               cpu: 20m
@@ -48,10 +50,10 @@ spec:
             {{- toYaml .Values.backendPy.securityContext | nindent 12 }}
           {{- end }}
           image: "{{.Values.global.registry}}/{{.Values.global.repository}}/backend-py:{{ .Values.global.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ default "IfNotPresent" .Values.backendPy.imagePullPolicy }}
+          imagePullPolicy: {{ default "Always" .Values.backendPy.imagePullPolicy }}
           envFrom:
             - secretRef:
-                name: {{.Release.Name}}
+                name: {{.Release.Name}}-py
           env:
             - name: LOG_LEVEL
               value: info

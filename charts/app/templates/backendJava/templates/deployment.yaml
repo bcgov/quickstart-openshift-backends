@@ -30,10 +30,10 @@ spec:
             {{- toYaml .Values.backendJava.securityContext | nindent 12 }}
           {{- end }}
           image: "{{.Values.global.registry}}/{{.Values.global.repository}}/backend-java:{{ .Values.global.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ default "IfNotPresent" .Values.backendJava.imagePullPolicy }}
+          imagePullPolicy: {{ default "Always" .Values.backendJava.imagePullPolicy }}
           envFrom:
             - secretRef:
-                name: {{.Release.Name}}
+                name: {{.Release.Name}}-java
           env:
             - name: LOG_LEVEL
               value: info
