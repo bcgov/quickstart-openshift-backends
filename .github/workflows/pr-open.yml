@@ -56,7 +56,6 @@ jobs:
     with:
       db_user: app-${{ github.event.number }}
       params: --set global.secrets.persist=false
-      triggers: ('backend/' 'frontend/' 'migrations/' 'charts/')
 
   results:
     name: PR Results
