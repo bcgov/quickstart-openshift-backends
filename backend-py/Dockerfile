@@ -1,4 +1,4 @@
-FROM python:3.13.1 AS build
+FROM python:3.13.3 AS build
 
 # Disable cache dir, disable upgrade message, create .venv in project dir
 ARG PIP_NO_CACHE_DIR=off \
@@ -12,7 +12,7 @@ RUN pip install poetry==1.6.1
 RUN poetry install --no-root -vvv --without dev --sync
 
 # Deploy
-FROM python:3.13.1-slim  AS deploy
+FROM python:3.13.3-slim  AS deploy
 
 # Output to stdout/stderr, don't create .pyc files, etc.
 ENV PYTHONUNBUFFERED=1 \
