@@ -1,4 +1,5 @@
 import os
+import logging
 from urllib.parse import quote
 from typing import Optional, Union, Any
 from pydantic import PostgresDsn, field_validator
@@ -25,7 +26,7 @@ class Settings(BaseSettings):
             port=int(values.data.get("POSTGRES_PORT")),
             path=f"{values.data.get('POSTGRES_DB') or ''}",
         )
-        logger.debug("Constructed SQLALCHEMY_DATABASE_URI: %s", dsn)
+        logging.debug("Constructed SQLALCHEMY_DATABASE_URI: %s", dsn)
         return dsn
 
 Configuration = Settings()
