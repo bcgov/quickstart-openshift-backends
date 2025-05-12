@@ -9,6 +9,7 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app.kubernetes.io/name: {{ include "backendGo.fullname" . }}
+      app.kubernetes.io/name: {{ include "backendGo.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
   minAvailable: {{ .Values.backendGo.pdb.minAvailable }}
 {{- end }}
