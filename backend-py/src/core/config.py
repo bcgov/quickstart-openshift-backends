@@ -17,7 +17,7 @@ class Settings(BaseSettings):
     def assemble_db_connection(cls, v: Optional[str], values: Dict[str, Any]) -> Any:
         if isinstance(v, str):
             return v
-        return PostgresDsn.build(
+        dsn = PostgresDsn.build(
             scheme="postgresql",
             username=values.get("POSTGRES_USER"),
             password=values.get("POSTGRES_PASSWORD"),
@@ -25,5 +25,8 @@ class Settings(BaseSettings):
             port=int(values.get("POSTGRES_PORT")),
             path=f"{values.get('POSTGRES_DB') or ''}",
         )
+        print(f"Constructed SQLALCHEMY_DATABASE_URI: {dsn}")
+        return dsn
 
 Configuration = Settings()
+print(f"Final SQLALCHEMY_DATABASE_URI: {Configuration.SQLALCHEMY_DATABASE_URI}")
