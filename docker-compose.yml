@@ -73,7 +73,7 @@ services:
 
   backend-go:
     profiles: ["go", "all"]
-    image: cosmtrek/air:latest
+    image: cosmtrek/air:latest@sha256:5e8c6edac88b6151ba1d213cb6f181046a2ff77e427ee9f580192a86bf3e94ae
     working_dir: /app # has to be the same as mapped vol
     volumes: ["./backend-go/:/app", "/app/docs", "/app/tmp"]
     healthcheck:

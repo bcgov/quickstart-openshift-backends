@@ -2,7 +2,7 @@
 # https://github.com/quarkusio/quarkus-images
 
 # "Provides the native-image executable. Used by the Maven and Gradle plugin from Quarkus to build linux64 executables"
-FROM quay.io/quarkus/ubi-quarkus-graalvmce-builder-image:jdk-23 AS build
+FROM quay.io/quarkus/ubi-quarkus-graalvmce-builder-image:jdk-23@sha256:51c8dc445b8272e1e4519bc510b44e4846a78a8f4b4cdf158b49ac14ac49d8ff AS build
 
 # Image defaults to /project; copy controlled by .dockerignore
 COPY --chown=quarkus:quarkus . ./
