@@ -9,7 +9,7 @@ COPY --chown=quarkus:quarkus . ./
 RUN ./mvnw package -Pnative -DskipTests
 
 # "A base image to run Quarkus native application using UBI Micro"
-FROM quay.io/quarkus/quarkus-micro-image:2.0
+FROM quay.io/quarkus/quarkus-micro-image:2.0@sha256:8439095bcd7a0ead18db87d2fc17bdc9b9a62df07ddeb65590b09f92d79bcadb
 
 # Port and health check
 EXPOSE 3000
