@@ -115,7 +115,7 @@ bitnami-pg:
   image:
     registry: ghcr.io
     repository: bcgov/nr-containers/bitnami/postgresql
-    tag: 15.10.0@sha256:708df150b32fddb3d4b8afb8ba2377b667beac2679b3a30ee855b4d2181f87d2
+    tag: 15.10.0@sha256:a06e164dee7e912bfa1ad5df34f5e2b60820c6b26876757bfb7b589b8b5b609e
   auth:
     existingSecret: '{{ .Release.Name }}'
     username: 'quickstart'
