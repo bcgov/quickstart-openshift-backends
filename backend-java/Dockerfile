@@ -6,9 +6,10 @@ WORKDIR /app
 # Image defaults to /project; copy controlled by .dockerignore
 COPY --chown=quarkus:quarkus . ./
 RUN ./mvnw package -DskipTests
+RUN tree -d
 
 
-FROM eclipse-temurin:21-jdk as deploy
+FROM eclipse-temurin:21-jdk AS deploy
 
 ENV LANGUAGE='en_US:en'
 
@@ -16,10 +17,7 @@ RUN mkdir /deployments
 
 
 # We make four distinct layers so if there are application changes the library layers can be re-used
-COPY --chown=185 --from=build /app/target/lib/ /deployments/lib/
 COPY --chown=185 --from=build /app/target/*.jar /deployments/app.jar
-COPY --chown=185 --from=build /app/target/app/ /deployments/app/
-COPY --chown=185 --from=build /app/target/quarkus/ /deployments/quarkus/
 
 EXPOSE 3000
 HEALTHCHECK --interval=300s --timeout=3s CMD curl -f http://localhost:3000/ || exit 1
