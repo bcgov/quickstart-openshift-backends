@@ -1,21 +1,27 @@
-# Quarkus Images
-# https://github.com/quarkusio/quarkus-images
+
 
 # "Provides the native-image executable. Used by the Maven and Gradle plugin from Quarkus to build linux64 executables"
-FROM quay.io/quarkus/ubi-quarkus-graalvmce-builder-image:jdk-23 AS build
+FROM maven:3.9-eclipse-temurin
 
 # Image defaults to /project; copy controlled by .dockerignore
 COPY --chown=quarkus:quarkus . ./
-RUN ./mvnw package -Pnative -DskipTests
+RUN ./mvnw package -DskipTests
 
-# "A base image to run Quarkus native application using UBI Micro"
-FROM quay.io/quarkus/quarkus-micro-image:2.0@sha256:ec55f7e85b02c74a152a7474105e142a4c719184bf79aa19f743aec10e2b6cc1
 
-# Port and health check
+FROM registry.access.redhat.com/ubi9/openjdk-21:1.21
+
+ENV LANGUAGE='en_US:en'
+
+
+# We make four distinct layers so if there are application changes the library layers can be re-used
+COPY --chown=185 target/quarkus-app/lib/ /deployments/lib/
+COPY --chown=185 target/quarkus-app/*.jar /deployments/
+COPY --chown=185 target/quarkus-app/app/ /deployments/app/
+COPY --chown=185 target/quarkus-app/quarkus/ /deployments/quarkus/
+
 EXPOSE 3000
 HEALTHCHECK --interval=300s --timeout=3s CMD curl -f http://localhost:3000/ || exit 1
+USER 185
+ENV JAVA_OPTS_APPEND="-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager"
+ENV JAVA_APP_JAR="/deployments/quarkus-run.jar"
 
-# Startup
-COPY --chown=1001:root --from=build /project/target/*-runner /app
-USER 1001
-CMD ["/app", "-Dquarkus.http.host=0.0.0.0"]
