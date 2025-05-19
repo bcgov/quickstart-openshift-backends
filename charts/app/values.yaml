@@ -20,8 +20,7 @@ global:
       helm.sh/policy: "keep"
   #-- domain of the application, it is required, apps.silver.devops.gov.bc.ca for silver cluster and apps.devops.gov.bc.ca for gold cluster
   domain: "apps.silver.devops.gov.bc.ca" # it is apps.gold.devops.gov.bc.ca for gold cluster
-  #-- the database Alias gives a nice way to switch to different databases, crunchy, patroni ... etc.
-  databaseAlias: bitnami-pg
+  databaseAlias: ~
 #-- the components of the application, backend.
 backendPy:
   #-- enable or disable backend
@@ -107,108 +106,3 @@ backendJava:
   pdb:
     enabled: false # enable it in PRODUCTION for having pod disruption budget.
     minAvailable: 1 # the minimum number of pods that must be available during the disruption budget.
-
-
-
-bitnami-pg:
-  enabled: false
-  image:
-    registry: ghcr.io
-    repository: bcgov/nr-containers/bitnami/postgresql
-    tag: 15.10.0@sha256:708df150b32fddb3d4b8afb8ba2377b667beac2679b3a30ee855b4d2181f87d2
-  auth:
-    existingSecret: '{{ .Release.Name }}'
-    username: 'quickstart'
-    database: quickstart
-  shmVolume:
-    enabled: false
-  backup:
-    enabled: false
-    cronjob:
-      containerSecurityContext: { }
-      podSecurityContext:
-        enabled: false
-      storage:
-        size: 200Mi
-  primary:
-    persistence:
-      enabled: true
-      storageClass: netapp-block-standard
-      accessModes:
-        - ReadWriteOnce
-      size: 100Mi
-    containerSecurityContext:
-      enabled: false
-    podSecurityContext:
-      enabled: false
-    initdb:
-      scripts: # remove the below script, if POSTGIS is not required.
-        postgis.sh: |
-          #!/bin/sh
-          PGPASSWORD=$POSTGRES_PASSWORD psql -U postgres -d postgres -c "CREATE EXTENSION postgis;"
-    resources:
-      requests:
-        cpu: 50m
-        memory: 150Mi
-
-backup:
-  enabled: false
-  pvc:
-    enabled: true
-    size: 256Mi
-    storageClassName: netapp-file-standard
-    accessModes: ReadWriteOnce
-  cronjob:
-    enabled: true
-    volumes:
-      - name: "{{.Release.Name}}-backup"
-        persistentVolumeClaim:
-          claimName: "{{.Release.Name}}-backup"
-    restartPolicy: "Never"
-    schedule: "0 0 * * *"
-    concurrencyPolicy: "Replace"
-    failedJobsHistoryLimit: 7
-    successfulJobsHistoryLimit: 30
-    startingDeadlineSeconds: 3600
-  containers:
-    - name: backup
-      registry: 'docker.io'
-      repository: 'bcgovimages' # example, it includes registry and repository
-      image: backup-container # the exact component name, be it backend, api-1 etc...
-      tag: latest # the tag of the image, it can be latest, 1.0.0 etc..., or the sha256 hash
-      command:
-        - "/bin/bash"
-        - "-c"
-        - "/backup.sh -1"
-      volumeMounts:
-        - mountPath: "/backups/"
-          name: "{{.Release.Name}}-backup"
-      env:
-        fromValues:
-          - name: BACKUP_DIR
-            value: "/backups/"
-          - name: BACKUP_STRATEGY
-            value: "rolling"
-          - name: NUM_BACKUPS
-            value: '5'
-          - name: DAILY_BACKUPS
-            value: '7'
-          - name: WEEKLY_BACKUPS
-            value: '4'
-          - name: MONTHLY_BACKUPS
-            value: '1'
-          - name: DATABASE_SERVICE_NAME # depends on which chart being used, adjust accordingly.
-            value: '{{.Release.Name}}-{{.Values.global.databaseAlias}}'
-          - name: DEFAULT_PORT
-            value: "5432"
-        fromGlobalSecret:
-          - name: DATABASE_PASSWORD
-            key: password
-          - name: POSTGRESQL_DATABASE
-            key: databaseName
-          - name: DATABASE_USER
-            key: databaseUser
-      resources:
-        requests:
-          cpu: 20m
-          memory: 128Mi
