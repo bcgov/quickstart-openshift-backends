@@ -1,14 +1,14 @@
 
 
 # "Provides the native-image executable. Used by the Maven and Gradle plugin from Quarkus to build linux64 executables"
-FROM maven:3.9-eclipse-temurin
+FROM maven:3.9-eclipse-temurin AS build
 WORKDIR /app
 # Image defaults to /project; copy controlled by .dockerignore
 COPY --chown=quarkus:quarkus . ./
 RUN ./mvnw package -DskipTests
 
 
-FROM registry.access.redhat.com/ubi9/openjdk-21:1.21
+FROM registry.access.redhat.com/ubi9/openjdk-21:1.21 as deploy
 
 ENV LANGUAGE='en_US:en'
 
