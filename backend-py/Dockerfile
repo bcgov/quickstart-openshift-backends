@@ -1,4 +1,4 @@
-FROM python:3.13.3@sha256:3abe339a3bc81ffabcecf9393445594124de6420b3cfddf248c52b1115218f04 AS build
+FROM python:3.13.3@sha256:653b0cf8fc50366277a21657209ddd54edd125499d20f3520c6b277eb8c828d3 AS build
 
 # Disable cache dir, disable upgrade message, create .venv in project dir
 ARG PIP_NO_CACHE_DIR=off \
