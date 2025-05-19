@@ -23,7 +23,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Run Trivy vulnerability scanner in repo mode
-        uses: aquasecurity/trivy-action@0.30.0
+        uses: aquasecurity/trivy-action@6c175e9c4083a92bbca2f9724c8a5e33bc2d97a5 # 0.30.0
         with:
           format: "sarif"
           output: "trivy-results.sarif"
@@ -108,7 +108,7 @@ jobs:
           path: ~/.local
           key: poetry-${{ hashFiles('**/pyproject.toml') }}
 
-      - uses: snok/install-poetry@v1.4.1
+      - uses: snok/install-poetry@76e04a911780d5b312d89783f7b1cd627778900a # v1.4.1
         with:
           version: 1.2.2
           virtualenvs-create: true
