@@ -6,7 +6,7 @@ WORKDIR /app
 # Image defaults to /project; copy controlled by .dockerignore
 COPY --chown=quarkus:quarkus . ./
 RUN ./mvnw package -DskipTests
-RUN tree -d
+RUN ls -R
 
 
 FROM eclipse-temurin:21-jdk AS deploy
