@@ -37,7 +37,7 @@ x-python-vars: &python-vars
 
 services:
   database:
-    image: postgres:15@sha256:b8e11f8a8b383e19589a086a78b10f9ca69a39d6c9dcdd9342a8697544e8b3a0
+    image: postgres:15@sha256:67d48ce6228490f1b5bc93fb993b552e94088a028fc67b71eaf689b3b8b0df88
     container_name: database
     environment:
       <<: *postgres-vars
