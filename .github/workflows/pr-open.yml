@@ -45,9 +45,8 @@ jobs:
         with:
           build_context: ${{ matrix.build_context }}
           package: ${{ matrix.package }}
-          tag: ${{ github.event.number }}
-          triggers: ${{ matrix.triggers }}
           tag_fallback: latest
+          triggers: ${{ matrix.triggers }}
 
   deploys:
     name: Deploys
