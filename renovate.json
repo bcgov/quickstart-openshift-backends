@@ -4,15 +4,5 @@
   "extends": [
     "github>bcgov/renovate-config"
   ],
-  "packageRules": [
-    {
-      "matchUpdateTypes": [
-        "minor",
-        "patch"
-      ],
-      "automerge": true,
-      "description": "Non-major deps - automerge, lower release age",
-      "minimumReleaseAge": "1 day"
-    }
-  ]
+  "minimumReleaseAge": "0 days"
 }
