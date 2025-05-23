@@ -37,7 +37,7 @@ x-python-vars: &python-vars
 
 services:
   database:
-    image: postgres:15@sha256:e3aa6c400e191e4c41f34d09e12b6392ab6296539a9d18a14056f9eeac062287
+    image: postgres:15
     container_name: database
     environment:
       <<: *postgres-vars
@@ -47,7 +47,7 @@ services:
 
   migrations-go:
     profiles: ["go", "all"]
-    image: flyway/flyway:9-alpine@sha256:966538712a19b0f79ac24344d1373c8cc5e405427ec4b93a6d9e827c821bba8f
+    image: flyway/flyway:9-alpine
     container_name: migrations-go
     command: info migrate info
     volumes: ["./backend-go/db/migrations:/flyway/sql:ro"]
@@ -60,7 +60,7 @@ services:
 
   migrations-py:
     profiles: ["python", "all"]
-    image: flyway/flyway:9-alpine@sha256:966538712a19b0f79ac24344d1373c8cc5e405427ec4b93a6d9e827c821bba8f
+    image: flyway/flyway:9-alpine
     container_name: migrations-py
     command: info migrate info
     volumes: ["./backend-py/db/migrations:/flyway/sql:ro"]
@@ -103,7 +103,7 @@ services:
 
   backend-py:
     profiles: ["python", "all"]
-    image: python:3.13@sha256:e3424acce37cdb1d7f885b2d13c14a550a0b6b96ff8a58d2a08883f3f865fd1e
+    image: python:3.13
     container_name: backend-py
     entrypoint: /application/start-local.sh
     volumes: ["./backend-py:/application", "/application/.venv"]
@@ -119,7 +119,7 @@ services:
 
   backend-py-test:
     profiles: ["python", "all"]
-    image: python:3.13@sha256:e3424acce37cdb1d7f885b2d13c14a550a0b6b96ff8a58d2a08883f3f865fd1e
+    image: python:3.13
     container_name: backend-py-test
     entrypoint: /application/run-unit-tests.sh
     volumes: ["./backend-py:/application", "/application/.venv"]
