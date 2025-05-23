@@ -89,7 +89,7 @@ services:
 
   backend-py-model-generator:
     profiles: ["python", "all"]
-    image: python:3.11-slim-buster # DO NOT change, as it breaks the module.
+    image: python:3.11-slim-buster@sha256:c46b0ae5728c2247b99903098ade3176a58e274d9c7d2efeaaab3e0621a53935 # DO NOT change, as it breaks the module.
     container_name: backend-py-model-generator
     environment:
       <<: *postgres-vars
