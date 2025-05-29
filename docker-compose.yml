@@ -44,20 +44,7 @@ services:
     healthcheck:
       test: ["CMD", "pg_isready", "-U", *POSTGRES_USER]
     ports: ["5432:5432"]
-
-  migrations-go:
-    profiles: ["go", "all"]
-    image: flyway/flyway:9-alpine
-    container_name: migrations-go
-    command: info migrate info
-    volumes: ["./backend-go/db/migrations:/flyway/sql:ro"]
-    environment:
-      <<: *flyway-vars
-      FLYWAY_DEFAULT_SCHEMA: go_api
-    depends_on:
-      database:
-        condition: service_healthy
-
+3
   migrations-py:
     profiles: ["python", "all"]
     image: flyway/flyway:9-alpine
@@ -70,22 +57,6 @@ services:
     depends_on:
       database:
         condition: service_healthy
-
-  backend-go:
-    profiles: ["go", "all"]
-    image: cosmtrek/air:latest
-    working_dir: /app # has to be the same as mapped vol
-    volumes: ["./backend-go/:/app", "/app/docs", "/app/tmp"]
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
-    container_name: backend-go
-    environment:
-      <<: *postgres-vars
-    entrypoint: sh -c "go install github.com/swaggo/swag/cmd/swag@latest && swag init && swag fmt && /go/bin/air"
-    ports: ["3005:3000"]
-    depends_on:
-      migrations-go:
-        condition: service_started
 
   backend-py-model-generator:
     profiles: ["python", "all"]
