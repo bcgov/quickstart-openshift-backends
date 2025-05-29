@@ -7,7 +7,7 @@
 
 ## OpenShift, Java, Python
 
-These are pluggable backends intended for use with the [QuickStart for Openshift](https://github.com/bcgov/quickstart-openshift-backends), which defaults to JavaScript/TypeScripts.  They follow the same patterns and can be copied over.
+These are pluggable backends intended for use with the [QuickStart for Openshift](https://github.com/bcgov/quickstart-openshift), which defaults to JavaScript/TypeScripts.  They follow the same patterns and can be copied over.
 
 * Pluggable backends:
     * Backend: Java, Quarkus, Cloud Native
