@@ -5,25 +5,23 @@
 
 # QuickStart: Pluggable Backends
 
-## OpenShift, Go, Java, Python
+## OpenShift, Java, Python
 
 These are pluggable backends intended for use with the [QuickStart for Openshift](https://github.com/bcgov/quickstart-openshift-backends), which defaults to JavaScript/TypeScripts.  They follow the same patterns and can be copied over.
 
 * Pluggable backends:
     * Backend: Java, Quarkus, Cloud Native
-    * Backend: Go, Fiber
     * Backend: Python, FastAPI
 
 # Sample Application
 
-The starter stack includes a (React, MUI, Vite, Caddy) frontend, Pluggable backend(Nest/Node, Quarkus/Java On Native, FastAPI/Python, Fiber/Golang) and postgres database.  See subfolder for source, including Dockerfiles and OpenShift templates.
+The starter stack includes a (React, MUI, Vite, Caddy) frontend, Pluggable backend(Nest/Node, Quarkus/Java On Native, FastAPI/Python) and postgres database.  See subfolder for source, including Dockerfiles and OpenShift templates.
 
 Features:
 * [TypeScript](https://www.typescriptlang.org/) strong-typing for JavaScript
 * [NestJS](https://docs.nestjs.com) Nest/Node backend
 * [Quarkus](https://quarkus.io/) Quarkus/Java On Native backend
 * [FastAPI](https://fastapi.tiangolo.com/) FastAPI/Python backend
-* [Fiber](https://gofiber.io/) Fiber/Golang backend
 * [Postgres](https://www.postgresql.org/) or [PostGIS](https://postgis.net/) database
 * [backup-container](https://github.com/BCDevOps/backup-container) provided by BCDevOps
 
