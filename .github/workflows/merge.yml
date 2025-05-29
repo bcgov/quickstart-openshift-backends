@@ -44,6 +44,7 @@ jobs:
       environment: test
       db_user: app
       tag: ${{ inputs.tag }}
+
   integration-tests:
     needs: [deploy-test]
     name: Integration Tests for APIs
@@ -83,9 +84,10 @@ jobs:
         run: npm ci
       - name: Run integration tests
         run: BASE_URL=${{ matrix.baseUrl }} API_NAME=${{ matrix.name }}  node src/main.js
+
   deploy-prod:
     name: Deploy (prod)
-    needs: [deploy-test, vars]
+    needs: [integration-tests, vars]
     uses: ./.github/workflows/.deploy.yml
     secrets:
       oc_namespace: ${{ secrets.OC_NAMESPACE }}
