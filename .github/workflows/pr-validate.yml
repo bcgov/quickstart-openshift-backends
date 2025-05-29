@@ -16,7 +16,6 @@ jobs:
       markdown_links: |
         - [Java](https://${{ github.event.repository.name }}-${{ github.event.number }}-backendJava.apps.silver.devops.gov.bc.ca)
         - [Py](https://${{ github.event.repository.name }}-${{ github.event.number }}-backendPy.apps.silver.devops.gov.bc.ca)
-        - [Go](https://${{ github.event.repository.name }}-${{ github.event.number }}-backendGo.apps.silver.devops.gov.bc.ca)
 
   results:
     name: Validate Results

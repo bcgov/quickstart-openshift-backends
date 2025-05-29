@@ -53,12 +53,10 @@ jobs:
     runs-on: ubuntu-24.04
     strategy:
       matrix:
-        name: [quarkus, fiber, fastapi]
+        name: [quarkus, fastapi]
         include:
           - name: quarkus
             baseUrl: https://quickstart-openshift-backends-test-backendjava.apps.silver.devops.gov.bc.ca
-          - name: fiber
-            baseUrl: https://quickstart-openshift-backends-test-backendgo.apps.silver.devops.gov.bc.ca
           - name: fastapi
             baseUrl: https://quickstart-openshift-backends-test-backendpy.apps.silver.devops.gov.bc.ca
     steps:
