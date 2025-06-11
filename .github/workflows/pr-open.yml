@@ -35,7 +35,7 @@ jobs:
             triggers: ('backend-py/db')
             build_context: ./backend-py/db
     steps:
-      - uses: bcgov/action-builder-ghcr@2e7145d14b6f60c26a507a4b220a074d7abf3bb8 # v4.0.0
+      - uses: bcgov/action-builder-ghcr@fd17bc1cbb16a60514e0df3966d42dff9fc232bc # v4.0.0
         id: builds
         with:
           build_context: ${{ matrix.build_context }}
