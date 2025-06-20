@@ -81,7 +81,7 @@ jobs:
       triggered: ${{ steps.deploy.outputs.triggered }}
     timeout-minutes: ${{ inputs.timeout-minutes }}
     steps:
-      - uses: bcgov/action-crunchy@ac46670c974c2238fffb635eee7bbd27735c25bc # v1.2.1
+      - uses: bcgov/action-crunchy@43ef161792d81bf165d12df205262f7ea55290cf # v1.2.2
         name: Deploy Crunchy
         id: deploy_crunchy
         with:
