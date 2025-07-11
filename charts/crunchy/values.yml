@@ -90,8 +90,8 @@ crunchy: # enable it for TEST and PROD, for PR based pipelines simply use single
   patroni:
     postgresql:
       pg_hba:
-        - "host all all 0.0.0.0/0 md5"
-        - "host all all ::1/128 md5"
+        - "host all all 0.0.0.0/0 scram-sha-256"
+        - "host all all ::1/128 scram-sha-256"
       parameters:
         shared_buffers: 16MB # default is 128MB; a good tuned default for shared_buffers is 25% of the memory allocated to the pod
         wal_buffers: "64kB" # this can be set to -1 to automatically set as 1/32 of shared_buffers or 64kB, whichever is larger
@@ -106,11 +106,12 @@ crunchy: # enable it for TEST and PROD, for PR based pipelines simply use single
     enabled: true
     pgBouncer:
       image: # it's not necessary to specify an image as the images specified in the Crunchy Postgres Operator will be pulled by default
-      replicas: 1
+      replicas: 2
       requests:
         cpu: 5m
         memory: 32Mi
-      maxConnections: 10 # make sure less than postgres max connections
+      maxConnections: 100 # make sure less than postgres max connections
+      poolMode: 'transaction'
 
   # Postgres Cluster resource values:
   pgmonitor:

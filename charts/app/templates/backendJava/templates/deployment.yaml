@@ -35,6 +35,8 @@ spec:
             - secretRef:
                 name: {{.Release.Name}}-java
           env:
+            - name: QUARKUS_DATASOURCE_JDBC_POOLING_ENABLED
+              value: "false" # using pgbouncer
             - name: LOG_LEVEL
               value: info
           ports:
