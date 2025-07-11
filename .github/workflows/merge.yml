@@ -42,7 +42,7 @@ jobs:
       oc_token: ${{ secrets.OC_TOKEN }}
     with:
       environment: test
-      db_user: app
+      db_user: appproxy
       tag: ${{ inputs.tag }}
 
   integration-tests:
@@ -94,7 +94,7 @@ jobs:
       oc_token: ${{ secrets.OC_TOKEN }}
     with:
       environment: prod
-      db_user: app
+      db_user: appproxy
       params:
         --set global.autoscaling=true
         --set backendPy.pdb.enabled=true
