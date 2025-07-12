@@ -111,7 +111,7 @@ crunchy: # enable it for TEST and PROD, for PR based pipelines simply use single
         cpu: 5m
         memory: 32Mi
       maxConnections: 100 # make sure less than postgres max connections
-      poolMode: 'transaction'
+      poolMode: 'session'
 
   # Postgres Cluster resource values:
   pgmonitor:
