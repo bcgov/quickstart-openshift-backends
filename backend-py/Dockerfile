@@ -1,37 +1,54 @@
-FROM python:3.13.7 AS build
+# Use the official Python image with UV pre-installed
+FROM ghcr.io/astral-sh/uv:python3.13-bookworm-slim AS build
 
-# Disable cache dir, disable upgrade message, create .venv in project dir
-ARG PIP_NO_CACHE_DIR=off \
-    PIP_DISABLE_PIP_VERSION_CHECK=on \
-    POETRY_VIRTUALENVS_IN_PROJECT=1
+# Set environment variables for UV
+ENV UV_COMPILE_BYTECODE=1 \
+    UV_LINK_MODE=copy \
+    UV_PYTHON_DOWNLOADS=never
 
-# Install poetry, then dependencies
+# Install system dependencies
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends libpq-dev && \
+    rm -rf /var/lib/apt/lists/*
+
+# Set working directory
 WORKDIR /app
-COPY pyproject.toml poetry.lock ./
-RUN pip install poetry==1.6.1
-RUN poetry install --no-root -vvv --without dev --sync
 
-# Deploy
-FROM python:3.13.7-slim AS deploy
+# Copy dependency files
+COPY pyproject.toml uv.lock ./
 
-# Output to stdout/stderr, don't create .pyc files, etc.
+# Install dependencies
+RUN uv sync --frozen --no-install-project --no-dev
+
+# Copy source code
+COPY src ./src
+
+# Install the project
+RUN uv sync --frozen --no-dev
+
+# Production stage
+FROM python:3.13.7-slim-bookworm AS deploy
+
+# Set environment variables
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     PATH="/app/.venv/bin:$PATH" \
     PORT=3000
 
-# Packages
-RUN apt update && \
-    apt install -y --no-install-recommends libpq-dev
+# Install runtime dependencies
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends libpq-dev && \
+    rm -rf /var/lib/apt/lists/*
 
-# Dependencies, config and app
+# Copy virtual environment and application
 COPY --from=build /app/.venv /app/.venv
+COPY --from=build /app/src ./src
 COPY logger.conf ./
-COPY ./src ./src
 
+# Health check
 HEALTHCHECK --interval=300s --timeout=10s CMD timeout 10s sh -c 'true > http://localhost:${PORT} || exit 1'
 
-# Start with non-privileged user
+# Run as non-privileged user
 USER 1001
 SHELL ["/bin/bash", "-c"]
-ENTRYPOINT uvicorn src.main:app --host 0.0.0.0 --port ${PORT} --workers 1 --server-header --date-header --limit-concurrency 1000 --log-config ./logger.conf
+CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "${PORT}", "--workers", "1", "--server-header", "--date-header", "--limit-concurrency", "1000", "--log-config", "./logger.conf"]

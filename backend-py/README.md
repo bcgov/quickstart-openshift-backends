@@ -2,7 +2,7 @@
 ### Features
 - [x] FastAPI
 - [x] SQLAlchemy
-- [x] Poetry
+- [x] UV Package Manager
 - [x] Ruff
 - [x] Flyway
 - [x] Docker
