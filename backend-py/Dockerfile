@@ -44,6 +44,10 @@ RUN apt-get update && \
 COPY --from=build /app/.venv /app/.venv
 COPY --from=build /app/src ./src
 COPY logger.conf ./
+COPY start-server.sh ./
+
+# Make the script executable
+RUN chmod +x start-server.sh
 
 # Health check
 HEALTHCHECK --interval=300s --timeout=10s CMD timeout 10s sh -c 'true > http://localhost:${PORT} || exit 1'
@@ -51,4 +55,4 @@ HEALTHCHECK --interval=300s --timeout=10s CMD timeout 10s sh -c 'true > http://l
 # Run as non-privileged user
 USER 1001
 SHELL ["/bin/bash", "-c"]
-CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "3000", "--workers", "1", "--server-header", "--date-header", "--limit-concurrency", "1000", "--log-config", "./logger.conf"]
+CMD ["./start-server.sh"]
