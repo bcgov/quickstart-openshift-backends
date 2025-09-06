@@ -51,4 +51,4 @@ HEALTHCHECK --interval=300s --timeout=10s CMD timeout 10s sh -c 'true > http://l
 # Run as non-privileged user
 USER 1001
 SHELL ["/bin/bash", "-c"]
-CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "${PORT}", "--workers", "1", "--server-header", "--date-header", "--limit-concurrency", "1000", "--log-config", "./logger.conf"]
+CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "3000", "--workers", "1", "--server-header", "--date-header", "--limit-concurrency", "1000", "--log-config", "./logger.conf"]
