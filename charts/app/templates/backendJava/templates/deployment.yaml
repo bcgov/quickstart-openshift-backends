@@ -16,6 +16,8 @@ spec:
       {{- include "backendJava.selectorLabels" . | nindent 6 }}
   template:
     metadata:
+      annotations:
+        rollme: {{ randAlphaNum 5 | quote }}
       labels:
         {{- include "backendJava.labels" . | nindent 8 }}
     spec:

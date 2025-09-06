@@ -16,6 +16,8 @@ spec:
       {{- include "backendPy.selectorLabels" . | nindent 6 }}
   template:
     metadata:
+      annotations:
+        rollme: {{ randAlphaNum 5 | quote }}
       labels:
         {{- include "backendPy.labels" . | nindent 8 }}
     spec:
