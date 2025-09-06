@@ -25,10 +25,8 @@ x-python-vars: &python-vars
   PIP_NO_CACHE_DIR: off
   PIP_DISABLE_PIP_VERSION_CHECK: on
   PIP_DEFAULT_TIMEOUT: 100
-  POETRY_VERSION: 1.2.2
-  POETRY_HOME: /opt/poetry
-  POETRY_VIRTUALENVS_IN_PROJECT: true
-  POETRY_NO_INTERACTION: 1
+  UV_COMPILE_BYTECODE: 1
+  UV_LINK_MODE: copy
   PYSETUP_PATH: /application
   VENV_PATH: /application/.venv
   PYTHONDONTWRITEBYTECODE: 1
@@ -44,7 +42,7 @@ services:
     healthcheck:
       test: ["CMD", "pg_isready", "-U", *POSTGRES_USER]
     ports: ["5432:5432"]
-3
+
   migrations-py:
     profiles: ["python", "all"]
     image: flyway/flyway:9-alpine

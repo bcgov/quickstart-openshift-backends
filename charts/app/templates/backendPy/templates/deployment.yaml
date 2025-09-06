@@ -16,6 +16,8 @@ spec:
       {{- include "backendPy.selectorLabels" . | nindent 6 }}
   template:
     metadata:
+      annotations:
+        rollme: {{ randAlphaNum 5 | quote }}
       labels:
         {{- include "backendPy.labels" . | nindent 8 }}
     spec:
@@ -66,6 +68,16 @@ spec:
             - name: http
               containerPort: {{ .Values.backendPy.service.targetPort }}
               protocol: TCP
+          startupProbe:
+            httpGet:
+              path: /
+              port: http
+              scheme: HTTP
+            initialDelaySeconds: 2
+            periodSeconds: 2
+            timeoutSeconds: 2
+            successThreshold: 1
+            failureThreshold: 30
           readinessProbe:
             httpGet:
               path: /
