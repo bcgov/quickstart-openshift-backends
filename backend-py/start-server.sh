@@ -1,5 +1,5 @@
 #!/bin/bash
-TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
+TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S.%3N')
 echo -e "\033[0;32m[$TIMESTAMP] [info]: Starting FastAPI application...\033[0m"
 
 # Start the FastAPI application with uvicorn
