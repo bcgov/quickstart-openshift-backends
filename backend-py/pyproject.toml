@@ -5,13 +5,14 @@ description = "Starter template for Python backend projects"
 authors = [{ name = "NRIDS" }]
 requires-python = ">=3.13"
 dependencies = [
-    "fastapi>=0.116.0",
+    "fastapi[standard]>=0.116.0",
     "uvicorn>=0.35.0",
     "sqlalchemy>=2.0.32",
     "pydantic[email]>=2.0.0",
     "requests>=2.31.0",
     "psycopg2-binary>=2.9.9",
     "pydantic-settings>=2.4.0",
+    "structlog>=25.4.0"
 ]
 
 [dependency-groups]

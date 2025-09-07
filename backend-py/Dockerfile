@@ -33,7 +33,9 @@ FROM python:3.13.7-slim-bookworm AS deploy
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     PATH="/app/.venv/bin:$PATH" \
-    PORT=3000
+    PORT=3000 \
+    LOG_LEVEL=INFO \
+    ENVIRONMENT=production
 
 # Install runtime dependencies
 RUN apt-get update && \
@@ -43,7 +45,6 @@ RUN apt-get update && \
 # Copy virtual environment and application
 COPY --from=build /app/.venv /app/.venv
 COPY --from=build /app/src ./src
-COPY logger.conf ./
 COPY start-server.sh ./
 
 # Make the script executable
