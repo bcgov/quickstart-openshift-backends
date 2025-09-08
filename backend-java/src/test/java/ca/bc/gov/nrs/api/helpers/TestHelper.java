@@ -7,7 +7,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import net.datafaker.Faker;
-import org.instancio.Instancio;
 
 import java.util.List;
 
@@ -38,11 +37,24 @@ public class TestHelper {
 
   @Transactional(Transactional.TxType.REQUIRES_NEW)
   public List<UserEntity> saveUsers(int size) {
-    var users = Instancio.ofList(UserEntity.class).size(size).create().stream().peek(x -> {
-      x.setId(null);
-      x.setAddresses(null);
-    }).toList();
-    this.userRepository.persist(users);
+    var users = new java.util.ArrayList<UserEntity>();
+    for (int i = 0; i < size; i++) {
+      var name = faker.name();
+      var email = faker.internet().emailAddress();
+      UserEntity user = new UserEntity();
+      user.setName(name.fullName());
+      user.setEmail(email);
+      users.add(user);
+    }
+    try{
+      // Persist users individually
+      for (UserEntity user : users) {
+        this.userRepository.persist(user);
+      }
+    }catch(Exception e){
+      e.printStackTrace();
+    }
+    
     return users;
   }
 
