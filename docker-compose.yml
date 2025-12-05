@@ -72,7 +72,7 @@ services:
 
   backend-py:
     profiles: ["python", "all"]
-    image: python:3.13
+    image: python:3.14
     container_name: backend-py
     entrypoint: /application/start-local.sh
     volumes: ["./backend-py:/application", "/application/.venv"]
@@ -88,7 +88,7 @@ services:
 
   backend-py-test:
     profiles: ["python", "all"]
-    image: python:3.13
+    image: python:3.14
     container_name: backend-py-test
     entrypoint: /application/run-unit-tests.sh
     volumes: ["./backend-py:/application", "/application/.venv"]
