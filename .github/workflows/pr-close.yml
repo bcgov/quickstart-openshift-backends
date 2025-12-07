@@ -9,7 +9,9 @@ concurrency:
   # PR open and close use the same group, allowing only one at a time
   group: pr-${{ github.workflow }}-${{ github.event.number }}
   cancel-in-progress: true
-
+permissions:
+  packages: write
+  contents: read
 jobs:
   cleanup:
     name: Cleanup OpenShift and/or Promote Images
