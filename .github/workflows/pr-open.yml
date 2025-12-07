@@ -14,11 +14,10 @@ jobs:
   builds:
     name: Builds
     permissions:
-      contents: read # Required for repository access
-      packages: write # Required for pushing images
-      id-token: write # Required for OIDC token generation
       attestations: write # Required for creating attestations
-    if: ! github.event.pull_request.head.repo.fork
+      contents: read # Required for repository access
+      id-token: write # Required for OIDC token generation
+      packages: write # Required for pushing images
     outputs:
       digest: ${{ steps.builds.outputs.digest }}
     runs-on: ubuntu-24.04
