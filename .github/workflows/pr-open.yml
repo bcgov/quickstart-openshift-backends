@@ -14,14 +14,14 @@ jobs:
   builds:
     name: Builds
     permissions:
-      packages: write  # Required for building and pushing images
-    if: "!github.event.pull_request.head.repo.fork"
+      packages: write # Required for building and pushing images
+    if: ! github.event.pull_request.head.repo.fork
     outputs:
       digest: ${{ steps.builds.outputs.digest }}
     runs-on: ubuntu-24.04
     strategy:
       matrix:
-        package: [ backend-java, backend-py, migrations-py]
+        package: [backend-java, backend-py, migrations-py]
         include:
           - package: backend-java
             triggers: ('backend-java/')
@@ -42,7 +42,7 @@ jobs:
   deploys:
     name: Deploys
     permissions:
-      contents: read  # Required for repository access
+      contents: read # Required for repository access
     needs: [builds]
     uses: ./.github/workflows/.deploy.yml
     secrets:
@@ -54,7 +54,7 @@ jobs:
 
   results:
     name: PR Results
-    needs: [ builds, deploys]
+    needs: [builds, deploys]
     if: always()
     runs-on: ubuntu-24.04
     steps:
