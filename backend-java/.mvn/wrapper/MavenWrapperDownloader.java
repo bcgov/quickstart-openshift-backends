@@ -55,6 +55,15 @@ public final class MavenWrapperDownloader
                 System.err.println(" - ERROR: Provided JAR path escapes working directory.");
                 System.exit(1);
             }
+            // Defense-in-depth: resolve symlinks in parent directories
+            Path parentDir = wrapperJarPath.getParent();
+            if (parentDir != null) {
+                Files.createDirectories(parentDir);
+                if (!parentDir.toRealPath().startsWith(baseDir.toRealPath())) {
+                    System.err.println(" - ERROR: Path resolves outside working directory.");
+                    System.exit(1);
+                }
+            }
             downloadFileFromURL( wrapperUrl, wrapperJarPath );
             log( "Done" );
         }
