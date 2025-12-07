@@ -14,7 +14,9 @@ jobs:
   builds:
     name: Builds
     permissions:
-      packages: write # Required for building and pushing images
+      packages: write # Required for pushing images
+      id-token: write # Required for OIDC token generation
+      attestations: write # Required for creating attestations
     if: ! github.event.pull_request.head.repo.fork
     outputs:
       digest: ${{ steps.builds.outputs.digest }}
