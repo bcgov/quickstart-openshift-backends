@@ -48,13 +48,14 @@ public final class MavenWrapperDownloader
             log( " - Downloader started" );
             final URL wrapperUrl = new URL( args[0] );
             // Restrict downloads to well-known Maven repository hosts
-            final String allowedHost = "repo.maven.apache.org";
-            final String allowedHost2 = "repo1.maven.org";
+            final java.util.Set<String> ALLOWED_MAVEN_REPO_HOSTS = java.util.Set.of(
+                "repo.maven.apache.org",
+                "repo1.maven.org"
+            );
             if (!"https".equalsIgnoreCase(wrapperUrl.getProtocol()) ||
-                !(allowedHost.equalsIgnoreCase(wrapperUrl.getHost()) ||
-                  allowedHost2.equalsIgnoreCase(wrapperUrl.getHost())))
+                ALLOWED_MAVEN_REPO_HOSTS.stream().noneMatch(h -> h.equalsIgnoreCase(wrapperUrl.getHost())))
             {
-                System.err.println(" - ERROR: Only downloads from [" + allowedHost + "] or [" + allowedHost2 + "] over HTTPS are allowed.");
+                System.err.println(" - ERROR: Only downloads from " + ALLOWED_MAVEN_REPO_HOSTS + " over HTTPS are allowed.");
                 System.exit(1);
             }
             final String jarPath = args[1].replace( "..", "" ); // Sanitize path
