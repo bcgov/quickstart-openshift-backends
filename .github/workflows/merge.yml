@@ -2,30 +2,28 @@ name: Merge
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
     paths-ignore:
-      - '*.md'
-      - '.github/**'
-      - '.graphics/**'
-      - '!.github/workflows/**'
+      - "*.md"
+      - ".github/**"
+      - ".graphics/**"
+      - "!.github/workflows/**"
   workflow_dispatch:
     inputs:
       tag:
         description: "Image tag set to deploy; e.g. PR number or prod"
         type: string
-        default: 'prod'
+        default: "prod"
 
 concurrency:
   group: ${{ github.workflow }}
   cancel-in-progress: true
-permissions:
-  packages: write
-  contents: read
-  pull-requests: write
-  issues: write
+permissions: {}
 jobs:
   vars:
     name: Set Variables
+    permissions:
+      pull-requests: read # Required for action-get-pr to read PR information
     outputs:
       pr: ${{ steps.pr.outputs.pr }}
     runs-on: ubuntu-24.04
@@ -36,6 +34,8 @@ jobs:
         uses: bcgov/action-get-pr@35514fa1d4765547da319e967b509363598e8b46 # v0.1.0
   deploy-test:
     name: Deploy (TEST)
+    permissions:
+      contents: read # Required for repository access
     uses: ./.github/workflows/.deploy.yml
     secrets:
       oc_namespace: ${{ secrets.OC_NAMESPACE }}
@@ -48,6 +48,8 @@ jobs:
   integration-tests:
     needs: [deploy-test]
     name: Integration Tests for APIs
+    permissions:
+      contents: read # Required for checkout
     defaults:
       run:
         working-directory: integration-tests
@@ -87,6 +89,8 @@ jobs:
 
   deploy-prod:
     name: Deploy (prod)
+    permissions:
+      contents: read # Required for repository access
     needs: [integration-tests, vars]
     uses: ./.github/workflows/.deploy.yml
     secrets:
@@ -95,8 +99,7 @@ jobs:
     with:
       environment: prod
       db_user: appproxy
-      params:
-        --set global.autoscaling=true
+      params: --set global.autoscaling=true
         --set backendPy.pdb.enabled=true
         --set backendGo.pdb.enabled=true
         --set backendJava.pdb.enabled=true
@@ -122,5 +125,3 @@ jobs:
           repository: ${{ github.repository }}/${{ matrix.package }}
           target: ${{ needs.vars.outputs.pr }}
           tags: prod
-
-

@@ -8,24 +8,22 @@ concurrency:
   # PR open and close use the same group, allowing only one at a time
   group: pr-${{ github.workflow }}-${{ github.event.number }}
   cancel-in-progress: true
-permissions:
-  packages: write
-  contents: read
-  pull-requests: write
-  issues: write
+permissions: {}
 jobs:
   # https://github.com/bcgov/action-builder-ghcr
   builds:
     name: Builds
-    if: "!github.event.pull_request.head.repo.fork"
     permissions:
-      packages: write
+      attestations: write # Required for creating attestations
+      contents: read # Required for repository access
+      id-token: write # Required for OIDC token generation
+      packages: write # Required for pushing images
     outputs:
       digest: ${{ steps.builds.outputs.digest }}
     runs-on: ubuntu-24.04
     strategy:
       matrix:
-        package: [ backend-java, backend-py, migrations-py]
+        package: [backend-java, backend-py, migrations-py]
         include:
           - package: backend-java
             triggers: ('backend-java/')
@@ -34,17 +32,21 @@ jobs:
           - package: migrations-py
             triggers: ('backend-py/db')
             build_context: ./backend-py/db
+            build_file: ./backend-py/db/Dockerfile
     steps:
       - uses: bcgov/action-builder-ghcr@2b24ac7f95e6a019064151498660437cca3202c5 # v4.2.1
         id: builds
         with:
           build_context: ${{ matrix.build_context }}
+          build_file: ${{ matrix.build_file }}
           package: ${{ matrix.package }}
           tag_fallback: latest
           triggers: ${{ matrix.triggers }}
 
   deploys:
     name: Deploys
+    permissions:
+      contents: read # Required for repository access
     needs: [builds]
     uses: ./.github/workflows/.deploy.yml
     secrets:
@@ -56,7 +58,7 @@ jobs:
 
   results:
     name: PR Results
-    needs: [ builds, deploys]
+    needs: [builds, deploys]
     if: always()
     runs-on: ubuntu-24.04
     steps:
