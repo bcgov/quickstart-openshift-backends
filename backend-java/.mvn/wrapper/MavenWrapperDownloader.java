@@ -47,6 +47,16 @@ public final class MavenWrapperDownloader
         {
             log( " - Downloader started" );
             final URL wrapperUrl = new URL( args[0] );
+            // Restrict downloads to well-known Maven repository hosts
+            final String allowedHost = "repo.maven.apache.org";
+            final String allowedHost2 = "repo1.maven.org";
+            if (!"https".equalsIgnoreCase(wrapperUrl.getProtocol()) ||
+                !(allowedHost.equalsIgnoreCase(wrapperUrl.getHost()) ||
+                  allowedHost2.equalsIgnoreCase(wrapperUrl.getHost())))
+            {
+                System.err.println(" - ERROR: Only downloads from [" + allowedHost + "] or [" + allowedHost2 + "] over HTTPS are allowed.");
+                System.exit(1);
+            }
             final String jarPath = args[1].replace( "..", "" ); // Sanitize path
             final Path wrapperJarPath = Paths.get( jarPath ).toAbsolutePath().normalize();
             downloadFileFromURL( wrapperUrl, wrapperJarPath );
