@@ -14,6 +14,7 @@ jobs:
   builds:
     name: Builds
     permissions:
+      contents: read # Required for repository access
       packages: write # Required for pushing images
       id-token: write # Required for OIDC token generation
       attestations: write # Required for creating attestations
