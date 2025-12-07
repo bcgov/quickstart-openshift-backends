@@ -17,6 +17,33 @@ const __dirname = path.dirname(__filename);
 const apiName = process.env.API_NAME;
 const BASE_URL = process.env.BASE_URL;
 
+// Restrict BASE_URL to an allowlist of URLs or hosts
+const ALLOWED_BASE_URLS = [
+  // List the allowed hosts/endpoints for your testing, e.g.:
+  "https://api.example.com",
+  "https://staging-api.example.com"
+  // Add more as needed
+];
+
+function isAllowedBaseUrl(url) {
+  try {
+    const parsed = new URL(url);
+    // Only allow URLs that start with an allowed base (ignoring trailing slashes)
+    return ALLOWED_BASE_URLS.some(allowed => {
+      // Allow both with/without trailing slash
+      return parsed.href.startsWith(allowed.endsWith("/") ? allowed : allowed + "/") ||
+             parsed.href === allowed;
+    });
+  } catch {
+    return false;
+  }
+}
+
+if (!isAllowedBaseUrl(BASE_URL)) {
+  console.error(`Error: BASE_URL (${BASE_URL}) is not in the allowed list for API testing. Aborting.`);
+  process.exit(1);
+}
+
 async function performEachMethod(BASE_URL, testCase, method, id) {
   let url = BASE_URL + testCase.path;
   if (id && (method === "GET" || method === "PUT" || method === "PATCH" || method === "DELETE")) {
