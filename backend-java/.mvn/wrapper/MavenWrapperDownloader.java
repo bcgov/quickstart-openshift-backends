@@ -47,8 +47,14 @@ public final class MavenWrapperDownloader
         {
             log( " - Downloader started" );
             final URL wrapperUrl = new URL( args[0] );
-            final String jarPath = args[1].replace( "..", "" ); // Sanitize path
-            final Path wrapperJarPath = Paths.get( jarPath ).toAbsolutePath().normalize();
+            final String jarPath = args[1];
+            final Path baseDir = Paths.get("").toAbsolutePath().normalize();
+            final Path wrapperJarPath = baseDir.resolve(jarPath).normalize();
+            // Check that the path is within the base directory.
+            if (!wrapperJarPath.startsWith(baseDir)) {
+                System.err.println(" - ERROR: Provided JAR path escapes working directory.");
+                System.exit(1);
+            }
             downloadFileFromURL( wrapperUrl, wrapperJarPath );
             log( "Done" );
         }
