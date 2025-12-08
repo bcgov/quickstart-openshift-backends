@@ -45,7 +45,7 @@ services:
 
   migrations-py:
     profiles: ["python", "all"]
-    image: flyway/flyway:9-alpine
+    image: flyway/flyway:11-alpine
     container_name: migrations-py
     command: info migrate info
     volumes: ["./backend-py/db/migrations:/flyway/sql:ro"]
