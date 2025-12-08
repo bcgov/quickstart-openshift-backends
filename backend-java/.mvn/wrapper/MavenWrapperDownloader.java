@@ -154,12 +154,23 @@ public final class MavenWrapperDownloader
         throws IOException
     {
         // SSRF protection: validate URL immediately before making network request
-        // This ensures CodeQL recognizes the validation guards the openStream() call
-        if (!isAllowedUrl(wrapperUrl)) {
-            throw new IOException("URL validation failed: Only downloads from " + 
-                ALLOWED_MAVEN_REPO_HOSTS + " over HTTPS are allowed.");
+        // Extract and validate URL components inline for CodeQL recognition
+        String protocol = wrapperUrl.getProtocol();
+        String host = wrapperUrl.getHost();
+        
+        // Validate protocol - must be HTTPS
+        if (protocol == null || !"https".equalsIgnoreCase(protocol)) {
+            throw new IOException("URL validation failed: Only HTTPS protocol is allowed.");
         }
         
+        // Validate host - must match canonicalized allowed hosts
+        String canonicalizedHost = canonicalizeHost(host);
+        if (canonicalizedHost == null || !CANONICALIZED_ALLOWED_HOSTS.contains(canonicalizedHost)) {
+            throw new IOException("URL validation failed: Only downloads from " + 
+                ALLOWED_MAVEN_REPO_HOSTS + " are allowed.");
+        }
+        
+        // At this point, wrapperUrl is validated - safe to use for network request
         log( " - Downloading to: " + wrapperJarPath );
         if ( System.getenv( "MVNW_USERNAME" ) != null && System.getenv( "MVNW_PASSWORD" ) != null )
         {
