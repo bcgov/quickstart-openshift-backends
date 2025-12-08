@@ -26,6 +26,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.Locale;
+import java.util.stream.Collectors;
 
 public final class MavenWrapperDownloader
 {
@@ -37,6 +39,37 @@ public final class MavenWrapperDownloader
         "repo.maven.apache.org",
         "repo1.maven.org"
     );
+
+    // Pre-compute canonicalized allowed hosts for efficiency
+    private static final java.util.Set<String> CANONICALIZED_ALLOWED_HOSTS = 
+        ALLOWED_MAVEN_REPO_HOSTS.stream()
+            .map(MavenWrapperDownloader::canonicalizeHost)
+            .collect(Collectors.toSet());
+
+    /**
+     * Canonicalizes the hostname by removing any trailing dots and converting to lowercase.
+     * Uses manual string operations instead of regex to avoid ReDoS vulnerabilities.
+     * Returns null for null, empty, or invalid hostnames (e.g., all dots) for security.
+     *
+     * @param host the hostname to canonicalize
+     * @return the canonicalized hostname, or null if host is null, empty, or invalid
+     */
+    private static String canonicalizeHost(String host) {
+        if (host == null || host.isEmpty()) {
+            return null;
+        }
+        // Remove trailing dots manually (more efficient than regex, avoids ReDoS)
+        int endIndex = host.length();
+        while (endIndex > 0 && host.charAt(endIndex - 1) == '.') {
+            endIndex--;
+        }
+        // Check if hostname was all dots
+        if (endIndex == 0) {
+            return null; // hostname was all dots
+        }
+        // Convert to lowercase using ROOT locale for consistent behavior across all locales
+        return host.substring(0, endIndex).toLowerCase(Locale.ROOT);
+    }
 
     public static void main( String[] args )
     {
@@ -92,15 +125,29 @@ public final class MavenWrapperDownloader
 
     /**
      * Validates that the given URL is allowed for downloading Maven wrapper.
-     * Only HTTPS protocol is allowed and the host must be in the list of allowed Maven repository hosts.
+     * Only HTTPS protocol is allowed and the host must exactly match (after canonicalization)
+     * one of the allowed Maven repository hosts. This prevents SSRF attacks by:
+     * - Requiring exact host match (no subdomains)
+     * - Canonicalizing hostnames (removing trailing dots, normalizing case)
+     * - Restricting to HTTPS only
+     * - Rejecting null, empty, or invalid hostnames
      *
      * @param url the URL to validate
      * @return true if the URL is allowed, false otherwise
      */
     private static boolean isAllowedUrl( URL url )
     {
-        return "https".equalsIgnoreCase(url.getProtocol()) &&
-               ALLOWED_MAVEN_REPO_HOSTS.stream().anyMatch(h -> h.equalsIgnoreCase(url.getHost()));
+        // Only allow HTTPS, and an EXACT host match after canonicalization.
+        if (!"https".equalsIgnoreCase(url.getProtocol())) {
+            return false;
+        }
+        String actualHost = canonicalizeHost(url.getHost());
+        // Reject null or invalid hostnames
+        if (actualHost == null) {
+            return false;
+        }
+        // No subdomain allowed, just exact host match using pre-computed canonicalized hosts.
+        return CANONICALIZED_ALLOWED_HOSTS.contains(actualHost);
     }
 
     private static void downloadFileFromURL( URL wrapperUrl, Path wrapperJarPath )
