@@ -172,7 +172,12 @@ public final class MavenWrapperDownloader
         
         // Reconstruct URL from validated components to ensure only validated URL is used
         // This helps CodeQL recognize that the URL is sanitized
-        URL validatedUrl = new URL(protocol, host, wrapperUrl.getPort(), wrapperUrl.getFile());
+        // Handle default port (-1) for HTTPS (443)
+        int port = wrapperUrl.getPort();
+        if (port == -1) {
+            port = 443; // Default HTTPS port
+        }
+        URL validatedUrl = new URL(protocol, host, port, wrapperUrl.getFile());
         
         log( " - Downloading to: " + wrapperJarPath );
         if ( System.getenv( "MVNW_USERNAME" ) != null && System.getenv( "MVNW_PASSWORD" ) != null )
