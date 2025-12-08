@@ -33,6 +33,11 @@ public final class MavenWrapperDownloader
 
     private static final boolean VERBOSE = Boolean.parseBoolean( System.getenv( "MVNW_VERBOSE" ) );
 
+    private static final java.util.Set<String> ALLOWED_MAVEN_REPO_HOSTS = java.util.Set.of(
+        "repo.maven.apache.org",
+        "repo1.maven.org"
+    );
+
     public static void main( String[] args )
     {
         log( "Apache Maven Wrapper Downloader " + WRAPPER_VERSION );
@@ -47,13 +52,7 @@ public final class MavenWrapperDownloader
         {
             log( " - Downloader started" );
             final URL wrapperUrl = new URL( args[0] );
-            // Restrict downloads to well-known Maven repository hosts
-            final java.util.Set<String> ALLOWED_MAVEN_REPO_HOSTS = java.util.Set.of(
-                "repo.maven.apache.org",
-                "repo1.maven.org"
-            );
-            if (!"https".equalsIgnoreCase(wrapperUrl.getProtocol()) ||
-                ALLOWED_MAVEN_REPO_HOSTS.stream().noneMatch(h -> h.equalsIgnoreCase(wrapperUrl.getHost())))
+            if (!isAllowedUrl(wrapperUrl))
             {
                 System.err.println(" - ERROR: Only downloads from " + ALLOWED_MAVEN_REPO_HOSTS + " over HTTPS are allowed.");
                 System.exit(1);
@@ -72,6 +71,19 @@ public final class MavenWrapperDownloader
             }
             System.exit( 1 );
         }
+    }
+
+    /**
+     * Validates that the given URL is allowed for downloading Maven wrapper.
+     * Only HTTPS protocol is allowed and the host must be in the list of allowed Maven repository hosts.
+     *
+     * @param url the URL to validate
+     * @return true if the URL is allowed, false otherwise
+     */
+    private static boolean isAllowedUrl( URL url )
+    {
+        return "https".equalsIgnoreCase(url.getProtocol()) &&
+               ALLOWED_MAVEN_REPO_HOSTS.stream().anyMatch(h -> h.equalsIgnoreCase(url.getHost()));
     }
 
     private static void downloadFileFromURL( URL wrapperUrl, Path wrapperJarPath )
