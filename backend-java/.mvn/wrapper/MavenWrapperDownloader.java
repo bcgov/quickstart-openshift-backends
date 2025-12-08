@@ -131,23 +131,99 @@ public final class MavenWrapperDownloader
      * - Canonicalizing hostnames (removing trailing dots, normalizing case)
      * - Restricting to HTTPS only
      * - Rejecting null, empty, or invalid hostnames
+     * - Rejecting IP addresses (IP literals)
+     * - Rejecting localhost and loopback addresses
+     * - Rejecting URLs with user info (user:pass@host)
      *
      * @param url the URL to validate
      * @return true if the URL is allowed, false otherwise
      */
     private static boolean isAllowedUrl( URL url )
     {
-        // Only allow HTTPS, and an EXACT host match after canonicalization.
+        // Only allow HTTPS protocol
         if (!"https".equalsIgnoreCase(url.getProtocol())) {
             return false;
         }
+        
+        // Reject URLs with user info (user:pass@host) - SSRF protection
+        String userInfo = url.getUserInfo();
+        if (userInfo != null && !userInfo.isEmpty()) {
+            return false;
+        }
+        
         String actualHost = canonicalizeHost(url.getHost());
         // Reject null or invalid hostnames
         if (actualHost == null) {
             return false;
         }
+        
+        // Reject IP addresses (IP literals) - only allow hostnames
+        if (isIpAddress(actualHost)) {
+            return false;
+        }
+        
+        // Reject localhost and loopback addresses
+        if (isLocalhost(actualHost)) {
+            return false;
+        }
+        
         // No subdomain allowed, just exact host match using pre-computed canonicalized hosts.
         return CANONICALIZED_ALLOWED_HOSTS.contains(actualHost);
+    }
+    
+    /**
+     * Checks if the given hostname is an IP address (IPv4 or IPv6).
+     * 
+     * @param host the hostname to check
+     * @return true if the host is an IP address, false otherwise
+     */
+    private static boolean isIpAddress(String host) {
+        if (host == null || host.isEmpty()) {
+            return false;
+        }
+        // Check for IPv6 (contains colons)
+        if (host.contains(":")) {
+            return true;
+        }
+        // Check for IPv4 (contains only digits and dots)
+        // Simple check: if it contains dots and all parts are numeric, it's likely IPv4
+        if (host.contains(".")) {
+            String[] parts = host.split("\\.");
+            if (parts.length == 4) {
+                try {
+                    for (String part : parts) {
+                        int num = Integer.parseInt(part);
+                        if (num < 0 || num > 255) {
+                            return false;
+                        }
+                    }
+                    return true; // All parts are valid IPv4 octets
+                } catch (NumberFormatException e) {
+                    return false; // Not all numeric
+                }
+            }
+        }
+        return false;
+    }
+    
+    /**
+     * Checks if the given hostname is localhost or a loopback address.
+     * 
+     * @param host the hostname to check
+     * @return true if the host is localhost or loopback, false otherwise
+     */
+    private static boolean isLocalhost(String host) {
+        if (host == null || host.isEmpty()) {
+            return false;
+        }
+        String lowerHost = host.toLowerCase(Locale.ROOT);
+        return lowerHost.equals("localhost") ||
+               lowerHost.equals("127.0.0.1") ||
+               lowerHost.equals("::1") ||
+               lowerHost.equals("[::1]") ||
+               lowerHost.startsWith("127.") || // 127.0.0.0/8 range
+               lowerHost.equals("0.0.0.0") ||
+               lowerHost.equals("[::]");
     }
 
     private static void downloadFileFromURL( URL wrapperUrl, Path wrapperJarPath )
@@ -155,6 +231,13 @@ public final class MavenWrapperDownloader
     {
         // SSRF protection: validate URL immediately before making network request
         // Extract and validate URL components inline for CodeQL recognition
+        
+        // Reject URLs with user info (user:pass@host) - SSRF protection
+        String userInfo = wrapperUrl.getUserInfo();
+        if (userInfo != null && !userInfo.isEmpty()) {
+            throw new IOException("URL validation failed: URLs with user info are not allowed.");
+        }
+        
         String protocol = wrapperUrl.getProtocol();
         String host = wrapperUrl.getHost();
         
@@ -168,6 +251,16 @@ public final class MavenWrapperDownloader
         if (canonicalizedHost == null || !CANONICALIZED_ALLOWED_HOSTS.contains(canonicalizedHost)) {
             throw new IOException("URL validation failed: Only downloads from " + 
                 ALLOWED_MAVEN_REPO_HOSTS + " are allowed.");
+        }
+        
+        // Reject IP addresses (IP literals) - only allow hostnames
+        if (isIpAddress(canonicalizedHost)) {
+            throw new IOException("URL validation failed: IP addresses are not allowed.");
+        }
+        
+        // Reject localhost and loopback addresses
+        if (isLocalhost(canonicalizedHost)) {
+            throw new IOException("URL validation failed: Localhost and loopback addresses are not allowed.");
         }
         
         // Reconstruct URL using the canonicalized host from whitelist (not user input)
