@@ -38,6 +38,17 @@ public final class MavenWrapperDownloader
         "repo1.maven.org"
     );
 
+    /**
+     * Canonicalizes the hostname by removing any trailing dots and converting to lowercase.
+     */
+    private static String canonicalizeHost(String host) {
+        if (host == null) {
+            return "";
+        }
+        // Remove trailing dots and make lowercase
+        return host.replaceAll("\\.+$", "").toLowerCase();
+    }
+
     public static void main( String[] args )
     {
         log( "Apache Maven Wrapper Downloader " + WRAPPER_VERSION );
@@ -99,8 +110,15 @@ public final class MavenWrapperDownloader
      */
     private static boolean isAllowedUrl( URL url )
     {
-        return "https".equalsIgnoreCase(url.getProtocol()) &&
-               ALLOWED_MAVEN_REPO_HOSTS.stream().anyMatch(h -> h.equalsIgnoreCase(url.getHost()));
+        // Only allow HTTPS, and an EXACT host match after canonicalization.
+        if (!"https".equalsIgnoreCase(url.getProtocol())) {
+            return false;
+        }
+        String actualHost = canonicalizeHost(url.getHost());
+        // No subdomain allowed, just exact host match.
+        return ALLOWED_MAVEN_REPO_HOSTS.stream()
+            .map(MavenWrapperDownloader::canonicalizeHost)
+            .anyMatch(h -> h.equals(actualHost));
     }
 
     private static void downloadFileFromURL( URL wrapperUrl, Path wrapperJarPath )
