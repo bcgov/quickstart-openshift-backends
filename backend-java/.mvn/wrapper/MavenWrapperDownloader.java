@@ -40,13 +40,19 @@ public final class MavenWrapperDownloader
 
     /**
      * Canonicalizes the hostname by removing any trailing dots and converting to lowercase.
+     * Uses manual string operations instead of regex to avoid ReDoS vulnerabilities.
      */
     private static String canonicalizeHost(String host) {
         if (host == null) {
             return "";
         }
-        // Remove trailing dots and make lowercase
-        return host.replaceAll("\\.+$", "").toLowerCase();
+        // Remove trailing dots manually (more efficient than regex, avoids ReDoS)
+        int endIndex = host.length();
+        while (endIndex > 0 && host.charAt(endIndex - 1) == '.') {
+            endIndex--;
+        }
+        // Convert to lowercase
+        return host.substring(0, endIndex).toLowerCase();
     }
 
     public static void main( String[] args )
