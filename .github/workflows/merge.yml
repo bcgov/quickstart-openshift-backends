@@ -63,7 +63,7 @@ jobs:
           - name: fastapi
             baseUrl: https://quickstart-openshift-backends-test-backendpy.apps.silver.devops.gov.bc.ca
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         name: Checkout
       - name: Cache node modules
         id: cache-npm
