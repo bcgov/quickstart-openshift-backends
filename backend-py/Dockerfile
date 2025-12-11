@@ -1,5 +1,5 @@
 # Use the official Python image with UV pre-installed
-FROM ghcr.io/astral-sh/uv:python3.13-bookworm-slim AS build
+FROM ghcr.io/astral-sh/uv:python3.14-bookworm-slim AS build
 
 # Set environment variables for UV
 ENV UV_COMPILE_BYTECODE=1 \
