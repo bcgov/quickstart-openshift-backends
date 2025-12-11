@@ -1,8 +1,8 @@
 # Use Python 3.14.1 base image and install uv
 FROM python:3.14.1-slim-bookworm AS build
 
-# Install uv (pinned for reproducibility)
-RUN pip install --no-cache-dir uv==0.9.7
+# Install uv
+RUN pip install --no-cache-dir uv
 
 # Set environment variables for UV
 ENV UV_COMPILE_BYTECODE=1 \
