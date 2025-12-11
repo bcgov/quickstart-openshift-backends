@@ -131,8 +131,6 @@ public final class MavenWrapperDownloader
      * - Canonicalizing hostnames (removing trailing dots, normalizing case)
      * - Restricting to HTTPS only
      * - Rejecting null, empty, or invalid hostnames
-     * - Rejecting IP addresses (IP literals)
-     * - Rejecting localhost and loopback addresses
      * - Rejecting URLs with user info (user:pass@host)
      *
      * @param url the URL to validate
@@ -146,8 +144,7 @@ public final class MavenWrapperDownloader
         }
         
         // Reject URLs with user info (user:pass@host) - SSRF protection
-        String userInfo = url.getUserInfo();
-        if (userInfo != null && !userInfo.isEmpty()) {
+        if (url.getUserInfo() != null && !url.getUserInfo().isEmpty()) {
             return false;
         }
         
@@ -157,137 +154,14 @@ public final class MavenWrapperDownloader
             return false;
         }
         
-        // Reject IP addresses (IP literals) - only allow hostnames
-        if (isIpAddress(actualHost)) {
-            return false;
-        }
-        
-        // Reject localhost and loopback addresses
-        if (isLocalhost(actualHost)) {
-            return false;
-        }
-        
         // No subdomain allowed, just exact host match using pre-computed canonicalized hosts.
+        // IP addresses and localhost are automatically rejected since they won't match allowed hostnames.
         return CANONICALIZED_ALLOWED_HOSTS.contains(actualHost);
-    }
-    
-    /**
-     * Checks if the given hostname is an IP address (IPv4 or IPv6).
-     * 
-     * @param host the hostname to check
-     * @return true if the host is an IP address, false otherwise
-     */
-    private static boolean isIpAddress(String host) {
-        if (host == null || host.isEmpty()) {
-            return false;
-        }
-        // Check for IPv6 (contains colons)
-        if (host.contains(":")) {
-            return true;
-        }
-        // Check for IPv4 (contains only digits and dots)
-        // Simple check: if it contains dots and all parts are numeric, it's likely IPv4
-        if (host.contains(".")) {
-            String[] parts = host.split("\\.");
-            if (parts.length == 4) {
-                try {
-                    for (String part : parts) {
-                        int num = Integer.parseInt(part);
-                        if (num < 0 || num > 255) {
-                            return false;
-                        }
-                    }
-                    return true; // All parts are valid IPv4 octets
-                } catch (NumberFormatException e) {
-                    return false; // Not all numeric
-                }
-            }
-        }
-        return false;
-    }
-    
-    /**
-     * Checks if the given hostname is localhost or a loopback address.
-     * 
-     * @param host the hostname to check
-     * @return true if the host is localhost or loopback, false otherwise
-     */
-    private static boolean isLocalhost(String host) {
-        if (host == null || host.isEmpty()) {
-            return false;
-        }
-        String lowerHost = host.toLowerCase(Locale.ROOT);
-        return lowerHost.equals("localhost") ||
-               lowerHost.equals("127.0.0.1") ||
-               lowerHost.equals("::1") ||
-               lowerHost.equals("[::1]") ||
-               lowerHost.startsWith("127.") || // 127.0.0.0/8 range
-               lowerHost.equals("0.0.0.0") ||
-               lowerHost.equals("[::]");
     }
 
     private static void downloadFileFromURL( URL wrapperUrl, Path wrapperJarPath )
         throws IOException
     {
-        // SSRF protection: validate URL immediately before making network request
-        // Extract and validate URL components inline for CodeQL recognition
-        
-        // Reject URLs with user info (user:pass@host) - SSRF protection
-        String userInfo = wrapperUrl.getUserInfo();
-        if (userInfo != null && !userInfo.isEmpty()) {
-            throw new IOException("URL validation failed: URLs with user info are not allowed.");
-        }
-        
-        String protocol = wrapperUrl.getProtocol();
-        String host = wrapperUrl.getHost();
-        
-        // Validate protocol - must be HTTPS
-        if (protocol == null || !"https".equalsIgnoreCase(protocol)) {
-            throw new IOException("URL validation failed: Only HTTPS protocol is allowed.");
-        }
-        
-        // Validate host - must match canonicalized allowed hosts
-        String canonicalizedHost = canonicalizeHost(host);
-        if (canonicalizedHost == null || !CANONICALIZED_ALLOWED_HOSTS.contains(canonicalizedHost)) {
-            throw new IOException("URL validation failed: Only downloads from " + 
-                ALLOWED_MAVEN_REPO_HOSTS + " are allowed.");
-        }
-        
-        // Reject IP addresses (IP literals) - only allow hostnames
-        if (isIpAddress(canonicalizedHost)) {
-            throw new IOException("URL validation failed: IP addresses are not allowed.");
-        }
-        
-        // Reject localhost and loopback addresses
-        if (isLocalhost(canonicalizedHost)) {
-            throw new IOException("URL validation failed: Localhost and loopback addresses are not allowed.");
-        }
-        
-        // Reconstruct URL using the canonicalized host from whitelist (not user input)
-        // This makes CodeQL recognize we're using sanitized data
-        // Find the matching allowed host (use canonicalized version for construction)
-        String allowedHost = null;
-        for (String allowed : ALLOWED_MAVEN_REPO_HOSTS) {
-            if (canonicalizeHost(allowed).equals(canonicalizedHost)) {
-                allowedHost = allowed; // Use original casing from whitelist
-                break;
-            }
-        }
-        
-        if (allowedHost == null) {
-            throw new IOException("URL validation failed: Host validation error.");
-        }
-        
-        // Handle default port (-1) for HTTPS (443)
-        int port = wrapperUrl.getPort();
-        if (port == -1) {
-            port = 443; // Default HTTPS port
-        }
-        
-        // Construct URL using whitelist host (not user-provided host)
-        // This should help CodeQL recognize the URL is from a safe source
-        URL validatedUrl = new URL("https", allowedHost, port, wrapperUrl.getFile());
-        
         log( " - Downloading to: " + wrapperJarPath );
         if ( System.getenv( "MVNW_USERNAME" ) != null && System.getenv( "MVNW_PASSWORD" ) != null )
         {
@@ -302,7 +176,7 @@ public final class MavenWrapperDownloader
                 }
             } );
         }
-        try ( InputStream inStream = validatedUrl.openStream() )
+        try ( InputStream inStream = wrapperUrl.openStream() )
         {
             Files.copy( inStream, wrapperJarPath, StandardCopyOption.REPLACE_EXISTING );
         }
