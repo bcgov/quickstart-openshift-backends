@@ -144,7 +144,7 @@ public final class MavenWrapperDownloader
         }
         
         // Reject URLs with user info (user:pass@host) - SSRF protection
-        if (url.getUserInfo() != null && !url.getUserInfo().isEmpty()) {
+        if (url.getUserInfo() != null) {
             return false;
         }
         
