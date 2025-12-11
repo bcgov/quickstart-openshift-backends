@@ -27,7 +27,7 @@ COPY src ./src
 RUN uv sync --frozen --no-dev
 
 # Production stage
-FROM python:3.13.7-slim-bookworm AS deploy
+FROM python:3.14.2-slim-bookworm AS deploy
 
 # Set environment variables
 ENV PYTHONUNBUFFERED=1 \
