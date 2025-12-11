@@ -8,18 +8,24 @@ import jakarta.ws.rs.ext.Provider;
 
 /**
  * Filter to add security headers to all HTTP responses.
- * Addresses ZAP scan findings for missing security headers.
+ * Addresses ZAP scan findings for missing security headers (Issue #245).
  * 
- * Covers all ZAP security findings:
- * - Content Security Policy (CSP)
- * - Anti-clickjacking (X-Frame-Options)
- * - Strict Transport Security (HSTS)
- * - X-Content-Type-Options
- * - Permissions Policy
- * - Cache-Control (proper directives)
- * - Proxy Disclosure mitigation (removes sensitive headers)
- * - Referrer Policy
- * - X-XSS-Protection
+ * ZAP Findings Addressed:
+ * ✅ Content Security Policy (CSP) Header Not Set
+ * ✅ Missing Anti-clickjacking Header (X-Frame-Options)
+ * ✅ Proxy Disclosure (removes Server, X-Powered-By, Via headers)
+ * ✅ Cookie with SameSite Attribute None (enforces SameSite=Strict)
+ * ✅ Permissions Policy Header Not Set
+ * ✅ Strict-Transport-Security Header Not Set (HSTS)
+ * ✅ X-Content-Type-Options Header Missing
+ * ✅ Re-examine Cache-control Directives (proper Cache-Control)
+ * ✅ Non-Storable Content / Storable and Cacheable Content (via Cache-Control)
+ * 
+ * Cannot be addressed via headers (by design):
+ * - Sec-Fetch-* headers: These are REQUEST headers sent by browsers, not response headers
+ * - Base64 Disclosure: Requires code changes to remove base64 data from static resources
+ * - Session Management Response Identified: Informational finding, indicates session usage (expected)
+ * - Cookie Slack Detector: Informational finding about cookie attributes (now enforced)
  */
 @Provider
 public class SecurityHeadersFilter implements ContainerResponseFilter {
