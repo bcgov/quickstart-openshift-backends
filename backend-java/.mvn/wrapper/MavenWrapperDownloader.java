@@ -162,6 +162,38 @@ public final class MavenWrapperDownloader
     private static void downloadFileFromURL( URL wrapperUrl, Path wrapperJarPath )
         throws IOException
     {
+        // SSRF protection: validate URL immediately before making network request
+        // This makes CodeQL recognize we're using validated data
+        if (!isAllowedUrl(wrapperUrl)) {
+            throw new IOException("URL validation failed: Only downloads from " + 
+                ALLOWED_MAVEN_REPO_HOSTS + " are allowed.");
+        }
+        
+        // Reconstruct URL using whitelist host to ensure we're not using user input directly
+        // Find the matching allowed host
+        String canonicalizedHost = canonicalizeHost(wrapperUrl.getHost());
+        String allowedHost = null;
+        for (String allowed : ALLOWED_MAVEN_REPO_HOSTS) {
+            if (canonicalizeHost(allowed).equals(canonicalizedHost)) {
+                allowedHost = allowed;
+                break;
+            }
+        }
+        
+        if (allowedHost == null) {
+            throw new IOException("URL validation failed: Host validation error.");
+        }
+        
+        // Handle default port (-1) for HTTPS (443)
+        int port = wrapperUrl.getPort();
+        if (port == -1) {
+            port = 443; // Default HTTPS port
+        }
+        
+        // Construct URL using whitelist host (not user-provided host)
+        // This ensures CodeQL recognizes we're using sanitized data
+        URL validatedUrl = new URL("https", allowedHost, port, wrapperUrl.getFile());
+        
         log( " - Downloading to: " + wrapperJarPath );
         if ( System.getenv( "MVNW_USERNAME" ) != null && System.getenv( "MVNW_PASSWORD" ) != null )
         {
@@ -176,7 +208,7 @@ public final class MavenWrapperDownloader
                 }
             } );
         }
-        try ( InputStream inStream = wrapperUrl.openStream() )
+        try ( InputStream inStream = validatedUrl.openStream() )
         {
             Files.copy( inStream, wrapperJarPath, StandardCopyOption.REPLACE_EXISTING );
         }
