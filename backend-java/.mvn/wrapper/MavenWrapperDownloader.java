@@ -131,22 +131,31 @@ public final class MavenWrapperDownloader
      * - Canonicalizing hostnames (removing trailing dots, normalizing case)
      * - Restricting to HTTPS only
      * - Rejecting null, empty, or invalid hostnames
+     * - Rejecting URLs with user info (user:pass@host)
      *
      * @param url the URL to validate
      * @return true if the URL is allowed, false otherwise
      */
     private static boolean isAllowedUrl( URL url )
     {
-        // Only allow HTTPS, and an EXACT host match after canonicalization.
+        // Only allow HTTPS protocol
         if (!"https".equalsIgnoreCase(url.getProtocol())) {
             return false;
         }
+        
+        // Reject URLs with user info (user:pass@host) - SSRF protection
+        if (url.getUserInfo() != null) {
+            return false;
+        }
+        
         String actualHost = canonicalizeHost(url.getHost());
         // Reject null or invalid hostnames
         if (actualHost == null) {
             return false;
         }
+        
         // No subdomain allowed, just exact host match using pre-computed canonicalized hosts.
+        // IP addresses and localhost are automatically rejected since they won't match allowed hostnames.
         return CANONICALIZED_ALLOWED_HOSTS.contains(actualHost);
     }
 
