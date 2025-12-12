@@ -187,11 +187,12 @@ public final class MavenWrapperDownloader
         
         // Reconstruct URL using whitelist host to ensure we're not using user input directly
         // Use pre-computed reverse mapping for efficient lookup (avoids repeated canonicalization)
+        // Since isAllowedUrl() already validated the host matches CANONICALIZED_ALLOWED_HOSTS,
+        // and CANONICALIZED_TO_ORIGINAL is built from the same source, this lookup will always succeed
         String canonicalizedHost = canonicalizeHost(wrapperUrl.getHost());
         String allowedHost = CANONICALIZED_TO_ORIGINAL.get(canonicalizedHost);
         
-        // Note: allowedHost cannot be null here because isAllowedUrl() already validated
-        // the host matches CANONICALIZED_ALLOWED_HOSTS, but kept for code clarity and safety
+        // This should never be null given the validation above, but kept as a safety check
         if (allowedHost == null) {
             throw new IOException("URL validation failed: Host validation error.");
         }
