@@ -192,11 +192,6 @@ public final class MavenWrapperDownloader
         String canonicalizedHost = canonicalizeHost(wrapperUrl.getHost());
         String allowedHost = CANONICALIZED_TO_ORIGINAL.get(canonicalizedHost);
         
-        // This should never be null given the validation above, but kept as a safety check
-        if (allowedHost == null) {
-            throw new IOException("URL validation failed: Host validation error.");
-        }
-        
         // Construct URL using whitelist host (not user-provided host) and default port
         // Always use -1 to ensure default HTTPS port (443) is used
         // This ensures CodeQL recognizes we're using sanitized data
