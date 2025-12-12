@@ -27,6 +27,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Locale;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public final class MavenWrapperDownloader
@@ -45,6 +46,15 @@ public final class MavenWrapperDownloader
         ALLOWED_MAVEN_REPO_HOSTS.stream()
             .map(MavenWrapperDownloader::canonicalizeHost)
             .collect(Collectors.toSet());
+    
+    // Reverse mapping from canonicalized host to original host for URL reconstruction
+    private static final java.util.Map<String, String> CANONICALIZED_TO_ORIGINAL = 
+        ALLOWED_MAVEN_REPO_HOSTS.stream()
+            .collect(Collectors.toMap(
+                MavenWrapperDownloader::canonicalizeHost,
+                host -> host,
+                (existing, replacement) -> existing
+            ));
 
     /**
      * Canonicalizes the hostname by removing any trailing dots and converting to lowercase.
@@ -169,30 +179,27 @@ public final class MavenWrapperDownloader
                 ALLOWED_MAVEN_REPO_HOSTS + " are allowed.");
         }
         
-        // Reconstruct URL using whitelist host to ensure we're not using user input directly
-        // Find the matching allowed host
-        String canonicalizedHost = canonicalizeHost(wrapperUrl.getHost());
-        String allowedHost = null;
-        for (String allowed : ALLOWED_MAVEN_REPO_HOSTS) {
-            if (canonicalizeHost(allowed).equals(canonicalizedHost)) {
-                allowedHost = allowed;
-                break;
-            }
+        // Only allow default HTTPS port (443) - reject non-standard ports
+        int port = wrapperUrl.getPort();
+        if (port != -1 && port != 443) {
+            throw new IOException("URL validation failed: Only default HTTPS port (443) is allowed.");
         }
         
+        // Reconstruct URL using whitelist host to ensure we're not using user input directly
+        // Use pre-computed reverse mapping for efficient lookup (avoids repeated canonicalization)
+        String canonicalizedHost = canonicalizeHost(wrapperUrl.getHost());
+        String allowedHost = CANONICALIZED_TO_ORIGINAL.get(canonicalizedHost);
+        
+        // Note: allowedHost cannot be null here because isAllowedUrl() already validated
+        // the host matches CANONICALIZED_ALLOWED_HOSTS, but kept for code clarity and safety
         if (allowedHost == null) {
             throw new IOException("URL validation failed: Host validation error.");
         }
         
-        // Handle default port (-1) for HTTPS (443)
-        int port = wrapperUrl.getPort();
-        if (port == -1) {
-            port = 443; // Default HTTPS port
-        }
-        
-        // Construct URL using whitelist host (not user-provided host)
+        // Construct URL using whitelist host (not user-provided host) and default port
+        // Always use -1 to ensure default HTTPS port (443) is used
         // This ensures CodeQL recognizes we're using sanitized data
-        URL validatedUrl = new URL("https", allowedHost, port, wrapperUrl.getFile());
+        URL validatedUrl = new URL("https", allowedHost, -1, wrapperUrl.getFile());
         
         log( " - Downloading to: " + wrapperJarPath );
         if ( System.getenv( "MVNW_USERNAME" ) != null && System.getenv( "MVNW_PASSWORD" ) != null )
