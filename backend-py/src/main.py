@@ -4,6 +4,7 @@ import uuid
 import structlog
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.base import BaseHTTPMiddleware
 
 from src.v1.routes.user_routes import router as user_router
 
@@ -29,6 +30,63 @@ app = FastAPI(
     version=OpenAPIInfo["version"],
     openapi_tags=tags_metadata,
 )
+
+
+# Security headers middleware to address ZAP penetration test findings
+class SecurityHeadersMiddleware(BaseHTTPMiddleware):
+    """Middleware to add security headers and address ZAP penetration test findings.
+    
+    Addresses the following ZAP alerts:
+    - Proxy Disclosure [40025]
+    - Strict-Transport-Security Header Not Set [10035]
+    - X-Content-Type-Options Header Missing [10021]
+    - Re-examine Cache-control Directives [10015]
+    - Storable and Cacheable Content [10049]
+    """
+
+    async def dispatch(self, request: Request, call_next):
+        response = await call_next(request)
+
+        # Security headers to address ZAP alerts
+
+        # X-Content-Type-Options: Prevents MIME type sniffing
+        # Addresses: X-Content-Type-Options Header Missing [10021]
+        response.headers["X-Content-Type-Options"] = "nosniff"
+
+        # X-Frame-Options: Prevents clickjacking attacks
+        response.headers["X-Frame-Options"] = "DENY"
+
+        # Strict-Transport-Security: Enforces HTTPS
+        # Addresses: Strict-Transport-Security Header Not Set [10035]
+        response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+
+        # Referrer-Policy: Controls referrer information
+        response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+
+        # Hide server information (addresses Proxy Disclosure alert [40025])
+        # Remove Server header if present
+        if "Server" in response.headers:
+            del response.headers["Server"]
+        # Also remove any proxy-related headers that might leak information
+        response.headers.pop("X-Powered-By", None)
+        response.headers.pop("X-AspNet-Version", None)
+
+        # Cache-Control headers (addresses Re-examine Cache-control Directives [10015]
+        # and Storable and Cacheable Content [10049])
+        # For API endpoints, typically we don't want caching
+        if request.url.path.startswith("/api/"):
+            response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, private"
+            response.headers["Pragma"] = "no-cache"
+            response.headers["Expires"] = "0"
+        else:
+            # For static content, allow some caching but with revalidation
+            response.headers["Cache-Control"] = "public, max-age=3600, must-revalidate"
+
+        return response
+
+
+# Add security headers middleware first (before CORS)
+app.add_middleware(SecurityHeadersMiddleware)
 
 
 # Logging middleware for request tracking
