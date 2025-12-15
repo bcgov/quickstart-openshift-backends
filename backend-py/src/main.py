@@ -56,9 +56,13 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         # X-Frame-Options: Prevents clickjacking attacks
         response.headers["X-Frame-Options"] = "DENY"
 
+        # Content-Security-Policy: Prevents XSS, clickjacking, and other code injection attacks
+        # A restrictive policy for APIs
+        response.headers["Content-Security-Policy"] = "default-src 'none'; frame-ancestors 'none'"
+
         # Strict-Transport-Security: Enforces HTTPS
         # Addresses: Strict-Transport-Security Header Not Set [10035]
-        response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+        response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains; preload"
 
         # Referrer-Policy: Controls referrer information
         response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
@@ -83,10 +87,6 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
             response.headers["Cache-Control"] = "public, max-age=3600, must-revalidate"
 
         return response
-
-
-# Add security headers middleware first (before CORS)
-app.add_middleware(SecurityHeadersMiddleware)
 
 
 # Logging middleware for request tracking
@@ -121,6 +121,7 @@ async def logging_middleware(request: Request, call_next):
 origins: list[str] = [
     "http://localhost*",
 ]
+# Add CORS middleware first (it will execute last due to LIFO order)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -128,6 +129,10 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Add security headers middleware after CORS (it will execute first and apply headers last)
+# This ensures security headers take precedence over CORS headers
+app.add_middleware(SecurityHeadersMiddleware)
 
 
 # Add filter to the logger
