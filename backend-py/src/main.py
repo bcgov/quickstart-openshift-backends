@@ -4,6 +4,7 @@ import uuid
 import structlog
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.base import BaseHTTPMiddleware
 
 from src.v1.routes.user_routes import router as user_router
 
@@ -31,7 +32,76 @@ app = FastAPI(
 )
 
 
+# Security headers middleware to address ZAP penetration test findings
+class SecurityHeadersMiddleware(BaseHTTPMiddleware):
+    """Middleware to add security headers and address ZAP penetration test findings.
+    
+    Addresses the following ZAP alerts:
+    - Proxy Disclosure [40025]
+    - Strict-Transport-Security Header Not Set [10035]
+    - X-Content-Type-Options Header Missing [10021]
+    - Re-examine Cache-control Directives [10015]
+    - Storable and Cacheable Content [10049]
+    """
+
+    async def dispatch(self, request: Request, call_next):
+        response = await call_next(request)
+
+        # Security headers to address ZAP alerts
+
+        # X-Content-Type-Options: Prevents MIME type sniffing
+        # Addresses: X-Content-Type-Options Header Missing [10021]
+        response.headers["X-Content-Type-Options"] = "nosniff"
+
+        # X-Frame-Options: Prevents clickjacking attacks
+        response.headers["X-Frame-Options"] = "DENY"
+
+        # Content-Security-Policy: Prevents XSS, clickjacking, and other code injection attacks
+        # A restrictive policy for APIs
+        response.headers["Content-Security-Policy"] = "default-src 'none'; frame-ancestors 'none'"
+
+        # Strict-Transport-Security: Enforces HTTPS
+        # Addresses: Strict-Transport-Security Header Not Set [10035]
+        # Only set HSTS when the request is served over HTTPS
+        # Check both direct HTTPS and proxy-forwarded HTTPS (for reverse proxy scenarios)
+        is_https = (
+            request.url.scheme == "https"
+            or request.headers.get("X-Forwarded-Proto", "").lower() == "https"
+        )
+        if is_https:
+            response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains; preload"
+
+        # Referrer-Policy: Controls referrer information
+        response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+
+        # Hide server information (addresses Proxy Disclosure alert [40025])
+        # Remove Server header if present
+        if "Server" in response.headers:
+            del response.headers["Server"]
+        # Also remove any proxy-related headers that might leak information
+        if "X-Powered-By" in response.headers:
+            del response.headers["X-Powered-By"]
+        if "X-AspNet-Version" in response.headers:
+            del response.headers["X-AspNet-Version"]
+
+        # Cache-Control headers (addresses Re-examine Cache-control Directives [10015]
+        # and Storable and Cacheable Content [10049])
+        # For API endpoints, typically we don't want caching
+        if request.url.path.startswith("/api/"):
+            response.headers["Cache-Control"] = "no-store, no-cache, private"
+            response.headers["Pragma"] = "no-cache"
+            response.headers["Expires"] = "0"
+        else:
+            # For static content, allow some caching but with revalidation
+            response.headers["Cache-Control"] = "public, max-age=3600, must-revalidate"
+
+        return response
+
+
 # Logging middleware for request tracking
+# Note: Decorator-based middleware (@app.middleware) is registered at definition time,
+# making it the outermost middleware layer. It will process requests/responses first,
+# before any middleware added via add_middleware().
 @app.middleware("http")
 async def logging_middleware(request: Request, call_next):
     start_time = time.time()
@@ -63,6 +133,7 @@ async def logging_middleware(request: Request, call_next):
 origins: list[str] = [
     "http://localhost*",
 ]
+# Add CORS middleware first
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -71,8 +142,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
-# Add filter to the logger
+# Add security headers middleware after CORS in the stack.
+# Note: FastAPI (via Starlette) applies middleware in LIFO (last in, first out) order
+# for both requests and responses when using add_middleware.
+# Since CORSMiddleware is added first and SecurityHeadersMiddleware is added second,
+# SecurityHeadersMiddleware becomes the outermost layer and the response flow is:
+# Route Handler -> CORSMiddleware -> SecurityHeadersMiddleware
+# This ensures CORSMiddleware processes the response first (adding CORS headers),
+# then SecurityHeadersMiddleware adds additional security headers without overriding CORS.
+app.add_middleware(SecurityHeadersMiddleware)
 
 
 @app.get("/")
