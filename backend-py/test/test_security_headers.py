@@ -107,13 +107,16 @@ def test_security_headers_different_methods(client):
 def test_hsts_only_on_https(client):
     """Test that HSTS header is only set on HTTPS requests."""
     # HTTP request (TestClient default) - HSTS should not be present
-    response = client.get("/", headers={"X-Forwarded-Proto": "http"})
-    assert "Strict-Transport-Security" not in response.headers
-    
-    # Simulate HTTPS request by checking the URL scheme
-    # Note: TestClient uses http://testserver/ by default
-    # In production, this would be handled by the reverse proxy setting the scheme correctly
-    # For testing, we verify that HTTP requests don't get HSTS header
     response = client.get("/")
     assert response.url.scheme == "http"
     assert "Strict-Transport-Security" not in response.headers
+    
+    # HTTP request with X-Forwarded-Proto: http - HSTS should not be present
+    response = client.get("/", headers={"X-Forwarded-Proto": "http"})
+    assert "Strict-Transport-Security" not in response.headers
+    
+    # Simulate HTTPS via X-Forwarded-Proto header (reverse proxy scenario)
+    response = client.get("/", headers={"X-Forwarded-Proto": "https"})
+    assert "Strict-Transport-Security" in response.headers
+    assert "preload" in response.headers["Strict-Transport-Security"]
+    assert "includeSubDomains" in response.headers["Strict-Transport-Security"]

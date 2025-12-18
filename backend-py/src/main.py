@@ -63,8 +63,12 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         # Strict-Transport-Security: Enforces HTTPS
         # Addresses: Strict-Transport-Security Header Not Set [10035]
         # Only set HSTS when the request is served over HTTPS
-        # Note: In production behind a reverse proxy, check X-Forwarded-Proto header
-        if request.url.scheme == "https":
+        # Check both direct HTTPS and proxy-forwarded HTTPS (for reverse proxy scenarios)
+        is_https = (
+            request.url.scheme == "https"
+            or request.headers.get("X-Forwarded-Proto", "").lower() == "https"
+        )
+        if is_https:
             response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains; preload"
 
         # Referrer-Policy: Controls referrer information
@@ -139,9 +143,6 @@ app.add_middleware(
 # During response processing (FIFO order), SecurityHeadersMiddleware processes the response
 # after CORS, ensuring security headers take precedence over CORS headers if there are conflicts
 app.add_middleware(SecurityHeadersMiddleware)
-
-
-# Add filter to the logger
 
 
 @app.get("/")
