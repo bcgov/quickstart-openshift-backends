@@ -63,8 +63,10 @@ public class SecurityHeadersFilter implements ContainerResponseFilter {
           "Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload");
     }
 
-    // Content-Security-Policy: Basic CSP (can be customized per application)
+    // Content-Security-Policy: Restrictive CSP for API endpoints
     // Addresses: Content Security Policy (CSP) Header Not Set [10038]
+    // Note: This is a restrictive policy suitable for APIs. For web applications with
+    // inline scripts/styles or external resources, customize this policy accordingly.
     headers.add("Content-Security-Policy", "default-src 'self'");
 
     // Permissions-Policy: Controls browser features
@@ -72,7 +74,7 @@ public class SecurityHeadersFilter implements ContainerResponseFilter {
     headers.add(
         "Permissions-Policy",
         "geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(),"
-            + " gyroscope=(), speaker=()");
+            + " gyroscope=(), speaker-selection=()");
 
     // Referrer-Policy: Controls referrer information
     headers.add("Referrer-Policy", "strict-origin-when-cross-origin");
@@ -127,30 +129,47 @@ public class SecurityHeadersFilter implements ContainerResponseFilter {
 
   /**
    * Fixes a single Set-Cookie header to ensure SameSite=Strict is set.
+   * Handles existing SameSite values (None, Lax, Strict) to prevent duplicates.
    */
   private String fixCookieHeader(String cookie) {
     if (cookie == null || cookie.isEmpty()) {
       return cookie;
     }
 
-    // Check if SameSite is already present
     String cookieLower = cookie.toLowerCase();
-    if (cookieLower.contains("samesite=none")) {
-      // Replace SameSite=None with SameSite=Strict (more secure for most use cases)
-      cookie = cookie.replaceAll("(?i);\\s*samesite=none", "; SameSite=Strict");
-      cookie = cookie.replaceAll("(?i)samesite=none", "SameSite=Strict");
-    } else if (!cookieLower.contains("samesite=")) {
-      // Add SameSite=Strict if not present
-      // Append before any HttpOnly, Secure, or Path attributes
-      if (cookie.contains("; HttpOnly")) {
-        cookie = cookie.replace("; HttpOnly", "; SameSite=Strict; HttpOnly");
-      } else if (cookie.contains("; Secure")) {
-        cookie = cookie.replace("; Secure", "; SameSite=Strict; Secure");
-      } else if (cookie.contains("; Path=")) {
-        cookie = cookie.replace("; Path=", "; SameSite=Strict; Path=");
-      } else {
-        cookie = cookie + "; SameSite=Strict";
-      }
+    
+    // Check if SameSite is already present with any value
+    if (cookieLower.contains("samesite=")) {
+      // Replace any existing SameSite value with Strict
+      // Handle both "; SameSite=None" and "SameSite=None" patterns
+      cookie = cookie.replaceAll("(?i);\\s*samesite=(none|lax|strict)", "; SameSite=Strict");
+      cookie = cookie.replaceAll("(?i)^samesite=(none|lax|strict)", "SameSite=Strict");
+      return cookie;
+    }
+    
+    // Add SameSite=Strict if not present
+    // Insert before the earliest HttpOnly, Secure, or Path attribute (if any)
+    int httpOnlyIndex = cookie.indexOf("; HttpOnly");
+    int secureIndex = cookie.indexOf("; Secure");
+    int pathIndex = cookie.indexOf("; Path=");
+    
+    int insertPos = -1;
+    if (httpOnlyIndex != -1) {
+      insertPos = httpOnlyIndex;
+    }
+    if (secureIndex != -1 && (insertPos == -1 || secureIndex < insertPos)) {
+      insertPos = secureIndex;
+    }
+    if (pathIndex != -1 && (insertPos == -1 || pathIndex < insertPos)) {
+      insertPos = pathIndex;
+    }
+    
+    if (insertPos != -1) {
+      // Insert before the first attribute found
+      cookie = cookie.substring(0, insertPos) + "; SameSite=Strict" + cookie.substring(insertPos);
+    } else {
+      // No attributes found, append at the end
+      cookie = cookie + "; SameSite=Strict";
     }
 
     return cookie;
