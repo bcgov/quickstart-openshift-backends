@@ -1,8 +1,8 @@
 {{/*
 Expand the name of the chart.
 */}}
-{{- define "backendJava.name" -}}
-{{- printf "backendjava" }}
+{{- define "backend-java.name" -}}
+{{- printf "backend-java" }}
 {{- end }}
 
 {{/*
@@ -10,10 +10,10 @@ Create a default fully qualified app name.
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
 If release name contains chart name it will be used as a full name.
 */}}
-{{- define "backendJava.fullname" -}}
-{{- $componentName := include "backendJava.name" .  }}
-{{- if .Values.backendJava.fullnameOverride }}
-{{- .Values.backendJava.fullnameOverride | trunc 63 | trimSuffix "-" }}
+{{- define "backend-java.fullname" -}}
+{{- $componentName := include "backend-java.name" .  }}
+{{- if index .Values "backend-java" "fullnameOverride" }}
+{{- index .Values "backend-java" "fullnameOverride" | trunc 63 | trimSuffix "-" }}
 {{- else }}
 {{- printf "%s-%s" .Release.Name $componentName | trunc 63 | trimSuffix "-" }}
 {{- end }}
@@ -22,20 +22,20 @@ If release name contains chart name it will be used as a full name.
 {{/*
 Common labels
 */}}
-{{- define "backendJava.labels" -}}
-{{ include "backendJava.selectorLabels" . }}
+{{- define "backend-java.labels" -}}
+{{ include "backend-java.selectorLabels" . }}
 {{- if .Values.global.tag }}
 app.kubernetes.io/image-version: {{ .Values.global.tag | quote }}
 {{- end }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
-app.kubernetes.io/short-name: {{ include "backendJava.name" . }}
+app.kubernetes.io/short-name: {{ include "backend-java.name" . }}
 {{- end }}
 
 {{/*
 Selector labels
 */}}
-{{- define "backendJava.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "backendJava.name" . }}
+{{- define "backend-java.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "backend-java.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
