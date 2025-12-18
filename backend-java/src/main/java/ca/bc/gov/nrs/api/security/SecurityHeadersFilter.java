@@ -98,7 +98,11 @@ public class SecurityHeadersFilter implements ContainerResponseFilter {
     // Note: /q/* endpoints are handled by Quarkus's internal routing, not JAX-RS,
     // so this filter doesn't apply to them. The /q/ check is kept for completeness
     // but may not execute in practice.
-    if (path.matches("^/api/v\\d+.*") || path.startsWith("/q/")) {
+    // Use startsWith() and character check instead of regex to avoid ReDoS vulnerability
+    boolean isApiVersionPath = path.startsWith("/api/v") 
+        && path.length() > 7 
+        && Character.isDigit(path.charAt(7));
+    if (isApiVersionPath || path.startsWith("/q/")) {
       // For API endpoints and documentation (Swagger UI), prevent caching
       // Use putSingle to replace any existing Cache-Control header
       headers.putSingle("Cache-Control", "no-store, no-cache, must-revalidate, private");
