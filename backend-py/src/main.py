@@ -147,9 +147,9 @@ app.add_middleware(
 # for both requests and responses when using add_middleware.
 # Since CORSMiddleware is added first and SecurityHeadersMiddleware is added second,
 # SecurityHeadersMiddleware becomes the outermost layer and the response flow is:
-# Route Handler -> SecurityHeadersMiddleware -> CORSMiddleware
-# This ensures SecurityHeadersMiddleware processes the response first, then CORS.
-# Since security headers are set first, they won't be overridden by CORS headers.
+# Route Handler -> CORSMiddleware -> SecurityHeadersMiddleware
+# This ensures CORSMiddleware processes the response first (adding CORS headers),
+# then SecurityHeadersMiddleware adds additional security headers without overriding CORS.
 app.add_middleware(SecurityHeadersMiddleware)
 
 
