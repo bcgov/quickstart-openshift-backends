@@ -120,6 +120,9 @@ class SecurityHeadersFilterCookieTest {
     String cookie = "sessionId=abc123; SameSite = None";
     String result = fixCookieHeader(cookie);
     assertTrue(result.contains("SameSite=Strict"), "Should handle spaces in SameSite attribute");
+    // Verify the original value with spaces was replaced, not just added
+    assertFalse(result.contains("= None"), "Should not contain original SameSite = None");
+    assertFalse(result.toLowerCase().contains("samesite = none"), "Should not contain original SameSite = None (case-insensitive)");
   }
 
   @Test

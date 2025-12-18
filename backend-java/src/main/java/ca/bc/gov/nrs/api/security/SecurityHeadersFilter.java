@@ -93,16 +93,21 @@ public class SecurityHeadersFilter implements ContainerResponseFilter {
     // Addresses: Re-examine Cache-control Directives [10015],
     // Non-Storable Content [10049], Storable and Cacheable Content [10049]
     String path = requestContext.getUriInfo().getPath();
-    // More specific path matching: /api/v matches /api/v1/, /api/v2/, etc. but not /api-docs, /api.json
-    // Also exclude Swagger UI and other documentation endpoints from caching
-    if (path.startsWith("/api/v") || path.startsWith("/q/")) {
+    // More specific path matching: /api/v followed by digits matches /api/v1/, /api/v2/, etc.
+    // but not /api-docs, /api.json, /api/version, /api/veterinary
+    // Note: /q/* endpoints are handled by Quarkus's internal routing, not JAX-RS,
+    // so this filter doesn't apply to them. The /q/ check is kept for completeness
+    // but may not execute in practice.
+    if (path.matches("^/api/v\\d+.*") || path.startsWith("/q/")) {
       // For API endpoints and documentation (Swagger UI), prevent caching
-      headers.add("Cache-Control", "no-store, no-cache, must-revalidate, private");
-      headers.add("Pragma", "no-cache");
-      headers.add("Expires", "0");
+      // Use putSingle to replace any existing Cache-Control header
+      headers.putSingle("Cache-Control", "no-store, no-cache, must-revalidate, private");
+      headers.putSingle("Pragma", "no-cache");
+      headers.putSingle("Expires", "0");
     } else {
       // For static content, allow some caching but with revalidation
-      headers.add("Cache-Control", "public, max-age=3600, must-revalidate");
+      // Use putSingle to replace any existing Cache-Control header
+      headers.putSingle("Cache-Control", "public, max-age=3600, must-revalidate");
     }
   }
 
@@ -139,11 +144,15 @@ public class SecurityHeadersFilter implements ContainerResponseFilter {
     String cookieLower = cookie.toLowerCase();
     
     // Check if SameSite is already present with any value
-    if (cookieLower.contains("samesite=")) {
+    if (cookieLower.contains("samesite")) {
+      // Early return if already Strict (no need to process)
+      if (cookieLower.contains("samesite=strict") || cookieLower.contains("samesite = strict")) {
+        return cookie;
+      }
       // Replace any existing SameSite value with Strict
-      // Handle both "; SameSite=None" and "SameSite=None" patterns
-      cookie = cookie.replaceAll("(?i);\\s*samesite=(none|lax|strict)", "; SameSite=Strict");
-      cookie = cookie.replaceAll("(?i)^samesite=(none|lax|strict)", "SameSite=Strict");
+      // Handle both "; SameSite=None" and "SameSite=None" patterns, allowing spaces around '='
+      cookie = cookie.replaceAll("(?i);\\s*samesite\\s*=\\s*(none|lax|strict)", "; SameSite=Strict");
+      cookie = cookie.replaceAll("(?i)^samesite\\s*=\\s*(none|lax|strict)", "SameSite=Strict");
       return cookie;
     }
     
