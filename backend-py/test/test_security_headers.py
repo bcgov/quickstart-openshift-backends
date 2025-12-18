@@ -100,4 +100,5 @@ def test_security_headers_different_methods(client):
     # The important thing is headers are set regardless of method
     response = client.post("/", json={})
     # Headers should still be present even if method not allowed
-    assert "X-Content-Type-Options" in response.headers or response.status_code == 405
+    assert response.status_code in (200, 405)
+    assert "X-Content-Type-Options" in response.headers

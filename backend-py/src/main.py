@@ -81,7 +81,7 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         # and Storable and Cacheable Content [10049])
         # For API endpoints, typically we don't want caching
         if request.url.path.startswith("/api/"):
-            response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, private"
+            response.headers["Cache-Control"] = "no-store, no-cache, private"
             response.headers["Pragma"] = "no-cache"
             response.headers["Expires"] = "0"
         else:
