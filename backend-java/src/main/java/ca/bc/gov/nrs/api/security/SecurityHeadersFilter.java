@@ -91,8 +91,10 @@ public class SecurityHeadersFilter implements ContainerResponseFilter {
     // Addresses: Re-examine Cache-control Directives [10015],
     // Non-Storable Content [10049], Storable and Cacheable Content [10049]
     String path = requestContext.getUriInfo().getPath();
-    if (path.startsWith("/api/")) {
-      // For API endpoints, prevent caching
+    // More specific path matching: /api/v matches /api/v1/, /api/v2/, etc. but not /api-docs, /api.json
+    // Also exclude Swagger UI and other documentation endpoints from caching
+    if (path.startsWith("/api/v") || path.startsWith("/q/")) {
+      // For API endpoints and documentation (Swagger UI), prevent caching
       headers.add("Cache-Control", "no-store, no-cache, must-revalidate, private");
       headers.add("Pragma", "no-cache");
       headers.add("Expires", "0");
