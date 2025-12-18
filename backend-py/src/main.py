@@ -62,7 +62,10 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
 
         # Strict-Transport-Security: Enforces HTTPS
         # Addresses: Strict-Transport-Security Header Not Set [10035]
-        response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains; preload"
+        # Only set HSTS when the request is served over HTTPS
+        # Note: In production behind a reverse proxy, check X-Forwarded-Proto header
+        if request.url.scheme == "https":
+            response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains; preload"
 
         # Referrer-Policy: Controls referrer information
         response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
@@ -123,7 +126,7 @@ async def logging_middleware(request: Request, call_next):
 origins: list[str] = [
     "http://localhost*",
 ]
-# Add CORS middleware first (it will execute last due to LIFO order)
+# Add CORS middleware first
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -132,8 +135,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Add security headers middleware after CORS (it will execute first and apply headers last)
-# This ensures security headers take precedence over CORS headers
+# Add security headers middleware after CORS
+# During response processing (FIFO order), SecurityHeadersMiddleware processes the response
+# after CORS, ensuring security headers take precedence over CORS headers if there are conflicts
 app.add_middleware(SecurityHeadersMiddleware)
 
 
