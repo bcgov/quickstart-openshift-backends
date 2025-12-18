@@ -146,10 +146,10 @@ class SecurityHeadersFilterTest {
       .then()
       .statusCode(200)
       .header("Cache-Control", containsString("no-store"));
-
-    // Test that paths starting with /api/v match
-    // This ensures /api/v1/, /api/v2/, etc. are treated as API endpoints
-    // but /api-docs, /api.json would not match
+    
+    // Note: This test verifies the canonical /api/v1 path matches.
+    // The path pattern /api/v matches /api/v1/, /api/v2/, etc. but not /api-docs or /api.json
+    // due to the more specific pattern check in SecurityHeadersFilter.
   }
 
   @Test
