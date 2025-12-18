@@ -139,9 +139,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Add security headers middleware after CORS
-# During response processing (FIFO order), SecurityHeadersMiddleware processes the response
-# after CORS, ensuring security headers take precedence over CORS headers if there are conflicts
+# Add security headers middleware after CORS in the stack.
+# Note: FastAPI processes middleware in FIFO order on responses (first added processes first).
+# Since CORS is added first, then SecurityHeadersMiddleware, the response flow is:
+# Route Handler -> CORSMiddleware -> SecurityHeadersMiddleware
+# This ensures SecurityHeadersMiddleware processes the response last, allowing security
+# headers to take precedence over CORS headers if there are conflicts.
 app.add_middleware(SecurityHeadersMiddleware)
 
 
