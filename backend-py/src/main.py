@@ -1,6 +1,5 @@
 import time
 import uuid
-from contextlib import asynccontextmanager
 
 import structlog
 from fastapi import FastAPI, Request
@@ -26,27 +25,10 @@ tags_metadata = [
     },
 ]
 
-
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    """Lifespan context manager for startup and shutdown events."""
-    # Startup
-    logger.info(
-        "Application startup complete",
-        service="backend-py",
-        version="0.1.0",
-        api_prefix=api_prefix_v1,
-    )
-    yield
-    # Shutdown
-    logger.info("Application shutdown initiated")
-
-
 app = FastAPI(
     title=OpenAPIInfo["title"],
     version=OpenAPIInfo["version"],
     openapi_tags=tags_metadata,
-    lifespan=lifespan,
 )
 
 
@@ -165,3 +147,20 @@ async def root():
 
 
 app.include_router(user_router, prefix=api_prefix_v1 + "/user", tags=["User CRUD"])
+
+
+# Startup event
+@app.on_event("startup")
+async def startup_event():
+    logger.info(
+        "Application startup complete",
+        service="backend-py",
+        version="0.1.0",
+        api_prefix=api_prefix_v1,
+    )
+
+
+# Shutdown event
+@app.on_event("shutdown")
+async def shutdown_event():
+    logger.info("Application shutdown initiated")
