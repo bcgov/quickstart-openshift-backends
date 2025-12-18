@@ -1,34 +1,34 @@
-{{- if .Values.backendPy.enabled }}
+{{- if (index .Values "backend-py").enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "backendPy.fullname" . }}
+  name: {{ include "backend-py.fullname" . }}
   labels:
-    {{- include "backendPy.labels" . | nindent 4 }}
+    {{- include "backend-py.labels" . | nindent 4 }}
 spec:
   strategy:
-    type: {{ .Values.backendPy.deploymentStrategy }}
-  {{- if not .Values.backendPy.autoscaling.enabled }}
-  replicas: {{ .Values.backendPy.replicaCount }}
+    type: {{ (index .Values "backend-py").deploymentStrategy }}
+  {{- if not (index .Values "backend-py").autoscaling.enabled }}
+  replicas: {{ (index .Values "backend-py").replicaCount }}
   {{- end }}
   selector:
     matchLabels:
-      {{- include "backendPy.selectorLabels" . | nindent 6 }}
+      {{- include "backend-py.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       annotations:
         rollme: {{ randAlphaNum 5 | quote }}
       labels:
-        {{- include "backendPy.labels" . | nindent 8 }}
+        {{- include "backend-py.labels" . | nindent 8 }}
     spec:
-      {{- if .Values.backendPy.podSecurityContext }}
+      {{- if (index .Values "backend-py").podSecurityContext }}
       securityContext:
-        {{- toYaml .Values.backendPy.podSecurityContext | nindent 12 }}
+        {{- toYaml (index .Values "backend-py").podSecurityContext | nindent 12 }}
       {{- end }}
       initContainers:
-        - name: {{ include "backendPy.fullname" . }}-init
+        - name: {{ include "backend-py.fullname" . }}-init
           image: "{{.Values.global.registry}}/{{.Values.global.repository}}/migrations-py:{{ .Values.global.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ default "Always" .Values.backendPy.imagePullPolicy }}
+          imagePullPolicy: {{ default "Always" (index .Values "backend-py").imagePullPolicy }}
           envFrom:
             - secretRef:
                 name: {{.Release.Name}}-py-flyway
@@ -46,13 +46,13 @@ spec:
               cpu: 20m
               memory: 150Mi
       containers:
-        - name: {{ include "backendPy.fullname" . }}
-          {{- if .Values.backendPy.securityContext }}
+        - name: {{ include "backend-py.fullname" . }}
+          {{- if (index .Values "backend-py").securityContext }}
           securityContext:
-            {{- toYaml .Values.backendPy.securityContext | nindent 12 }}
+            {{- toYaml (index .Values "backend-py").securityContext | nindent 12 }}
           {{- end }}
           image: "{{.Values.global.registry}}/{{.Values.global.repository}}/backend-py:{{ .Values.global.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ default "Always" .Values.backendPy.imagePullPolicy }}
+          imagePullPolicy: {{ default "Always" (index .Values "backend-py").imagePullPolicy }}
           envFrom:
             - secretRef:
                 name: {{.Release.Name}}-py
@@ -66,7 +66,7 @@ spec:
               name: logger-conf
           ports:
             - name: http
-              containerPort: {{ .Values.backendPy.service.targetPort }}
+              containerPort: {{ (index .Values "backend-py").service.targetPort }}
               protocol: TCP
           startupProbe:
             httpGet:
@@ -105,12 +105,12 @@ spec:
       volumes:
         - name: logger-conf
           configMap:
-            name: {{ include "backendPy.fullname" . }}
-      {{- with .Values.backendPy.nodeSelector }}
+            name: {{ include "backend-py.fullname" . }}
+      {{- with (index .Values "backend-py").nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.backendPy.tolerations }}
+      {{- with (index .Values "backend-py").tolerations }}
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
@@ -122,7 +122,7 @@ spec:
                   - key: app.kubernetes.io/name
                     operator: In
                     values:
-                      - {{ include "backendPy.fullname" . }}
+                      - {{ include "backend-py.fullname" . }}
                   - key: app.kubernetes.io/instance
                     operator: In
                     values:

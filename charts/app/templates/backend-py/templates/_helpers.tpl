@@ -1,8 +1,8 @@
 {{/*
 Expand the name of the chart.
 */}}
-{{- define "backendPy.name" -}}
-{{- printf "backendpy" }}
+{{- define "backend-py.name" -}}
+{{- printf "backend-py" }}
 {{- end }}
 
 {{/*
@@ -10,10 +10,10 @@ Create a default fully qualified app name.
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
 If release name contains chart name it will be used as a full name.
 */}}
-{{- define "backendPy.fullname" -}}
-{{- $componentName := include "backendPy.name" .  }}
-{{- if .Values.backendPy.fullnameOverride }}
-{{- .Values.backendPy.fullnameOverride | trunc 63 | trimSuffix "-" }}
+{{- define "backend-py.fullname" -}}
+{{- $componentName := include "backend-py.name" .  }}
+{{- if index .Values "backend-py" "fullnameOverride" }}
+{{- index .Values "backend-py" "fullnameOverride" | trunc 63 | trimSuffix "-" }}
 {{- else }}
 {{- printf "%s-%s" .Release.Name $componentName | trunc 63 | trimSuffix "-" }}
 {{- end }}
@@ -22,20 +22,20 @@ If release name contains chart name it will be used as a full name.
 {{/*
 Common labels
 */}}
-{{- define "backendPy.labels" -}}
-{{ include "backendPy.selectorLabels" . }}
+{{- define "backend-py.labels" -}}
+{{ include "backend-py.selectorLabels" . }}
 {{- if .Values.global.tag }}
 app.kubernetes.io/image-version: {{ .Values.global.tag | quote }}
 {{- end }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
-app.kubernetes.io/short-name: {{ include "backendPy.name" . }}
+app.kubernetes.io/short-name: {{ include "backend-py.name" . }}
 {{- end }}
 
 {{/*
 Selector labels
 */}}
-{{- define "backendPy.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "backendPy.name" . }}
+{{- define "backend-py.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "backend-py.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 

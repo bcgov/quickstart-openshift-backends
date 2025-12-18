@@ -17,8 +17,8 @@ jobs:
     uses: bcgov/quickstart-openshift-helpers/.github/workflows/.pr-validate.yml@6d695dd755fa9255ea4bde335890516beb6f95e4 # v1.0.1
     with:
       markdown_links: |
-        - [Java](https://${{ github.event.repository.name }}-${{ github.event.number }}-backendJava.apps.silver.devops.gov.bc.ca)
-        - [Py](https://${{ github.event.repository.name }}-${{ github.event.number }}-backendPy.apps.silver.devops.gov.bc.ca)
+        - [Java](https://${{ github.event.repository.name }}-${{ github.event.number }}-backend-java.apps.silver.devops.gov.bc.ca)
+        - [Py](https://${{ github.event.repository.name }}-${{ github.event.number }}-backend-py.apps.silver.devops.gov.bc.ca)
 
   results:
     name: Validate Results
