@@ -3,7 +3,7 @@ package ca.bc.gov.nrs.api.security;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ContainerResponseContext;
 import jakarta.ws.rs.container.ContainerResponseFilter;
-import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.MultivaluedMap;
 import jakarta.ws.rs.ext.Provider;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +38,7 @@ public class SecurityHeadersFilter implements ContainerResponseFilter {
   @Override
   public void filter(
       ContainerRequestContext requestContext, ContainerResponseContext responseContext) {
-    HttpHeaders headers = responseContext.getHeaders();
+    MultivaluedMap<String, Object> headers = responseContext.getHeaders();
 
     // Security headers to address ZAP alerts
 
@@ -108,14 +108,16 @@ public class SecurityHeadersFilter implements ContainerResponseFilter {
    * Ensures all Set-Cookie headers have SameSite=Strict attribute.
    * If SameSite is missing or set to None, replaces with Strict.
    */
-  private void fixCookieSameSiteAttribute(HttpHeaders headers) {
-    List<String> setCookieHeaders = headers.get("Set-Cookie");
+  @SuppressWarnings("unchecked")
+  private void fixCookieSameSiteAttribute(MultivaluedMap<String, Object> headers) {
+    List<Object> setCookieHeaders = headers.get("Set-Cookie");
     if (setCookieHeaders == null || setCookieHeaders.isEmpty()) {
       return;
     }
 
-    List<String> fixedCookies = new ArrayList<>();
-    for (String cookie : setCookieHeaders) {
+    List<Object> fixedCookies = new ArrayList<>();
+    for (Object cookieObj : setCookieHeaders) {
+      String cookie = cookieObj.toString();
       String fixedCookie = fixCookieHeader(cookie);
       fixedCookies.add(fixedCookie);
     }
