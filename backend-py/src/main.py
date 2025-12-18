@@ -4,7 +4,7 @@ import uuid
 import structlog
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.middleware.base import BaseHTTPMiddleware
+from starlette.middleware.base import BaseHTTPMiddleware
 
 from src.v1.routes.user_routes import router as user_router
 
