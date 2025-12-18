@@ -99,9 +99,10 @@ public class SecurityHeadersFilter implements ContainerResponseFilter {
     // so this filter doesn't apply to them. The /q/ check is kept for completeness
     // but may not execute in practice.
     // Use startsWith() and character check instead of regex to avoid ReDoS vulnerability
+    // Check if path starts with /api/v followed by at least one digit
     boolean isApiVersionPath = path.startsWith("/api/v") 
-        && path.length() > 7 
-        && Character.isDigit(path.charAt(7));
+        && path.length() >= 8  // At least "/api/v" + one digit
+        && Character.isDigit(path.charAt(7));  // Character at index 7 (after "/api/v")
     if (isApiVersionPath || path.startsWith("/q/")) {
       // For API endpoints and documentation (Swagger UI), prevent caching
       // Use putSingle to replace any existing Cache-Control header
