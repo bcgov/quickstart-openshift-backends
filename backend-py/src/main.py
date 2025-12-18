@@ -72,8 +72,10 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         if "Server" in response.headers:
             del response.headers["Server"]
         # Also remove any proxy-related headers that might leak information
-        response.headers.pop("X-Powered-By", None)
-        response.headers.pop("X-AspNet-Version", None)
+        if "X-Powered-By" in response.headers:
+            del response.headers["X-Powered-By"]
+        if "X-AspNet-Version" in response.headers:
+            del response.headers["X-AspNet-Version"]
 
         # Cache-Control headers (addresses Re-examine Cache-control Directives [10015]
         # and Storable and Cacheable Content [10049])
