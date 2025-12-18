@@ -99,6 +99,9 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
 
 
 # Logging middleware for request tracking
+# Note: Decorator-based middleware (@app.middleware) is registered at definition time,
+# making it the outermost middleware layer. It will process requests/responses first,
+# before any middleware added via add_middleware().
 @app.middleware("http")
 async def logging_middleware(request: Request, call_next):
     start_time = time.time()
@@ -140,11 +143,13 @@ app.add_middleware(
 )
 
 # Add security headers middleware after CORS in the stack.
-# Note: FastAPI processes middleware in FIFO order on responses (first added processes first).
-# Since CORS is added first, then SecurityHeadersMiddleware, the response flow is:
-# Route Handler -> CORSMiddleware -> SecurityHeadersMiddleware
-# This ensures SecurityHeadersMiddleware processes the response last, allowing security
-# headers to take precedence over CORS headers if there are conflicts.
+# Note: FastAPI (via Starlette) applies middleware in LIFO (last in, first out) order
+# for both requests and responses when using add_middleware.
+# Since CORSMiddleware is added first and SecurityHeadersMiddleware is added second,
+# SecurityHeadersMiddleware becomes the outermost layer and the response flow is:
+# Route Handler -> SecurityHeadersMiddleware -> CORSMiddleware
+# This ensures SecurityHeadersMiddleware processes the response first, then CORS.
+# Since security headers are set first, they won't be overridden by CORS headers.
 app.add_middleware(SecurityHeadersMiddleware)
 
 

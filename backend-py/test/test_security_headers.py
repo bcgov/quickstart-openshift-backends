@@ -25,7 +25,7 @@ def test_security_headers_present(client):
     assert "Content-Security-Policy" in response.headers
     assert response.headers["Content-Security-Policy"] == "default-src 'none'; frame-ancestors 'none'"
     
-    # HSTS is only set on HTTPS requests (see main.py line 67-71)
+    # HSTS is only set on HTTPS requests (see main.py lines 67-72)
     # TestClient uses HTTP by default, so we verify HSTS is NOT present on HTTP requests
     assert "Strict-Transport-Security" not in response.headers
     
