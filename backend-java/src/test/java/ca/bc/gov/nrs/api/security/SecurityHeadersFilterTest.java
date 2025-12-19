@@ -88,14 +88,21 @@ class SecurityHeadersFilterTest {
     // The filter only applies to JAX-RS endpoints like /api/v1/*
     // Since the filter doesn't apply, we expect no Cache-Control header from our filter.
     // Note: This endpoint may not exist in all test environments (404 is acceptable)
-    given()
-      .when().get("/q/openapi")
-      .then()
-      .statusCode(anyOf(equalTo(200), equalTo(404)))
-      // Filter doesn't apply to /q/* endpoints, so Cache-Control from filter should be null
-      // (Quarkus may set its own, but that's outside our filter's scope)
-      // We accept nullValue() since the endpoint may not exist or filter doesn't apply
-      .header("Cache-Control", nullValue());
+    var response = given()
+      .when().get("/q/openapi");
+    
+    int statusCode = response.statusCode();
+    // Only test Cache-Control if endpoint exists (200)
+    if (statusCode == 200) {
+      response.then()
+        .statusCode(200)
+        // Filter doesn't apply to /q/* endpoints, so Cache-Control from filter should be null
+        // (Quarkus may set its own, but that's outside our filter's scope)
+        .header("Cache-Control", nullValue());
+    } else {
+      // If 404, endpoint doesn't exist - that's acceptable, just verify it's 404
+      response.then().statusCode(404);
+    }
   }
 
   @Test

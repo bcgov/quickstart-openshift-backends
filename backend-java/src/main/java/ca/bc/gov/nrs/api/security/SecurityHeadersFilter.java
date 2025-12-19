@@ -158,22 +158,59 @@ public class SecurityHeadersFilter implements ContainerResponseFilter {
       return cookie;
     }
 
-    String cookieLower = cookie.toLowerCase();
+    // Use string manipulation instead of regex to prevent ReDoS vulnerability
+    // Split on ';' to examine individual attributes without using regex
+    String[] parts = cookie.split(";", -1);  // -1 to preserve trailing empty strings
+    boolean hasSameSite = false;
+    boolean isAlreadyStrict = false;
     
-    // Check if SameSite is already present with any value
-    if (cookieLower.contains("samesite")) {
-      // Early return if already Strict (no need to process)
-      // Use regex to match all variations consistently (limited spaces to avoid ReDoS)
-      if (cookieLower.matches(".*samesite\\s{0,5}=\\s{0,5}strict.*")) {
-        return cookie;
+    // First pass: check if SameSite exists and if it's already Strict
+    for (String part : parts) {
+      String trimmed = part.trim();
+      if (trimmed.regionMatches(true, 0, "samesite", 0, "samesite".length())) {
+        hasSameSite = true;
+        int eqIndex = trimmed.indexOf('=');
+        if (eqIndex != -1) {
+          String value = trimmed.substring(eqIndex + 1).trim();
+          if ("strict".equalsIgnoreCase(value)) {
+            isAlreadyStrict = true;
+            break;
+          }
+        }
       }
-      // Replace any existing SameSite value with Strict
-      // Handle both "; SameSite=None" and "SameSite=None" patterns, allowing limited spaces around '='
-      // Limit spaces to 0-5 to prevent ReDoS vulnerability
-      // Note: Using (?i) flag on original cookie to preserve case of other attributes
-      cookie = cookie.replaceAll("(?i);\\s{0,5}samesite\\s{0,5}=\\s{0,5}(none|lax|strict)", "; SameSite=Strict");
-      cookie = cookie.replaceAll("(?i)^samesite\\s{0,5}=\\s{0,5}(none|lax|strict)", "SameSite=Strict");
+    }
+    
+    // Early return if already Strict (no need to process)
+    if (hasSameSite && isAlreadyStrict) {
       return cookie;
+    }
+    
+    // Second pass: rebuild cookie, normalizing all SameSite attributes to "SameSite=Strict"
+    if (hasSameSite) {
+      StringBuilder rebuilt = new StringBuilder();
+      boolean first = true;
+      for (String part : parts) {
+        String trimmed = part.trim();
+        if (trimmed.isEmpty()) {
+          continue;  // Skip empty parts
+        }
+        if (trimmed.regionMatches(true, 0, "samesite", 0, "samesite".length())) {
+          // Normalize any SameSite attribute to "SameSite=Strict"
+          if (!first) {
+            rebuilt.append("; ");
+          }
+          rebuilt.append("SameSite=Strict");
+          first = false;
+        } else {
+          // Preserve non-SameSite attributes (including cookie name=value)
+          if (!first) {
+            rebuilt.append("; ");
+          }
+          rebuilt.append(trimmed);
+          first = false;
+        }
+      }
+      return rebuilt.toString();
     }
     
     // Add SameSite=Strict if not present
