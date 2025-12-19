@@ -54,10 +54,18 @@ public class SecurityHeadersFilter implements ContainerResponseFilter {
     // Addresses: Strict-Transport-Security Header Not Set [10035]
     // Only set HSTS when the request is served over HTTPS
     // Check both direct HTTPS and proxy-forwarded HTTPS (for reverse proxy scenarios)
-    boolean isHttps =
-        requestContext.getUriInfo().getRequestUri().getScheme().equals("https")
-            || "https".equalsIgnoreCase(
-                requestContext.getHeaderString("X-Forwarded-Proto"));
+    // Check multiple common proxy headers to ensure HSTS is applied correctly
+    String scheme = requestContext.getUriInfo().getRequestUri().getScheme();
+    String xForwardedProto = requestContext.getHeaderString("X-Forwarded-Proto");
+    String xForwardedScheme = requestContext.getHeaderString("X-Forwarded-Scheme");
+    String xForwardedSsl = requestContext.getHeaderString("X-Forwarded-SSL");
+    String frontEndHttps = requestContext.getHeaderString("Front-End-Https");
+    boolean isHttps = "https".equals(scheme)
+        || "https".equalsIgnoreCase(xForwardedProto)
+        || "https".equalsIgnoreCase(xForwardedScheme)
+        || "on".equalsIgnoreCase(xForwardedSsl)
+        || "on".equalsIgnoreCase(frontEndHttps)
+        || "true".equalsIgnoreCase(frontEndHttps);
     if (isHttps) {
       headers.add(
           "Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload");
@@ -93,18 +101,19 @@ public class SecurityHeadersFilter implements ContainerResponseFilter {
     // Addresses: Re-examine Cache-control Directives [10015],
     // Non-Storable Content [10049], Storable and Cacheable Content [10049]
     String path = requestContext.getUriInfo().getPath();
-    // More specific path matching: /api/v followed by a digit matches /api/v1/, /api/v2/, etc.
+    // More specific path matching: /api/v or /api/v followed by a digit matches /api/v1/, /api/v2/, etc.
     // but not /api-docs, /api.json, /api/version, /api/veterinary, /api/v1abc
     // Note: /q/* endpoints are handled by Quarkus's internal routing, not JAX-RS,
     // so this filter doesn't apply to them. The /q/ check is kept for completeness
     // but may not execute in practice.
     // Use startsWith() and character check instead of regex to avoid ReDoS vulnerability
-    // Check if path starts with /api/v followed by a digit, and that digit is followed by '/' or end-of-string
+    // Check if path is exactly /api/v, or starts with /api/v followed by a digit
     // "/api/v" is 6 characters (indices 0-5), so index 6 is the first character after "/api/v"
-    boolean isApiVersionPath = path.startsWith("/api/v") 
-        && path.length() >= 7  // At least "/api/v" (6 chars) + one digit
-        && Character.isDigit(path.charAt(6))  // Character at index 6 (first char after "/api/v")
-        && (path.length() == 7 || path.charAt(7) == '/');  // Next char is end-of-string or '/'
+    boolean isApiVersionPath = path.equals("/api/v")
+        || (path.startsWith("/api/v") 
+            && path.length() >= 7  // At least "/api/v" (6 chars) + one digit
+            && Character.isDigit(path.charAt(6))  // Character at index 6 (first char after "/api/v")
+            && (path.length() == 7 || path.charAt(7) == '/'));  // Next char is end-of-string or '/'
     if (isApiVersionPath || path.startsWith("/q/")) {
       // For API endpoints and documentation (Swagger UI), prevent caching
       // Use putSingle to replace any existing Cache-Control header
@@ -161,6 +170,7 @@ public class SecurityHeadersFilter implements ContainerResponseFilter {
       // Replace any existing SameSite value with Strict
       // Handle both "; SameSite=None" and "SameSite=None" patterns, allowing limited spaces around '='
       // Limit spaces to 0-5 to prevent ReDoS vulnerability
+      // Note: Using (?i) flag on original cookie to preserve case of other attributes
       cookie = cookie.replaceAll("(?i);\\s{0,5}samesite\\s{0,5}=\\s{0,5}(none|lax|strict)", "; SameSite=Strict");
       cookie = cookie.replaceAll("(?i)^samesite\\s{0,5}=\\s{0,5}(none|lax|strict)", "SameSite=Strict");
       return cookie;

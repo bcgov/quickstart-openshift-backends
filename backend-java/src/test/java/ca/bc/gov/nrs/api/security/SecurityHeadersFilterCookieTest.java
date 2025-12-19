@@ -48,8 +48,15 @@ class SecurityHeadersFilterCookieTest {
     String cookie = "sessionId=abc123; SameSite=Strict";
     String result = fixCookieHeader(cookie);
     assertTrue(result.contains("SameSite=Strict"), "Should keep SameSite=Strict");
-    // Should not duplicate
-    assertEquals(1, (result.length() - result.replace("SameSite=Strict", "").length()) / "SameSite=Strict".length());
+    // Should not duplicate - count occurrences using indexOf
+    int count = 0;
+    int index = 0;
+    String search = "SameSite=Strict";
+    while ((index = result.indexOf(search, index)) != -1) {
+      count++;
+      index += search.length();
+    }
+    assertEquals(1, count, "Should have exactly one SameSite=Strict attribute");
   }
 
   @Test
