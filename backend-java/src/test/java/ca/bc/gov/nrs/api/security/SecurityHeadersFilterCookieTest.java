@@ -2,8 +2,6 @@ package ca.bc.gov.nrs.api.security;
 
 import org.junit.jupiter.api.Test;
 
-import java.lang.reflect.Method;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -15,16 +13,14 @@ class SecurityHeadersFilterCookieTest {
   private SecurityHeadersFilter filter = new SecurityHeadersFilter();
 
   /**
-   * Uses reflection to access the private fixCookieHeader method for testing.
+   * Calls the package-private fixCookieHeader method for testing.
    */
-  private String fixCookieHeader(String cookie) throws Exception {
-    Method method = SecurityHeadersFilter.class.getDeclaredMethod("fixCookieHeader", String.class);
-    method.setAccessible(true);
-    return (String) method.invoke(filter, cookie);
+  private String fixCookieHeader(String cookie) {
+    return filter.fixCookieHeader(cookie);
   }
 
   @Test
-  void testCookieWithoutSameSite() throws Exception {
+  void testCookieWithoutSameSite() {
     String cookie = "sessionId=abc123";
     String result = fixCookieHeader(cookie);
     assertTrue(result.contains("SameSite=Strict"), "Should add SameSite=Strict");
@@ -32,7 +28,7 @@ class SecurityHeadersFilterCookieTest {
   }
 
   @Test
-  void testCookieWithSameSiteNone() throws Exception {
+  void testCookieWithSameSiteNone() {
     String cookie = "sessionId=abc123; SameSite=None";
     String result = fixCookieHeader(cookie);
     assertTrue(result.contains("SameSite=Strict"), "Should replace SameSite=None with Strict");
@@ -40,7 +36,7 @@ class SecurityHeadersFilterCookieTest {
   }
 
   @Test
-  void testCookieWithSameSiteLax() throws Exception {
+  void testCookieWithSameSiteLax() {
     String cookie = "sessionId=abc123; SameSite=Lax";
     String result = fixCookieHeader(cookie);
     assertTrue(result.contains("SameSite=Strict"), "Should replace SameSite=Lax with Strict");
@@ -48,7 +44,7 @@ class SecurityHeadersFilterCookieTest {
   }
 
   @Test
-  void testCookieWithSameSiteStrict() throws Exception {
+  void testCookieWithSameSiteStrict() {
     String cookie = "sessionId=abc123; SameSite=Strict";
     String result = fixCookieHeader(cookie);
     assertTrue(result.contains("SameSite=Strict"), "Should keep SameSite=Strict");
@@ -57,7 +53,7 @@ class SecurityHeadersFilterCookieTest {
   }
 
   @Test
-  void testCookieWithHttpOnly() throws Exception {
+  void testCookieWithHttpOnly() {
     String cookie = "sessionId=abc123; HttpOnly";
     String result = fixCookieHeader(cookie);
     assertTrue(result.contains("SameSite=Strict"), "Should add SameSite=Strict");
@@ -69,7 +65,7 @@ class SecurityHeadersFilterCookieTest {
   }
 
   @Test
-  void testCookieWithSecure() throws Exception {
+  void testCookieWithSecure() {
     String cookie = "sessionId=abc123; Secure";
     String result = fixCookieHeader(cookie);
     assertTrue(result.contains("SameSite=Strict"), "Should add SameSite=Strict");
@@ -81,7 +77,7 @@ class SecurityHeadersFilterCookieTest {
   }
 
   @Test
-  void testCookieWithPath() throws Exception {
+  void testCookieWithPath() {
     String cookie = "sessionId=abc123; Path=/";
     String result = fixCookieHeader(cookie);
     assertTrue(result.contains("SameSite=Strict"), "Should add SameSite=Strict");
@@ -93,7 +89,7 @@ class SecurityHeadersFilterCookieTest {
   }
 
   @Test
-  void testCookieWithMultipleAttributes() throws Exception {
+  void testCookieWithMultipleAttributes() {
     // Test with HttpOnly, Secure, and Path - should insert before the earliest one
     String cookie = "sessionId=abc123; Secure; HttpOnly; Path=/";
     String result = fixCookieHeader(cookie);
@@ -108,7 +104,7 @@ class SecurityHeadersFilterCookieTest {
   }
 
   @Test
-  void testCookieWithCaseInsensitiveSameSite() throws Exception {
+  void testCookieWithCaseInsensitiveSameSite() {
     String cookie = "sessionId=abc123; samesite=none";
     String result = fixCookieHeader(cookie);
     assertTrue(result.contains("SameSite=Strict"), "Should replace case-insensitive SameSite=None");
@@ -116,7 +112,7 @@ class SecurityHeadersFilterCookieTest {
   }
 
   @Test
-  void testCookieWithSpacesInSameSite() throws Exception {
+  void testCookieWithSpacesInSameSite() {
     String cookie = "sessionId=abc123; SameSite = None";
     String result = fixCookieHeader(cookie);
     assertTrue(result.contains("SameSite=Strict"), "Should handle spaces in SameSite attribute");
@@ -126,13 +122,13 @@ class SecurityHeadersFilterCookieTest {
   }
 
   @Test
-  void testNullCookie() throws Exception {
+  void testNullCookie() {
     String result = fixCookieHeader(null);
     assertNull(result, "Should return null for null input");
   }
 
   @Test
-  void testEmptyCookie() throws Exception {
+  void testEmptyCookie() {
     String result = fixCookieHeader("");
     assertEquals("", result, "Should return empty string for empty input");
   }

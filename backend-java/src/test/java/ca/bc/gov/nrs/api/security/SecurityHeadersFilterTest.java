@@ -53,7 +53,7 @@ class SecurityHeadersFilterTest {
   }
 
   @Test
-  void testCacheControlNonApiEndpoints() {
+  void testCacheControlRootEndpoint() {
     // Test root endpoint - should allow caching
     // Note: Quarkus static file serving may set its own Cache-Control headers
     // (e.g., "public, immutable, max-age=86400"), which is acceptable
@@ -86,15 +86,14 @@ class SecurityHeadersFilterTest {
     // Note: /q/* endpoints are handled by Quarkus's internal routing, not JAX-RS,
     // so our ContainerResponseFilter doesn't apply to them. This is expected behavior.
     // The filter only applies to JAX-RS endpoints like /api/v1/*
+    // Since the filter doesn't apply, we expect no Cache-Control header from our filter.
     given()
       .when().get("/q/openapi")
       .then()
       .statusCode(anyOf(equalTo(200), equalTo(404)))
-      // Cache-Control may be null since filter doesn't apply to /q/* endpoints
-      .header("Cache-Control", anyOf(
-        containsString("no-store"), // If somehow filter applies
-        nullValue() // Expected: Quarkus handles /q/* outside JAX-RS
-      ));
+      // Filter doesn't apply to /q/* endpoints, so Cache-Control from filter should be null
+      // (Quarkus may set its own, but that's outside our filter's scope)
+      .header("Cache-Control", nullValue());
   }
 
   @Test
@@ -147,9 +146,13 @@ class SecurityHeadersFilterTest {
       .statusCode(200)
       .header("Cache-Control", containsString("no-store"));
     
-    // Note: This test verifies the canonical /api/v1 path matches.
-    // The path pattern /api/v matches /api/v1/, /api/v2/, etc. but not /api-docs or /api.json
-    // due to the more specific pattern check in SecurityHeadersFilter.
+    // Note: SecurityHeadersFilter checks if path starts with "/api/v" and the character
+    // at index 6 is a digit, followed by either end-of-string or '/'. This matches:
+    // - /api/v1, /api/v2, /api/v1/users (charAt(6) is digit, charAt(7) is '/' or end)
+    // But excludes:
+    // - /api-docs, /api.json (length < 7)
+    // - /api/version, /api/veterinary (charAt(6) is not a digit)
+    // - /api/v1abc (charAt(7) is not '/')
   }
 
   @Test
