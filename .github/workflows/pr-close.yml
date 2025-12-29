@@ -16,7 +16,7 @@ jobs:
     permissions:
       packages: write  # Required for promoting images during PR cleanup
       contents: read   # Required for repository access
-    uses: bcgov/quickstart-openshift-helpers/.github/workflows/.pr-close.yml@d9b3d32fb3f03c4699c2dce83ddfff042cd31a1f # v1.0.0
+    uses: bcgov/quickstart-openshift-helpers/.github/workflows/.pr-close.yml@6d695dd755fa9255ea4bde335890516beb6f95e4 # v1.0.1
     secrets:
       oc_namespace: ${{ vars.OC_NAMESPACE }}
       oc_token: ${{ secrets.OC_TOKEN }}
@@ -29,7 +29,7 @@ jobs:
       contents: read  # Required to read values_file from repository
     runs-on: ubuntu-24.04
     steps:
-      - uses: bcgov/action-crunchy@9b776dc20a55f435b7c5024152b6b7b294362809 # v1.2.5
+      - uses: bcgov/action-crunchy@a109166ff26880dc75676492a33b816ac0ce392f # v1.2.6
         name: Remove PR Specific User
         with:
           oc_namespace: ${{ vars.oc_namespace }}
