@@ -1,38 +1,38 @@
-{{- if .Values.backendJava.enabled }}
+{{- if (index .Values "backend-java").enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "backendJava.fullname" . }}
+  name: {{ include "backend-java.fullname" . }}
   labels:
-    {{- include "backendJava.labels" . | nindent 4 }}
+    {{- include "backend-java.labels" . | nindent 4 }}
 spec:
   strategy:
-    type: {{ .Values.backendJava.deploymentStrategy }}
-  {{- if not .Values.backendJava.autoscaling.enabled }}
-  replicas: {{ .Values.backendJava.replicaCount }}
+    type: {{ (index .Values "backend-java").deploymentStrategy }}
+  {{- if not (index .Values "backend-java").autoscaling.enabled }}
+  replicas: {{ (index .Values "backend-java").replicaCount }}
   {{- end }}
   selector:
     matchLabels:
-      {{- include "backendJava.selectorLabels" . | nindent 6 }}
+      {{- include "backend-java.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       annotations:
         rollme: {{ randAlphaNum 5 | quote }}
       labels:
-        {{- include "backendJava.labels" . | nindent 8 }}
+        {{- include "backend-java.labels" . | nindent 8 }}
     spec:
-      {{- if .Values.backendJava.podSecurityContext }}
+      {{- if (index .Values "backend-java").podSecurityContext }}
       securityContext:
-        {{- toYaml .Values.backendJava.podSecurityContext | nindent 12 }}
+        {{- toYaml (index .Values "backend-java").podSecurityContext | nindent 12 }}
       {{- end }}
       containers:
-        - name: {{ include "backendJava.fullname" . }}
-          {{- if .Values.backendJava.securityContext }}
+        - name: {{ include "backend-java.fullname" . }}
+          {{- if (index .Values "backend-java").securityContext }}
           securityContext:
-            {{- toYaml .Values.backendJava.securityContext | nindent 12 }}
+            {{- toYaml (index .Values "backend-java").securityContext | nindent 12 }}
           {{- end }}
           image: "{{.Values.global.registry}}/{{.Values.global.repository}}/backend-java:{{ .Values.global.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ default "Always" .Values.backendJava.imagePullPolicy }}
+          imagePullPolicy: {{ default "Always" (index .Values "backend-java").imagePullPolicy }}
           envFrom:
             - secretRef:
                 name: {{.Release.Name}}-java
@@ -43,7 +43,7 @@ spec:
               value: info
           ports:
             - name: http
-              containerPort: {{ .Values.backendJava.service.targetPort }}
+              containerPort: {{ (index .Values "backend-java").service.targetPort }}
               protocol: TCP
           startupProbe:
             httpGet:
@@ -79,11 +79,11 @@ spec:
             requests:
               cpu: 20m
               memory: 150Mi
-      {{- with .Values.backendJava.nodeSelector }}
+      {{- with (index .Values "backend-java").nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.backendJava.tolerations }}
+      {{- with (index .Values "backend-java").tolerations }}
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
@@ -95,7 +95,7 @@ spec:
                   - key: app.kubernetes.io/name
                     operator: In
                     values:
-                      - {{ include "backendJava.fullname" . }}
+                      - {{ include "backend-java.fullname" . }}
                   - key: app.kubernetes.io/instance
                     operator: In
                     values:
