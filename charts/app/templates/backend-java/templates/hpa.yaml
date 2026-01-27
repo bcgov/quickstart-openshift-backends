@@ -1,18 +1,18 @@
 {{- if .Values.global.autoscaling }}
-{{- if and .Values.backendJava.autoscaling .Values.backendJava.autoscaling.enabled }}
+{{- if and (index .Values "backend-java").autoscaling (index .Values "backend-java").autoscaling.enabled }}
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: {{ include "backendJava.fullname" . }}
+  name: {{ include "backend-java.fullname" . }}
   labels:
-    {{- include "backendJava.labels" . | nindent 4 }}
+    {{- include "backend-java.labels" . | nindent 4 }}
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: {{ include "backendJava.fullname" . }}
-  minReplicas: {{ .Values.backendJava.autoscaling.minReplicas }}
-  maxReplicas: {{ .Values.backendJava.autoscaling.maxReplicas }}
+    name: {{ include "backend-java.fullname" . }}
+  minReplicas: {{ (index .Values "backend-java").autoscaling.minReplicas }}
+  maxReplicas: {{ (index .Values "backend-java").autoscaling.maxReplicas }}
   behavior:
     scaleDown:
       stabilizationWindowSeconds: 300
@@ -35,21 +35,21 @@ spec:
           periodSeconds: 30
       selectPolicy: Max
   metrics:
-    {{- if .Values.backendJava.autoscaling.targetCPUUtilizationPercentage }}
+    {{- if (index .Values "backend-java").autoscaling.targetCPUUtilizationPercentage }}
     - type: Resource
       resource:
         name: cpu
         target:
           type: Utilization
-          averageUtilization: {{ .Values.backendJava.autoscaling.targetCPUUtilizationPercentage }}
+          averageUtilization: {{ (index .Values "backend-java").autoscaling.targetCPUUtilizationPercentage }}
     {{- end }}
-    {{- if .Values.backendJava.autoscaling.targetMemoryUtilizationPercentage }}
+    {{- if (index .Values "backend-java").autoscaling.targetMemoryUtilizationPercentage }}
     - type: Resource
       resource:
         name: memory
         target:
           type: Utilization
-          averageUtilization: {{ .Values.backendJava.autoscaling.targetMemoryUtilizationPercentage }}
+          averageUtilization: {{ (index .Values "backend-java").autoscaling.targetMemoryUtilizationPercentage }}
     {{- end }}
 {{- end }}
 {{- end }}

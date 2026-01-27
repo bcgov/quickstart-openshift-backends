@@ -59,9 +59,9 @@ jobs:
         name: [quarkus, fastapi]
         include:
           - name: quarkus
-            baseUrl: https://quickstart-openshift-backends-test-backendjava.apps.silver.devops.gov.bc.ca
+            baseUrl: https://quickstart-openshift-backends-test-backend-java.apps.silver.devops.gov.bc.ca
           - name: fastapi
-            baseUrl: https://quickstart-openshift-backends-test-backendpy.apps.silver.devops.gov.bc.ca
+            baseUrl: https://quickstart-openshift-backends-test-backend-py.apps.silver.devops.gov.bc.ca
     steps:
       - uses: actions/checkout@v6
         name: Checkout
@@ -100,12 +100,10 @@ jobs:
       environment: prod
       db_user: appproxy
       params: --set global.autoscaling=true
-        --set backendPy.pdb.enabled=true
-        --set backendGo.pdb.enabled=true
-        --set backendJava.pdb.enabled=true
-        --set backendGo.deploymentStrategy=RollingUpdate
-        --set backendPy.deploymentStrategy=RollingUpdate
-        --set backendJava.deploymentStrategy=RollingUpdate
+        --set backend-py.pdb.enabled=true
+        --set backend-java.pdb.enabled=true
+        --set backend-py.deploymentStrategy=RollingUpdate
+        --set backend-java.deploymentStrategy=RollingUpdate
       tag: ${{ inputs.tag }}
 
   promote:

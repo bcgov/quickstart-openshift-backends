@@ -1,18 +1,18 @@
 {{- if .Values.global.autoscaling }}
-{{- if and .Values.backendPy.autoscaling .Values.backendPy.autoscaling.enabled }}
+{{- if and (index .Values "backend-py").autoscaling (index .Values "backend-py").autoscaling.enabled }}
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: {{ include "backendPy.fullname" . }}
+  name: {{ include "backend-py.fullname" . }}
   labels:
-    {{- include "backendPy.labels" . | nindent 4 }}
+    {{- include "backend-py.labels" . | nindent 4 }}
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: {{ include "backendPy.fullname" . }}
-  minReplicas: {{ .Values.backendPy.autoscaling.minReplicas }}
-  maxReplicas: {{ .Values.backendPy.autoscaling.maxReplicas }}
+    name: {{ include "backend-py.fullname" . }}
+  minReplicas: {{ (index .Values "backend-py").autoscaling.minReplicas }}
+  maxReplicas: {{ (index .Values "backend-py").autoscaling.maxReplicas }}
   behavior:
     scaleDown:
       stabilizationWindowSeconds: 300
@@ -35,21 +35,21 @@ spec:
           periodSeconds: 30
       selectPolicy: Max
   metrics:
-    {{- if .Values.backendPy.autoscaling.targetCPUUtilizationPercentage }}
+    {{- if (index .Values "backend-py").autoscaling.targetCPUUtilizationPercentage }}
     - type: Resource
       resource:
         name: cpu
         target:
           type: Utilization
-          averageUtilization: {{ .Values.backendPy.autoscaling.targetCPUUtilizationPercentage }}
+          averageUtilization: {{ (index .Values "backend-py").autoscaling.targetCPUUtilizationPercentage }}
     {{- end }}
-    {{- if .Values.backendPy.autoscaling.targetMemoryUtilizationPercentage }}
+    {{- if (index .Values "backend-py").autoscaling.targetMemoryUtilizationPercentage }}
     - type: Resource
       resource:
         name: memory
         target:
           type: Utilization
-          averageUtilization: {{ .Values.backendPy.autoscaling.targetMemoryUtilizationPercentage }}
+          averageUtilization: {{ (index .Values "backend-py").autoscaling.targetMemoryUtilizationPercentage }}
     {{- end }}
 {{- end }}
 {{- end }}
