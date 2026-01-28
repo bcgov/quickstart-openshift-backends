@@ -1,11 +1,11 @@
-{{- if .Values.backendPy.enabled -}}
+{{- if (index .Values "backend-py").enabled -}}
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ include "backendPy.fullname" . }}
+  name: {{ include "backend-py.fullname" . }}
   labels:
-    {{- include "backendPy.labels" . | nindent 4 }}
+    {{- include "backend-py.labels" . | nindent 4 }}
 data:
   logger.conf: |
     [loggers]
