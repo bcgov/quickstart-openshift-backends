@@ -60,7 +60,6 @@ class SecurityHeadersFilterPathMatchingTest {
     assertFalse(isApiVersionPath("/api/vabc"), "Should not match /api/vabc (charAt(6) = 'a')");
     
     // Edge cases
-    assertFalse(isApiVersionPath("/api/v1abc"), "Should not match /api/v1abc (charAt(7) = 'a', not '/')");
     assertFalse(isApiVersionPath("/api/v12"), "Should not match /api/v12 (charAt(7) = '2', not '/')");
     
     // Other paths

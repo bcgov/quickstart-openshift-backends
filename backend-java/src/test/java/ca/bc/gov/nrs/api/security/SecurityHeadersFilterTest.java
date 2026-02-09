@@ -92,13 +92,12 @@ class SecurityHeadersFilterTest {
       .when().get("/q/openapi");
     
     int statusCode = response.statusCode();
-    // Only test Cache-Control if endpoint exists (200)
+    // Only verify status code if endpoint exists (200)
     if (statusCode == 200) {
-      // Filter doesn't apply to /q/* endpoints, so Cache-Control from filter should be null
-      // (Quarkus may set its own, but that's outside our filter's scope)
+      // Filter doesn't apply to /q/* endpoints; Cache-Control may be set by Quarkus
+      // and is outside our filter's scope, so we don't assert on it here.
       response.then()
-        .statusCode(200)
-        .header("Cache-Control", nullValue());
+        .statusCode(200);
     }
     // If 404, endpoint doesn't exist - that's acceptable, no need to test headers
     // The test passes as long as we get either 200 or 404

@@ -82,7 +82,7 @@ public class SecurityHeadersFilter implements ContainerResponseFilter {
     headers.add(
         "Permissions-Policy",
         "geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(),"
-            + " gyroscope=(), speaker-selection=()");
+            + "gyroscope=(), speaker-selection=()");
 
     // Referrer-Policy: Controls referrer information
     headers.add("Referrer-Policy", "strict-origin-when-cross-origin");
@@ -117,7 +117,7 @@ public class SecurityHeadersFilter implements ContainerResponseFilter {
 
   /**
    * Ensures all Set-Cookie headers have SameSite=Strict attribute.
-   * If SameSite is missing or set to None, replaces with Strict.
+   * If SameSite is missing or set to None or Lax, replaces with Strict.
    */
   @SuppressWarnings("unchecked")
   private void fixCookieSameSiteAttribute(MultivaluedMap<String, Object> headers) {
@@ -203,9 +203,11 @@ public class SecurityHeadersFilter implements ContainerResponseFilter {
     
     // Add SameSite=Strict if not present
     // Insert before the earliest HttpOnly, Secure, or Path attribute (if any)
-    int httpOnlyIndex = cookie.indexOf("; HttpOnly");
-    int secureIndex = cookie.indexOf("; Secure");
-    int pathIndex = cookie.indexOf("; Path=");
+    // Cookie attributes are case-insensitive per RFC 6265
+    String lowerCookie = cookie.toLowerCase();
+    int httpOnlyIndex = lowerCookie.indexOf("; httponly");
+    int secureIndex = lowerCookie.indexOf("; secure");
+    int pathIndex = lowerCookie.indexOf("; path=");
     
     int insertPos = -1;
     if (httpOnlyIndex != -1) {
