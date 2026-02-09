@@ -44,11 +44,11 @@ public class SecurityHeadersFilter implements ContainerResponseFilter {
 
     // X-Content-Type-Options: Prevents MIME type sniffing
     // Addresses: X-Content-Type-Options Header Missing [10021]
-    headers.add("X-Content-Type-Options", "nosniff");
+    headers.putSingle("X-Content-Type-Options", "nosniff");
 
     // X-Frame-Options: Prevents clickjacking attacks
     // Addresses: Missing Anti-clickjacking Header [10020]
-    headers.add("X-Frame-Options", "DENY");
+    headers.putSingle("X-Frame-Options", "DENY");
 
     // Strict-Transport-Security: Enforces HTTPS
     // Addresses: Strict-Transport-Security Header Not Set [10035]
@@ -67,7 +67,7 @@ public class SecurityHeadersFilter implements ContainerResponseFilter {
         || "on".equalsIgnoreCase(frontEndHttps)
         || "true".equalsIgnoreCase(frontEndHttps);
     if (isHttps) {
-      headers.add(
+      headers.putSingle(
           "Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload");
     }
 
@@ -75,17 +75,17 @@ public class SecurityHeadersFilter implements ContainerResponseFilter {
     // Addresses: Content Security Policy (CSP) Header Not Set [10038]
     // Note: This is a restrictive policy suitable for APIs. For web applications with
     // inline scripts/styles or external resources, customize this policy accordingly.
-    headers.add("Content-Security-Policy", "default-src 'self'");
+    headers.putSingle("Content-Security-Policy", "default-src 'self'");
 
     // Permissions-Policy: Controls browser features
     // Addresses: Permissions Policy Header Not Set [10063]
-    headers.add(
+    headers.putSingle(
         "Permissions-Policy",
         "geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(),"
             + "gyroscope=(), speaker-selection=()");
 
     // Referrer-Policy: Controls referrer information
-    headers.add("Referrer-Policy", "strict-origin-when-cross-origin");
+    headers.putSingle("Referrer-Policy", "strict-origin-when-cross-origin");
 
     // Hide server information (addresses Proxy Disclosure alert [40025])
     // Remove proxy/server disclosure headers
@@ -101,6 +101,9 @@ public class SecurityHeadersFilter implements ContainerResponseFilter {
     // Addresses: Re-examine Cache-control Directives [10015],
     // Non-Storable Content [10049], Storable and Cacheable Content [10049]
     String path = requestContext.getUriInfo().getPath();
+    if (!path.startsWith("/")) {
+      path = "/" + path;
+    }
     boolean isApiVersionPath = isApiVersionPath(path);
     if (isApiVersionPath || path.startsWith("/q/")) {
       // For API endpoints and documentation (Swagger UI), prevent caching
@@ -119,7 +122,6 @@ public class SecurityHeadersFilter implements ContainerResponseFilter {
    * Ensures all Set-Cookie headers have SameSite=Strict attribute.
    * If SameSite is missing or set to None or Lax, replaces with Strict.
    */
-  @SuppressWarnings("unchecked")
   private void fixCookieSameSiteAttribute(MultivaluedMap<String, Object> headers) {
     List<Object> setCookieHeaders = headers.get("Set-Cookie");
     if (setCookieHeaders == null || setCookieHeaders.isEmpty()) {

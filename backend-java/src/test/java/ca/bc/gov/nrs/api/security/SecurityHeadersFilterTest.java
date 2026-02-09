@@ -1,6 +1,9 @@
 package ca.bc.gov.nrs.api.security;
 
+import ca.bc.gov.nrs.api.helpers.TestHelper;
 import io.quarkus.test.junit.QuarkusTest;
+import jakarta.inject.Inject;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static io.restassured.RestAssured.given;
@@ -11,6 +14,14 @@ import static org.hamcrest.CoreMatchers.*;
  */
 @QuarkusTest
 class SecurityHeadersFilterTest {
+
+  @Inject
+  TestHelper testHelper;
+
+  @BeforeEach
+  void setup() {
+    testHelper.clearDatabase();
+  }
 
   @Test
   void testSecurityHeadersPresent() {
