@@ -34,7 +34,7 @@ jobs:
             build_context: ./backend-py/db
             build_file: ./backend-py/db/Dockerfile
     steps:
-      - uses: bcgov/action-builder-ghcr@13ae12fc5816ac8f064a1b8562ef0a4b822555a7 # v4.4.0
+      - uses: bcgov/action-builder-ghcr@de3d575cf158e16f5dc2789630f6d587483b911c # v4.4.0
         id: builds
         with:
           build_context: ${{ matrix.build_context }}
