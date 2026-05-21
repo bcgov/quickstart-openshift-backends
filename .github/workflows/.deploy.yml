@@ -84,7 +84,7 @@ jobs:
       triggered: ${{ steps.deploy.outputs.triggered }}
     timeout-minutes: ${{ inputs.timeout-minutes }}
     steps:
-      - uses: bcgov/action-crunchy@2ccf22a61189e72f82728f0cd5d4b2bb9b629ee6 # v2.0.0
+      - uses: bcgov/action-crunchy@7ee9c0bdec27f5251a8239373f51db1e01c7c4d9 # v2.1.0
         name: Deploy Crunchy
         id: deploy_crunchy
         with:
@@ -96,7 +96,7 @@ jobs:
       # Variables
       - if: inputs.tag  == ''
         id: pr
-        uses: bcgov/action-get-pr@bf6c85d0ed23a151f2829956c140fde87979bbf2 # v0.2.0
+        uses: bcgov/action-get-pr@8f9a16a1f7a7574b10e2fb473bfef0c4c4fff3d6 # v0.2.1
 
       - id: vars
         run: |
@@ -123,7 +123,7 @@ jobs:
 
       - name: Stop pre-existing deployments on PRs (status = pending-upgrade)
         if: github.event_name == 'pull_request'
-        uses: bcgov/action-oc-runner@1815ce17a815c71e9078851a2e3da84d191ea6c3 # v1.5.0
+        uses: bcgov/action-oc-runner@b1c55b8a8bd5f42b19f72e6ea7df6d6a6eda44a1 # v1.5.1
         with:
           oc_namespace: ${{ secrets.oc_namespace }}
           oc_token: ${{ secrets.oc_token }}
@@ -144,7 +144,7 @@ jobs:
         run: ls -l charts/crunchy/values.yml
       - name: Helm Deploy
         id: deploy
-        uses: bcgov/action-oc-runner@1815ce17a815c71e9078851a2e3da84d191ea6c3 # v1.5.0
+        uses: bcgov/action-oc-runner@b1c55b8a8bd5f42b19f72e6ea7df6d6a6eda44a1 # v1.5.1
         with:
           oc_namespace: ${{ secrets.oc_namespace }}
           oc_token: ${{ secrets.oc_token }}
