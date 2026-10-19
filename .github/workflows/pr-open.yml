@@ -26,15 +26,15 @@ jobs:
         package: [backend-java, backend-py, migrations-py]
         include:
           - package: backend-java
-            triggers: ('backend-java/')
+            triggers: backend-java/
           - package: backend-py
-            triggers: ('backend-py/')
+            triggers: backend-py/
           - package: migrations-py
-            triggers: ('backend-py/db')
+            triggers: backend-py/db
             build_context: ./backend-py/db
             build_file: ./backend-py/db/Dockerfile
     steps:
-      - uses: bcgov/actions/builder@79aefe3a7abb2d0d00b1b3ea4cfbf12727a10638 # v0.9.0
+      - uses: bcgov/actions/builder@122a9b1c6c082b1b1f18c300020fbdc417b6b0b2 # v0.10.0
         id: builds
         with:
           build_context: ${{ matrix.build_context }}
@@ -55,7 +55,11 @@ jobs:
     with:
       target: ${{ github.event.number }}
       tag: ${{ github.event.pull_request.head.sha }}
-      triggers: ('backend-java/' 'backend-py/' 'common/' '.github/workflows/')
+      triggers: |
+        backend-java/
+        backend-py/
+        common/
+        .github/workflows/
 
   results:
     name: PR Results
@@ -63,6 +67,6 @@ jobs:
     if: always()
     runs-on: ubuntu-26.04
     steps:
-      - uses: bcgov/actions/workflow-results@79aefe3a7abb2d0d00b1b3ea4cfbf12727a10638 # v0.9.0
+      - uses: bcgov/actions/workflow-results@122a9b1c6c082b1b1f18c300020fbdc417b6b0b2 # v0.10.0
         with:
           needs: ${{ toJson(needs) }}
