@@ -26,11 +26,11 @@ jobs:
         package: [backend-java, backend-py, migrations-py]
         include:
           - package: backend-java
-            triggers: ('backend-java/')
+            triggers: backend-java/
           - package: backend-py
-            triggers: ('backend-py/')
+            triggers: backend-py/
           - package: migrations-py
-            triggers: ('backend-py/db')
+            triggers: backend-py/db
             build_context: ./backend-py/db
             build_file: ./backend-py/db/Dockerfile
     steps:
@@ -55,7 +55,11 @@ jobs:
     with:
       target: ${{ github.event.number }}
       tag: ${{ github.event.pull_request.head.sha }}
-      triggers: ('backend-java/' 'backend-py/' 'common/' '.github/workflows/')
+      triggers: |
+        backend-java/
+        backend-py/
+        common/
+        .github/workflows/
 
   results:
     name: PR Results
